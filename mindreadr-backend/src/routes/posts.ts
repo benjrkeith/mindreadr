@@ -3,29 +3,10 @@ import { Router } from 'express'
 
 import db from '../db.js'
 import verifyToken from '../middleware/verifyToken.js'
-
-interface Post {
-  key: string
-  author: string
-  content: string
-  parent: string
-  created_at: string
-}
+import getPost from '../middleware/getPost.js'
 
 const router = Router()
 router.use(verifyToken)
-
-// helper function to get a post object by its key
-async function getPost (key: string): Promise<Post | null> {
-  const query = {
-    text: 'SELECT * FROM posts WHERE key = $1',
-    values: [key]
-  }
-
-  const result = await db.query(query)
-  if (result.rowCount === 0) return null
-  else return result.rows[0]
-}
 
 // get all posts, supports by author and offset/limit
 router.get('/', async (req, res) => {
@@ -71,13 +52,36 @@ router.post('/', async (req, res) => {
   res.status(201).send(result.rows[0])
 })
 
-// get a post by key
-router.get('/:key', async (req, res) => {
-  const { key } = req.params
-  if (isNaN(parseInt(key))) { return res.sendStatus(400) }
-
-  const post = await getPost(key)
+// get a post by its key
+router.get('/:key', getPost, async (req, res) => {
+  const { post } = res.locals
   if (post !== null) { res.send(post) } else { res.sendStatus(404) }
+})
+
+// modify the content of a post that you own
+router.patch('/:key', getPost, async (req, res) => {
+  const { content = '' } = req.body
+  if (content === '' || content.length < 3) {
+    res.sendStatus(400)
+    return
+  }
+
+  const { post } = res.locals
+  if (post === null) {
+    res.sendStatus(404)
+    return
+  }
+
+  if (post.content !== content) {
+    const query = {
+      text: 'UPDATE posts SET content = $1 WHERE key = $2',
+      values: [content, post.key]
+    }
+    await db.query(query)
+    res.sendStatus(200)
+  } else {
+    res.sendStatus(400)
+  }
 })
 
 export default router
