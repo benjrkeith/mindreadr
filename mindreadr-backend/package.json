@@ -1,0 +1,32 @@
+{
+  "name": "mindreadr-backend",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "npx tsc",
+    "start": "node build/index.js",
+    "dev": "npx tsx watch src/index.ts",
+    "create-db": "node build/setup-db.js"
+  },
+  "author": "benjrkeith",
+  "license": "MIT",
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.1",
+    "pg": "^8.11.2"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.0",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "^20.5.0",
+    "@types/pg": "^8.10.2",
+    "morgan": "^1.10.0",
+    "tsx": "^3.12.7",
+    "typescript": "^5.1.6"
+  }
+}
