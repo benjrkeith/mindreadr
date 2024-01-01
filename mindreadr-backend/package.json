@@ -7,7 +7,7 @@
   "scripts": {
     "build": "npx tsc",
     "start": "node build/index.js",
-    "dev": "npx tsx watch src/index.ts",
+    "dev": "npx nodemon",
     "create-db": "node build/setup-db.js"
   },
   "author": "benjrkeith",
@@ -32,7 +32,8 @@
     "eslint-plugin-n": "^16.6.0",
     "eslint-plugin-promise": "^6.1.1",
     "morgan": "^1.10.0",
-    "tsx": "^3.12.7",
+    "nodemon": "^3.0.2",
+    "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   }
 }
