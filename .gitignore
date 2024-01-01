@@ -1,0 +1,6 @@
+mindreadr-backend/node_modules/*
+mindreadr-backend/build/*
+mindreadr-backend/src/config/*
+mindreadr-backend/src/db.ts
+
+mindreadr-frontend/*
