@@ -16,7 +16,9 @@ export default async (req: Request, res: Response, next: NextFunction): Promise<
   }
 
   const result = await db.query(query)
-  if (result.rowCount === 0) res.locals.post = null
-  else res.locals.post = result.rows[0]
-  next()
+  if (result.rowCount === 0) res.sendStatus(404)
+  else {
+    res.locals.post = result.rows[0]
+    next()
+  }
 }

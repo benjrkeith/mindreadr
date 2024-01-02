@@ -54,8 +54,7 @@ router.post('/', async (req, res) => {
 
 // get a post by its key
 router.get('/:key', getPost, async (req, res) => {
-  const { post } = res.locals
-  if (post !== null) { res.send(post) } else { res.sendStatus(404) }
+  res.send(res.locals.post)
 })
 
 // modify the content of a post that you own
@@ -67,11 +66,6 @@ router.patch('/:key', getPost, async (req, res) => {
   }
 
   const { post } = res.locals
-  if (post === null) {
-    res.sendStatus(404)
-    return
-  }
-
   if (post.content !== content) {
     const query = {
       text: 'UPDATE posts SET content = $1 WHERE key = $2',
