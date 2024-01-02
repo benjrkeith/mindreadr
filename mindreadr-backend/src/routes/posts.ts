@@ -4,6 +4,7 @@ import { Router } from 'express'
 import db from '../db.js'
 import verifyToken from '../middleware/verifyToken.js'
 import getPost from '../middleware/getPost.js'
+import checkOwner from '../middleware/checkOwner.js'
 
 const router = Router()
 router.use(verifyToken)
@@ -58,7 +59,7 @@ router.get('/:key', getPost, async (req, res) => {
 })
 
 // modify the content of a post that you own
-router.patch('/:key', getPost, async (req, res) => {
+router.patch('/:key', getPost, checkOwner, async (req, res) => {
   const { content = '' } = req.body
   if (content === '' || content.length < 3) {
     res.sendStatus(400)
