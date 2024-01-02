@@ -11,8 +11,10 @@ export default async (req: Request, res: Response, next: NextFunction): Promise<
   }
 
   const query = {
-    text: 'SELECT * FROM posts WHERE key = $1',
-    values: [key]
+    text: `SELECT *, (SELECT COUNT(*) AS likes FROM likes WHERE post=key), 
+      EXISTS(SELECT * FROM likes WHERE username=$1 AND post=key) AS liked 
+      FROM posts WHERE key = $2`,
+    values: [res.locals.user.username, key]
   }
 
   const result = await db.query(query)
