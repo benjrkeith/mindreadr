@@ -79,4 +79,16 @@ router.patch('/:key', getPost, checkOwner, async (req, res) => {
   }
 })
 
+// delete a post that you own
+router.delete('/:key', getPost, checkOwner, async (req, res) => {
+  const query = {
+    text: 'DELETE FROM posts WHERE key = $1',
+    values: [res.locals.post.key]
+  }
+  const result = await db.query(query)
+
+  if (result.rowCount === 1) res.sendStatus(200)
+  else res.sendStatus(500)
+})
+
 export default router
