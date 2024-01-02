@@ -91,4 +91,33 @@ router.delete('/:key', getPost, checkOwner, async (req, res) => {
   else res.sendStatus(500)
 })
 
+// get a list of all users who liked a post
+router.get('/:key/likes', getPost, async (req, res) => {
+  const { post } = res.locals
+  const query = {
+    text: 'SELECT username FROM likes WHERE post = $1',
+    values: [post.key]
+  }
+
+  const result = await db.query(query)
+  res.send(result.rows.map((x) => x.username))
+})
+
+// like a post
+router.post('/:key/likes', getPost, async (req, res) => {
+  const { post } = res.locals
+  if (post.liked as boolean) {
+    res.sendStatus(409)
+    return
+  }
+
+  const query = {
+    text: 'INSERT INTO likes VALUES($1, $2)',
+    values: [res.locals.user.username, post.key]
+  }
+
+  await db.query(query)
+  res.sendStatus(201)
+})
+
 export default router
