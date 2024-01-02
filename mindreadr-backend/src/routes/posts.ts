@@ -120,4 +120,21 @@ router.post('/:key/likes', getPost, async (req, res) => {
   res.sendStatus(201)
 })
 
+// unlike a given post
+router.delete('/:key/likes', getPost, async (req, res) => {
+  const { post } = res.locals
+  if (!(post.liked as boolean)) {
+    res.sendStatus(404)
+    return
+  }
+
+  const query = {
+    text: 'DELETE FROM likes WHERE username = $1 AND post = $2',
+    values: [res.locals.user.username, post.key]
+  }
+
+  await db.query(query)
+  res.sendStatus(200)
+})
+
 export default router
