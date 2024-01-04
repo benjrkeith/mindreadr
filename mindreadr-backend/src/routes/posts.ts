@@ -5,7 +5,7 @@ import db from '../db.js'
 import likesRouter from './likes.js'
 import verifyToken from '../middleware/verifyToken.js'
 import getPost from '../middleware/getPost.js'
-import checkOwner from '../middleware/checkOwner.js'
+import checkPrivilege from '../middleware/checkPrivilege.js'
 
 const router = Router()
 router.use(verifyToken)
@@ -61,7 +61,7 @@ router.get('/:key', getPost, async (req, res) => {
 })
 
 // modify the content of a post that you own
-router.patch('/:key', getPost, checkOwner, async (req, res) => {
+router.patch('/:key', getPost, checkPrivilege, async (req, res) => {
   const { content = '' } = req.body
   if (content === '' || content.length < 3) {
     res.sendStatus(400)
@@ -82,7 +82,7 @@ router.patch('/:key', getPost, checkOwner, async (req, res) => {
 })
 
 // delete a post that you own
-router.delete('/:key', getPost, checkOwner, async (req, res) => {
+router.delete('/:key', getPost, checkPrivilege, async (req, res) => {
   const query = {
     text: 'DELETE FROM posts WHERE key = $1',
     values: [res.locals.post.key]
