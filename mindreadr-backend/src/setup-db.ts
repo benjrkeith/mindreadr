@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS public.users
 (
     username TEXT NOT NULL PRIMARY KEY,
     password TEXT NOT NULL,
+    privilege INT NOT NULL DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     last_login TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -41,6 +42,17 @@ CREATE TABLE IF NOT EXISTS public.followers
 );
 
 ALTER TABLE IF EXISTS public.followers OWNER to mindreadr;
+
+CREATE TABLE IF NOT EXISTS public.audit
+(
+    username TEXT NOT NULL REFERENCES users(username),
+    method TEXT NOT NULL,
+    route TEXT NOT NULL,
+    data TEXT,
+    time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE IF EXISTS public.audit OWNER to mindreadr;
 `
 
 db.connect().then((client) => {
