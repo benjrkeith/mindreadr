@@ -29,7 +29,8 @@ CREATE TABLE IF NOT EXISTS public.likes
 (
     username TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,
     post INT NOT NULL REFERENCES posts(key) ON DELETE CASCADE,
-    PRIMARY KEY (username, post)
+    PRIMARY KEY (username, post),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 ALTER TABLE IF EXISTS public.likes OWNER to mindreadr;
@@ -38,7 +39,8 @@ CREATE TABLE IF NOT EXISTS public.followers
 (
     username TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,
     follower TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,
-    PRIMARY KEY (username, follower)
+    PRIMARY KEY (username, follower),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 ALTER TABLE IF EXISTS public.followers OWNER to mindreadr;
