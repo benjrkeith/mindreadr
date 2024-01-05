@@ -7,6 +7,7 @@ import repliesRouter from './replies.js'
 import verifyToken from '../middleware/verifyToken.js'
 import getPost from '../middleware/getPost.js'
 import checkPrivilege from '../middleware/checkPrivilege.js'
+import parseLimits from '../middleware/parseLimits.js'
 
 const router = Router()
 
@@ -15,15 +16,9 @@ router.use('/:key/likes', likesRouter)
 router.use('/:key/replies', repliesRouter)
 
 // get all posts, supports by author and offset/limit
-router.get('/', async (req, res) => {
-  const { offset, limit, author = '' } = req.query
-
-  let parsedOffset = parseInt(offset as string)
-  if (offset === undefined) { parsedOffset = 0 } else if (isNaN(parsedOffset)) { return res.sendStatus(400) }
-
-  let parsedLimit = parseInt(limit as string)
-  if (limit === undefined) { parsedLimit = 10 } else if (isNaN(parsedLimit)) { return res.sendStatus(400) }
-  if (parsedLimit > 100) { parsedLimit = 100 }
+router.get('/', parseLimits, async (req, res) => {
+  const { author = '' } = req.query
+  const { offset, limit } = res.locals
 
   const query = {
     text: `SELECT *, (SELECT COUNT(*) AS likes FROM likes WHERE post=key), 
