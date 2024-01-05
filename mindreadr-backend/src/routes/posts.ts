@@ -3,13 +3,16 @@ import { Router } from 'express'
 
 import db from '../db.js'
 import likesRouter from './likes.js'
+import repliesRouter from './replies.js'
 import verifyToken from '../middleware/verifyToken.js'
 import getPost from '../middleware/getPost.js'
 import checkPrivilege from '../middleware/checkPrivilege.js'
 
 const router = Router()
+
 router.use(verifyToken)
 router.use('/:key/likes', likesRouter)
+router.use('/:key/replies', repliesRouter)
 
 // get all posts, supports by author and offset/limit
 router.get('/', async (req, res) => {
