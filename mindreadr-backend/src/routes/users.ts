@@ -39,6 +39,28 @@ router.get('/:username/likes', getUser, async (req, res) => {
   res.send(result.rows.map(x => x))
 })
 
+router.get('/:username/followers', getUser, async (req, res) => {
+  const user = res.locals.targetUser
+  const query = {
+    text: 'SELECT follower FROM followers WHERE username = $1',
+    values: [user.username]
+  }
+
+  const result = await db.query(query)
+  res.send(result.rows.map(x => x.follower))
+})
+
+router.post('/:username/followers', getUser, async (req, res) => {
+  const { user, targetUser } = res.locals
+  const query = {
+    text: 'INSERT INTO followers(username, follower) VALUES($1, $2)',
+    values: [targetUser.username, user.username]
+  }
+
+  await db.query(query)
+  res.sendStatus(200)
+})
+
 export default router
 
 // array(SELECT username FROM followers WHERE follower = $1) as following,
