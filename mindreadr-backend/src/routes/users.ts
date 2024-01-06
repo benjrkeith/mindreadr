@@ -9,6 +9,7 @@ const router = Router()
 
 router.use(verifyToken)
 
+// get all users, supports offset and limit
 router.get('/', parseLimits, async (req, res) => {
   const { offset, limit } = res.locals
 
@@ -22,11 +23,13 @@ router.get('/', parseLimits, async (req, res) => {
   res.send(result.rows)
 })
 
+// get a specific user object
 router.get('/:username', getTargetUser, async (req, res) => {
   const { targetUser } = res.locals
   res.send(targetUser)
 })
 
+// get a list of posts a user has liked
 router.get('/:username/likes', getTargetUser, async (req, res) => {
   const { targetUser } = res.locals
   const query = {
@@ -39,6 +42,7 @@ router.get('/:username/likes', getTargetUser, async (req, res) => {
   res.send(result.rows)
 })
 
+// get a list of who follows a specific user
 router.get('/:username/followers', getTargetUser, async (req, res) => {
   const { targetUser } = res.locals
   const query = {
@@ -50,6 +54,7 @@ router.get('/:username/followers', getTargetUser, async (req, res) => {
   res.send(result.rows.map(x => x.follower))
 })
 
+// follow a specific user
 router.post('/:username/followers', getTargetUser, async (req, res) => {
   const { user, targetUser } = res.locals
   const query = {
@@ -61,6 +66,7 @@ router.post('/:username/followers', getTargetUser, async (req, res) => {
   res.sendStatus(200)
 })
 
+// get a list of who a specific user follows
 router.get('/:username/following', getTargetUser, async (req, res) => {
   const { targetUser } = res.locals
   const query = {
