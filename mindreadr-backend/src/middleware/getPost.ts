@@ -1,4 +1,5 @@
 import { type Request, type Response, type NextFunction } from 'express'
+import pg from 'pg'
 
 import db from '../db.js'
 
@@ -6,7 +7,7 @@ import db from '../db.js'
 export default async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const { key } = req.params
   if (isNaN(parseInt(key))) {
-    res.sendStatus(400)
+    res.status(400).send({ err: 'Post key must be a number.' })
     return
   }
 
@@ -17,10 +18,17 @@ export default async (req: Request, res: Response, next: NextFunction): Promise<
     values: [res.locals.user.username, key]
   }
 
-  const result = await db.query(query)
-  if (result.rowCount === 0) res.sendStatus(404)
-  else {
-    res.locals.post = result.rows[0]
-    next()
+  try {
+    const result = await db.query(query)
+    if (result.rowCount === 0) res.status(404).send({ err: 'Post could not be found.' })
+    else {
+      res.locals.post = result.rows[0]
+      next()
+    }
+  } catch (err) {
+    if (err instanceof pg.DatabaseError) {
+      console.error(err)
+      res.status(500).send({ err: 'Unknown error occurred.' })
+    } else throw err
   }
 }
