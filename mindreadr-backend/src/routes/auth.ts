@@ -1,6 +1,7 @@
 import Router from 'express'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import pg from 'pg'
 
 import verifyUsername from '../middleware/verifyUsername.js'
 import db from '../db.js'
@@ -12,7 +13,7 @@ const router = Router()
 router.post('/login', async (req, res) => {
   const { username = '', password = '' } = req.body
   if (username === '' || password === '') {
-    res.sendStatus(400)
+    res.status(400).send({ err: 'You must supply a username and password.' })
     return
   }
 
@@ -20,44 +21,59 @@ router.post('/login', async (req, res) => {
     text: 'SELECT * FROM users WHERE username = $1',
     values: [username]
   }
-  const result = await db.query(query)
 
-  if (result.rowCount === 0) {
-    res.sendStatus(404)
-    return
+  try {
+    const result = await db.query(query)
+
+    if (result.rowCount === 0) {
+      res.status(404).send({ err: 'User could not be found.' })
+      return
+    }
+
+    const user = result.rows[0]
+    const valid = bcrypt.compareSync(JSON.stringify(password), user.password as string)
+    if (!valid) {
+      res.status(401).send({ err: 'Incorrect password.' })
+      return
+    }
+
+    query.text = 'UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE username = $1'
+    await db.query(query)
+
+    delete user.password
+    const token = jwt.sign({ username: user.username }, secret, { expiresIn: 86400 })
+    res.send({ token, ...user })
+  } catch (err) {
+    if (err instanceof pg.DatabaseError) {
+      console.error(err)
+      res.status(500).send({ err: 'Unknown error occurred.' })
+    } else throw err
   }
-
-  const user = result.rows[0]
-  const valid = bcrypt.compareSync(JSON.stringify(password), user.password as string)
-  if (!valid) {
-    res.sendStatus(401)
-    return
-  }
-
-  delete user.password
-  const token = jwt.sign({ username: user.username }, secret, { expiresIn: 86400 })
-  res.send({ token, ...user })
-
-  query.text = 'UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE username = $1'
-  await db.query(query)
 })
 
 // register as a new user
 router.post('/register', verifyUsername, async (req, res) => {
   const { username = '', password = '' } = req.body
   if (username === '' || password === '') {
-    res.sendStatus(400)
+    res.status(400).send({ err: 'You must supply a username and password.' })
     return
   }
 
   const hash = bcrypt.hashSync(JSON.stringify(password), 8)
   const query = {
-    text: 'INSERT INTO users VALUES($1, $2)',
+    text: 'INSERT INTO users(username, password) VALUES($1, $2)',
     values: [username, hash]
   }
 
-  await db.query(query)
-  res.sendStatus(200)
+  try {
+    await db.query(query)
+    res.send({ msg: 'User has been registered.' })
+  } catch (err) {
+    if (err instanceof pg.DatabaseError) {
+      console.error(err)
+      res.status(500).send({ err: 'Unknown error occurred.' })
+    } else throw err
+  }
 })
 
 export default router
