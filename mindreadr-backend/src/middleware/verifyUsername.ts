@@ -1,15 +1,25 @@
 import { type Request, type Response, type NextFunction } from 'express'
+import pg from 'pg'
 
 import db from '../db.js'
 
-// checks if a given username exists in the database
+// checks if a given username already exists in the database
 export default async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  const username = req.body.username
-  const query = 'SELECT EXISTS(SELECT 1 FROM users WHERE username = $1)'
+  const { username } = req.body
+  const query = {
+    text: 'SELECT EXISTS(SELECT 1 FROM users WHERE username = $1)',
+    values: [username]
+  }
 
-  const client = await db.connect()
-  const result = await client.query(query, [username])
-
-  if (result.rows[0].exists as boolean) res.sendStatus(409)
-  else next()
+  try {
+    const result = await db.query(query)
+    if (result.rows[0].exists as boolean) {
+      res.status(409).send({ err: 'Username already registered.' })
+    } else next()
+  } catch (err) {
+    if (err instanceof pg.DatabaseError) {
+      console.error(err)
+      res.status(500).send({ err: 'Unknown error occurred.' })
+    } else { throw err }
+  }
 }
