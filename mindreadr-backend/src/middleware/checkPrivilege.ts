@@ -1,4 +1,5 @@
 import { type Request, type Response, type NextFunction } from 'express'
+import pg from 'pg'
 
 import db from '../db.js'
 
@@ -13,14 +14,22 @@ export default async (req: Request, res: Response, next: NextFunction): Promise<
     text: 'SELECT privilege FROM users WHERE username = $1;',
     values: [user.username]
   }
-  const result = (await db.query(query)).rows[0]
 
-  if (result.privilege > 0) {
-    const query = {
-      text: 'INSERT INTO audit(username, method, route, data) VALUES($1, $2, $3, $4);',
-      values: [user.username, req.method, req.originalUrl, req.body]
-    }
-    await db.query(query)
-    next()
-  } else res.sendStatus(401)
+  try {
+    const result = (await db.query(query)).rows[0]
+
+    if (result.privilege > 0) {
+      const query = {
+        text: 'INSERT INTO audit(username, method, route, data) VALUES($1, $2, $3, $4);',
+        values: [user.username, req.method, req.originalUrl, req.body]
+      }
+      await db.query(query)
+      next()
+    } else res.status(401).send({ err: 'You do not have permission to perform this action.' })
+  } catch (err) {
+    if (err instanceof pg.DatabaseError) {
+      console.error(err)
+      res.status(500).send({ err: 'Unknown error occurred.' })
+    } else throw err
+  }
 }
