@@ -61,6 +61,17 @@ router.post('/:username/followers', getTargetUser, async (req, res) => {
   res.sendStatus(200)
 })
 
+router.get('/:username/following', getTargetUser, async (req, res) => {
+  const { targetUser } = res.locals
+  const query = {
+    text: 'SELECT username FROM followers WHERE follower = $1',
+    values: [targetUser.username]
+  }
+
+  const result = await db.query(query)
+  res.send(result.rows.map(x => x.username))
+})
+
 export default router
 
 // array(SELECT username FROM followers WHERE follower = $1) as following,
