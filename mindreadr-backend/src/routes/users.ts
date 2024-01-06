@@ -66,6 +66,19 @@ router.post('/:username/followers', getTargetUser, async (req, res) => {
   res.sendStatus(200)
 })
 
+// unfollow a specific user
+router.delete('/:username/followers', getTargetUser, async (req, res) => {
+  const { user, targetUser } = res.locals
+  const query = {
+    text: 'DELETE FROM followers WHERE username = $1 AND follower = $2',
+    values: [targetUser.username, user.username]
+  }
+  const result = await db.query(query)
+
+  if (result.rowCount === 1) res.sendStatus(200)
+  else res.sendStatus(500)
+})
+
 // get a list of who a specific user follows
 router.get('/:username/following', getTargetUser, async (req, res) => {
   const { targetUser } = res.locals
