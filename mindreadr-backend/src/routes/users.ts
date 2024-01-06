@@ -36,7 +36,7 @@ router.get('/:username/likes', getTargetUser, async (req, res) => {
   }
 
   const result = await db.query(query)
-  res.send(result.rows.map(x => x))
+  res.send(result.rows)
 })
 
 router.get('/:username/followers', getTargetUser, async (req, res) => {
