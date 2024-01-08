@@ -6,7 +6,7 @@ import db from '../db.js'
 // middleware to get the target user object from the db
 export default async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const { username } = req.params
-  console.log(username)
+
   if (username === ':username') {
     res.status(400).send({ err: 'You must provide a username.' })
     return
