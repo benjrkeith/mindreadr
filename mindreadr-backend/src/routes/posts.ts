@@ -18,20 +18,16 @@ router.use('/:key/replies', repliesRouter)
 
 // get all posts, supports by author and offset/limit
 router.get('/', parseLimits, async (req, res) => {
-  const { author = '' } = req.query
-  const { offset, limit } = res.locals
+  const { author } = req.query
+  const { offset, limit, user } = res.locals
 
   const query = {
-    text: `SELECT *, (SELECT COUNT(*) AS likes FROM likes WHERE post=key), 
+    text: `SELECT *, 
+      (SELECT COUNT(*) AS likes FROM likes WHERE post=key), 
       EXISTS(SELECT * FROM likes WHERE username=$3 AND post=key) AS liked 
-      FROM posts ORDER BY created_at DESC LIMIT $1 OFFSET $2`,
-    values: [limit, offset, res.locals.user.username]
-  }
-
-  // relocate to /users/{key}/posts
-  if (author !== '') {
-    query.text = query.text.replace('posts', 'posts WHERE author=$4')
-    query.values.push(author)
+      FROM posts WHERE $4::text IS NULL OR author = $4::text 
+      ORDER BY created_at DESC LIMIT $1 OFFSET $2`,
+    values: [limit, offset, user.username, author]
   }
 
   const result = await db.query(query)
