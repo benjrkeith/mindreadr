@@ -30,6 +30,18 @@ router.get('/:username', getTargetUser, async (req, res) => {
   res.send(targetUser)
 })
 
+// get a specific users posts - alias to /posts?author={user}
+// not a fan of this implementation for passing through query, unsure how else to do it
+router.get('/:username/posts', async (req, res) => {
+  const { username } = req.params
+  const { limit, offset } = req.query
+
+  const argsLim = limit !== undefined ? `&limit=${limit as string}` : ''
+  const argsOffset = offset !== undefined ? `&offset=${offset as string}` : ''
+
+  res.redirect(`/api/posts?author=${username}${argsLim}${argsOffset}`)
+})
+
 // get a list of posts a user has liked
 router.get('/:username/likes', getTargetUser, async (req, res) => {
   const { targetUser } = res.locals
