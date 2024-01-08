@@ -4,6 +4,7 @@ import db from '../db.js'
 import verifyToken from '../middleware/verifyToken.js'
 import parseLimits from '../middleware/parseLimits.js'
 import getTargetUser from '../middleware/getTargetUser.js'
+import getFollowers from '../middleware/getFollowers.js'
 
 const router = Router()
 
@@ -80,19 +81,8 @@ router.delete('/:username/followers', getTargetUser, async (req, res) => {
 })
 
 // get a list of who a specific user follows
-router.get('/:username/following', getTargetUser, async (req, res) => {
-  const { targetUser } = res.locals
-  const query = {
-    text: 'SELECT username FROM followers WHERE follower = $1',
-    values: [targetUser.username]
-  }
-
-  const result = await db.query(query)
-  res.send(result.rows.map(x => x.username))
+router.get('/:username/following', getTargetUser, getFollowers, async (req, res) => {
+  res.send(res.locals.followers)
 })
 
 export default router
-
-// array(SELECT username FROM followers WHERE follower = $1) as following,
-// array(SELECT follower FROM followers WHERE username = $1) as followers,
-// array(SELECT post FROM likes WHERE username = $1) as likes
