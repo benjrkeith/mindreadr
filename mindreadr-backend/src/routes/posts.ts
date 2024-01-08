@@ -8,6 +8,7 @@ import verifyToken from '../middleware/verifyToken.js'
 import getPost from '../middleware/getPost.js'
 import checkPrivilege from '../middleware/checkPrivilege.js'
 import parseLimits from '../middleware/parseLimits.js'
+import getFollowers from '../middleware/getFollowers.js'
 
 const router = Router()
 
@@ -27,6 +28,7 @@ router.get('/', parseLimits, async (req, res) => {
     values: [limit, offset, res.locals.user.username]
   }
 
+  // relocate to /users/{key}/posts
   if (author !== '') {
     query.text = query.text.replace('posts', 'posts WHERE author=$4')
     query.values.push(author)
@@ -51,6 +53,18 @@ router.post('/', async (req, res) => {
 
   const result = await db.query(query)
   res.status(201).send(result.rows[0])
+})
+
+// get posts from users that you follow
+router.get('/following', getFollowers, async (req, res) => {
+  const { followers } = res.locals
+  const query = {
+    text: 'SELECT * FROM posts WHERE author = ANY($1)',
+    values: [followers]
+  }
+
+  const result = await db.query(query)
+  res.send(result.rows)
 })
 
 // get a post by its key
