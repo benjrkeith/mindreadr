@@ -17,17 +17,18 @@ router.use('/:key/likes', likesRouter)
 router.use('/:key/replies', repliesRouter)
 
 // get all posts, supports by author and offset/limit
-router.get('/', parseLimits, async (req, res) => {
-  const { author } = req.query
-  const { offset, limit, user } = res.locals
+router.get('/', parseLimits, getFollowers, async (req, res) => {
+  const { author, following = false } = req.query
+  const { offset, limit, user, followers } = res.locals
 
   const query = {
     text: `SELECT *, 
       (SELECT COUNT(*) AS likes FROM likes WHERE post=key), 
       EXISTS(SELECT * FROM likes WHERE username=$3 AND post=key) AS liked 
-      FROM posts WHERE $4::text IS NULL OR author = $4::text 
+      FROM posts WHERE ($4::text IS NULL AND ($6 IS FALSE OR author=ANY($5)) 
+      OR (author=$4 AND $4=ANY($5)) OR (author=$4 AND $6 IS FALSE))
       ORDER BY created_at DESC LIMIT $1 OFFSET $2`,
-    values: [limit, offset, user.username, author]
+    values: [limit, offset, user.username, author, followers, following]
   }
 
   const result = await db.query(query)
@@ -52,15 +53,8 @@ router.post('/', async (req, res) => {
 })
 
 // get posts from users that you follow
-router.get('/following', getFollowers, async (req, res) => {
-  const { followers } = res.locals
-  const query = {
-    text: 'SELECT * FROM posts WHERE author = ANY($1)',
-    values: [followers]
-  }
-
-  const result = await db.query(query)
-  res.send(result.rows)
+router.get('/following', async (req, res) => {
+  res.redirect('/api/posts?following=true')
 })
 
 // get a post by its key
