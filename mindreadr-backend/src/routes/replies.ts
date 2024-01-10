@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import pg from 'pg'
 
 import db from '../db.js'
 import getPost from '../middleware/getPost.js'
@@ -13,8 +14,15 @@ router.get('/', getPost, async (req, res) => {
     values: [post.key]
   }
 
-  const result = await db.query(query)
-  res.send(result.rows)
+  try {
+    const result = await db.query(query)
+    res.send(result.rows)
+  } catch (err) {
+    if (err instanceof pg.DatabaseError) {
+      console.error(err)
+      res.status(500).send({ err: 'Unknown error occurred.' })
+    } else throw err
+  }
 })
 
 // reply to an existing post
@@ -31,8 +39,15 @@ router.post('/', getPost, async (req, res) => {
     values: [res.locals.user.username, content, post.key]
   }
 
-  const result = await db.query(query)
-  res.status(201).send(result.rows[0])
+  try {
+    const result = await db.query(query)
+    res.status(201).send(result.rows[0])
+  } catch (err) {
+    if (err instanceof pg.DatabaseError) {
+      console.error(err)
+      res.status(500).send({ err: 'Unknown error occurred.' })
+    } else throw err
+  }
 })
 
 export default router
