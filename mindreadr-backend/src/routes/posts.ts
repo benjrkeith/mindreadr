@@ -70,6 +70,27 @@ router.post('/', async (req, res) => {
   }
 })
 
+// get trending posts for today
+// this will get up to 5 of the most liked posts in the last 24 hours
+router.get('/trending', async (req, res) => {
+  const query = `
+  SELECT key, author, content, total_likes FROM posts join 
+    (SELECT post, COUNT(post) as total_likes FROM likes 
+      WHERE created_at > current_date - interval '24' hour 
+      group by post order by total_likes desc limit 5) 
+    on post=key order by total_likes desc;`
+
+  try {
+    const result = await db.query(query)
+    res.send(result.rows)
+  } catch (err) {
+    if (err instanceof pg.DatabaseError) {
+      console.error(err)
+      res.status(500).send({ err: 'Unknown error occurred.' })
+    } else throw err
+  }
+})
+
 // get posts from users that you follow
 router.get('/following', async (req, res) => {
   res.redirect('/api/posts?following=true')
