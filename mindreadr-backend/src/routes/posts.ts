@@ -1,5 +1,5 @@
 import { Router } from 'express'
-// import pg from 'pg'
+import pg from 'pg'
 
 import db from '../db.js'
 import likesRouter from './likes.js'
@@ -21,6 +21,10 @@ router.get('/', parseLimits, getFollowers, async (req, res) => {
   const { author, following = false } = req.query
   const { offset, limit, user, followers } = res.locals
 
+  // the where clause allows postgres to evaluate whether to filter by a
+  // specific author, by the list of people you follow, or just all posts
+  // if author is specified, and following=true, it will only return posts
+  // if you follow the specific author
   const query = {
     text: `SELECT *, 
       (SELECT COUNT(*) AS likes FROM likes WHERE post=key), 
@@ -31,15 +35,22 @@ router.get('/', parseLimits, getFollowers, async (req, res) => {
     values: [limit, offset, user.username, author, followers, following]
   }
 
-  const result = await db.query(query)
-  res.send(result.rows)
+  try {
+    const result = await db.query(query)
+    res.send(result.rows)
+  } catch (err) {
+    if (err instanceof pg.DatabaseError) {
+      console.error(err)
+      res.status(500).send({ err: 'Unknown error occurred.' })
+    } else throw err
+  }
 })
 
 // create a new post
 router.post('/', async (req, res) => {
   const { content = '' } = req.body
   if (content === '' || content.length < 3) {
-    res.sendStatus(400)
+    res.status(400).send({ err: 'Content must be longer than 3 chars.' })
     return
   }
 
@@ -48,8 +59,15 @@ router.post('/', async (req, res) => {
     values: [res.locals.user.username, content]
   }
 
-  const result = await db.query(query)
-  res.status(201).send(result.rows[0])
+  try {
+    const result = await db.query(query)
+    res.status(201).send(result.rows[0])
+  } catch (err) {
+    if (err instanceof pg.DatabaseError) {
+      console.error(err)
+      res.status(500).send({ err: 'Unknown error occurred.' })
+    } else throw err
+  }
 })
 
 // get posts from users that you follow
@@ -66,20 +84,30 @@ router.get('/:key', getPost, async (req, res) => {
 router.patch('/:key', getPost, checkPrivilege, async (req, res) => {
   const { content = '' } = req.body
   if (content === '' || content.length < 3) {
-    res.sendStatus(400)
+    res.status(400).send({ err: 'Content must be longer than 3 chars.' })
     return
   }
 
   const { post } = res.locals
-  if (post.content !== content) {
-    const query = {
-      text: 'UPDATE posts SET content = $1 WHERE key = $2',
-      values: [content, post.key]
-    }
-    await db.query(query)
-    res.sendStatus(200)
-  } else {
-    res.sendStatus(400)
+  if (post.content === content) {
+    res.status(400).send({ err: 'Content is the same.' })
+    return
+  }
+
+  const query = {
+    text: 'UPDATE posts SET content = $1 WHERE key = $2',
+    values: [content, post.key]
+  }
+
+  try {
+    const result = await db.query(query)
+    if (result.rowCount === 1) res.status(200).send({ msg: 'Post has been modified.' })
+    else res.status(500).send({ err: 'Post could not be modified.' })
+  } catch (err) {
+    if (err instanceof pg.DatabaseError) {
+      console.error(err)
+      res.status(500).send({ err: 'Unknown error occurred.' })
+    } else throw err
   }
 })
 
@@ -89,10 +117,17 @@ router.delete('/:key', getPost, checkPrivilege, async (req, res) => {
     text: 'DELETE FROM posts WHERE key = $1',
     values: [res.locals.post.key]
   }
-  const result = await db.query(query)
 
-  if (result.rowCount === 1) res.sendStatus(200)
-  else res.sendStatus(500)
+  try {
+    const result = await db.query(query)
+    if (result.rowCount === 1) res.status(200).send({ msg: 'Post has been deleted.' })
+    else res.status(500).send({ err: 'Post could not be deleted.' })
+  } catch (err) {
+    if (err instanceof pg.DatabaseError) {
+      console.error(err)
+      res.status(500).send({ err: 'Unknown error occurred.' })
+    } else throw err
+  }
 })
 
 export default router
