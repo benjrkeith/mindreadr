@@ -30,7 +30,7 @@ router.post('/', getPost, async (req, res) => {
   const { post } = res.locals
   const { content = '' } = req.body
   if (content === '' || content.length < 3) {
-    res.sendStatus(400)
+    res.status(400).send({ err: 'Content must be longer than 3 chars.' })
     return
   }
 
