@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import pg from 'pg'
 
 import db from '../db.js'
 import verifyToken from '../middleware/verifyToken.js'
@@ -20,8 +21,15 @@ router.get('/', parseLimits, async (req, res) => {
     values: [limit, offset]
   }
 
-  const result = await db.query(query)
-  res.send(result.rows)
+  try {
+    const result = await db.query(query)
+    res.send(result.rows)
+  } catch (err) {
+    if (err instanceof pg.DatabaseError) {
+      console.error(err)
+      res.status(500).send({ err: 'Unknown error occurred.' })
+    } else throw err
+  }
 })
 
 // get a specific user object
@@ -51,8 +59,15 @@ router.get('/:username/likes', getTargetUser, async (req, res) => {
     values: [targetUser.username]
   }
 
-  const result = await db.query(query)
-  res.send(result.rows)
+  try {
+    const result = await db.query(query)
+    res.send(result.rows)
+  } catch (err) {
+    if (err instanceof pg.DatabaseError) {
+      console.error(err)
+      res.status(500).send({ err: 'Unknown error occurred.' })
+    } else throw err
+  }
 })
 
 // get a list of who follows a specific user
@@ -63,8 +78,15 @@ router.get('/:username/followers', getTargetUser, async (req, res) => {
     values: [targetUser.username]
   }
 
-  const result = await db.query(query)
-  res.send(result.rows.map(x => x.follower))
+  try {
+    const result = await db.query(query)
+    res.send(result.rows.map(x => x.follower))
+  } catch (err) {
+    if (err instanceof pg.DatabaseError) {
+      console.error(err)
+      res.status(500).send({ err: 'Unknown error occurred.' })
+    } else throw err
+  }
 })
 
 // follow a specific user
@@ -75,8 +97,15 @@ router.post('/:username/followers', getTargetUser, async (req, res) => {
     values: [targetUser.username, user.username]
   }
 
-  await db.query(query)
-  res.sendStatus(200)
+  try {
+    await db.query(query)
+    res.sendStatus(200)
+  } catch (err) {
+    if (err instanceof pg.DatabaseError) {
+      console.error(err)
+      res.status(500).send({ err: 'Unknown error occurred.' })
+    } else throw err
+  }
 })
 
 // unfollow a specific user
@@ -86,10 +115,17 @@ router.delete('/:username/followers', getTargetUser, async (req, res) => {
     text: 'DELETE FROM followers WHERE username = $1 AND follower = $2',
     values: [targetUser.username, user.username]
   }
-  const result = await db.query(query)
 
-  if (result.rowCount === 1) res.sendStatus(200)
-  else res.sendStatus(500)
+  try {
+    const result = await db.query(query)
+    if (result.rowCount === 1) res.sendStatus(200)
+    else res.sendStatus(500)
+  } catch (err) {
+    if (err instanceof pg.DatabaseError) {
+      console.error(err)
+      res.status(500).send({ err: 'Unknown error occurred.' })
+    } else throw err
+  }
 })
 
 // get a list of who a specific user follows
