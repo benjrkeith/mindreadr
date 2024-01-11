@@ -1,7 +1,9 @@
 {
   "name": "mindreadr-backend",
+  "author": "benjrkeith",
+  "license": "MIT",
   "version": "0.0.0",
-  "description": "",
+  "description": "Backend Express server for Mindreadr social media.",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -10,8 +12,6 @@
     "dev": "npx nodemon",
     "create-db": "node build/setup-db.js"
   },
-  "author": "benjrkeith",
-  "license": "MIT",
   "dependencies": {
     "bcrypt": "^5.1.0",
     "express": "^4.18.2",
