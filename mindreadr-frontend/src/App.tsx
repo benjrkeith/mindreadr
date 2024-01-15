@@ -1,17 +1,26 @@
 import React, { useState, type ReactElement, createContext } from 'react'
 import { Route, Routes, BrowserRouter } from 'react-router-dom'
+import LogIn from './pages/Login'
 
-const userCtx = createContext(null)
+export const defaultUser: User = { username: '', token: '', created_at: '', last_login: '' }
+const userCtx = createContext(defaultUser)
+
+export interface User {
+  username: string
+  token: string
+  created_at: string
+  last_login: string
+}
 
 export default function App (): ReactElement {
-  const [user] = useState(null)
+  const [user, setUser] = useState(defaultUser)
 
   return (
     <div className='app-container'>
       <userCtx.Provider value={user}>
         <BrowserRouter>
           <Routes>
-            <Route path='/' element={<p>hi</p>}/>
+            <Route path='/login' element={<LogIn setUser={setUser}/>}/>
           </Routes>
         </BrowserRouter>
       </userCtx.Provider>
