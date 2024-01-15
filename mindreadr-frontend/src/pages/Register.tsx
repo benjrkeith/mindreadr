@@ -1,13 +1,10 @@
+import axios from 'axios'
 import React, { useState, type FormEvent, type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
-
-import { type User } from '../App'
 
 const AUTH_URL = '/api/auth'
-interface Args { setUser: React.Dispatch<React.SetStateAction<User>> }
 
-export default function LogIn ({ setUser }: Args): ReactElement {
+export default function Register (): ReactElement {
   const [error, setError] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -15,17 +12,10 @@ export default function LogIn ({ setUser }: Args): ReactElement {
 
   async function handleSubmit (e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault()
-    const url = `${AUTH_URL}/login`
 
     try {
-      const res = await axios.post(url, { username, password })
-
-      if (res.data.token !== '') {
-        sessionStorage.setItem('user', JSON.stringify(res.data))
-      }
-
-      setUser(res.data)
-      // redirect to homepage
+      const res = await axios.post(`${AUTH_URL}/register`, { username, password })
+      if (res.status === 200) navigate('/login')
     } catch (err) {
       if (!(err instanceof axios.AxiosError)) throw err
       else setError(err.response?.data.err)
@@ -45,7 +35,7 @@ export default function LogIn ({ setUser }: Args): ReactElement {
           onChange={(e) => { setUsername(e.target.value) }}
         />
         <input
-          className='auth-creds-input'
+        className='auth-creds-input'
           required
           type='password'
           placeholder='Password'
@@ -55,9 +45,13 @@ export default function LogIn ({ setUser }: Args): ReactElement {
       </div>
 
       <div className='auth-buttons-container'>
-        <input className='auth-button auth-button-register' type='button' value='Register'
-          onClick={() => { navigate('/register') }}/>
-        <input className='auth-button auth-button-login' type='submit' value='Log In' />
+        <input
+          className='auth-button auth-button-register'
+          type='button'
+          value='Login'
+          onClick={() => { navigate('/login') }}
+        />
+        <input className='auth-button auth-button-login' type='submit' value='Register' />
       </div>
     </form>
   )

@@ -1,6 +1,7 @@
 import React, { useState, type ReactElement, createContext } from 'react'
 import { Route, Routes, BrowserRouter } from 'react-router-dom'
 import LogIn from './pages/Login'
+import Register from './pages/Register'
 
 export const defaultUser: User = { username: '', token: '', created_at: '', last_login: '' }
 const userCtx = createContext(defaultUser)
@@ -21,6 +22,7 @@ export default function App (): ReactElement {
         <BrowserRouter>
           <Routes>
             <Route path='/login' element={<LogIn setUser={setUser}/>}/>
+            <Route path='/register' element={<Register/>}/>
           </Routes>
         </BrowserRouter>
       </userCtx.Provider>
