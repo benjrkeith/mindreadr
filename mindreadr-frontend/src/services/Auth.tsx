@@ -18,5 +18,5 @@ export function acquireUser (): User {
 
 export function header (): Header {
   const user = acquireUser()
-  return { headers: { token: user?.token } }
+  return { headers: { token: user.token } }
 }

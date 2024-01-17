@@ -12,6 +12,7 @@ export interface User {
   last_login: string
 }
 
+export const API_URL = '/api/'
 export const defaultUser: User = { username: '', token: '', created_at: '', last_login: '' }
 export const userCtx = createContext(defaultUser)
 
