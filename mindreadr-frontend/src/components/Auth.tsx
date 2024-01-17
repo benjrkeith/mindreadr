@@ -3,7 +3,6 @@ import { Navigate } from 'react-router-dom'
 
 import { userCtx, type User } from '../App'
 import { acquireUser } from '../services/Auth'
-import './Auth.css'
 
 interface Args { el: ReactElement, setUser: React.Dispatch<React.SetStateAction<User>> }
 
