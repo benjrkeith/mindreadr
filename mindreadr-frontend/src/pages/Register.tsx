@@ -2,13 +2,15 @@ import axios from 'axios'
 import React, { useState, type FormEvent, type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-const AUTH_URL = '/api/auth'
+import { API_URL } from '../App'
 
 export default function Register (): ReactElement {
   const [error, setError] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const navigate = useNavigate()
+
+  const AUTH_URL = `${API_URL}/auth/login`
 
   async function handleSubmit (e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault()

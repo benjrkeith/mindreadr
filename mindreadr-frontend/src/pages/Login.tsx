@@ -2,9 +2,8 @@ import React, { useState, type FormEvent, type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
-import { type User } from '../App'
+import { type User, API_URL } from '../App'
 
-const AUTH_URL = '/api/auth'
 interface Args { setUser: React.Dispatch<React.SetStateAction<User>> }
 
 export default function LogIn ({ setUser }: Args): ReactElement {
@@ -13,12 +12,13 @@ export default function LogIn ({ setUser }: Args): ReactElement {
   const [password, setPassword] = useState('')
   const navigate = useNavigate()
 
+  const AUTH_URL = `${API_URL}/auth/login`
+
   async function handleSubmit (e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault()
-    const url = `${AUTH_URL}/login`
 
     try {
-      const res = await axios.post(url, { username, password })
+      const res = await axios.post(AUTH_URL, { username, password })
 
       if (res.data.token !== '') {
         sessionStorage.setItem('user', JSON.stringify(res.data))
