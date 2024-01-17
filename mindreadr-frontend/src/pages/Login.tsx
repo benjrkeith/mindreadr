@@ -25,7 +25,7 @@ export default function LogIn ({ setUser }: Args): ReactElement {
       }
 
       setUser(res.data)
-      // redirect to homepage
+      navigate('/users')
     } catch (err) {
       if (!(err instanceof axios.AxiosError)) throw err
       else setError(err.response?.data.err)
