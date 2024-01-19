@@ -1,11 +1,5 @@
 import { type User, defaultUser } from '../App'
 
-interface Header {
-  headers: {
-    token: string
-  }
-}
-
 export function logOut (): void {
   sessionStorage.removeItem('user')
 }
@@ -16,7 +10,7 @@ export function acquireUser (): User {
   if (cache !== null) { return JSON.parse(cache) } else { return defaultUser }
 }
 
-export function header (): Header {
+export function getHeader (): Record<string, string> {
   const user = acquireUser()
-  return { headers: { token: user.token } }
+  return { token: user.token }
 }
