@@ -2,6 +2,7 @@ import React, { useState, type ReactElement, createContext } from 'react'
 import { Route, Routes, BrowserRouter } from 'react-router-dom'
 import LogIn from './pages/Login'
 import Register from './pages/Register'
+import Feed from './pages/Feed'
 import Users from './pages/Users'
 import Protected from './components/Protected'
 
@@ -30,6 +31,7 @@ export default function App (): ReactElement {
               <Auth setUser={setUser} el={<LogIn setUser={setUser}/>}/>
             }/>
             <Route path='/register' element={<Auth setUser={setUser} el={<Register/>}/>}/>
+            <Route path='/feed' element={<Protected el={<Feed/>}/>}/>
             <Route path='/users' element={<Protected el={<Users/>}/>}/>
           </Routes>
         </BrowserRouter>
