@@ -2,7 +2,8 @@ import React, { useState, type FormEvent, type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
-import { type User, API_URL } from '../App'
+import { type User } from '../App'
+import { AUTH_URL } from '../api/common'
 
 interface Args { setUser: React.Dispatch<React.SetStateAction<User>> }
 
@@ -12,13 +13,13 @@ export default function LogIn ({ setUser }: Args): ReactElement {
   const [password, setPassword] = useState('')
   const navigate = useNavigate()
 
-  const AUTH_URL = `${API_URL}/auth/login`
+  const URL = `${AUTH_URL}/login`
 
   async function handleSubmit (e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault()
 
     try {
-      const res = await axios.post(AUTH_URL, { username, password })
+      const res = await axios.post(URL, { username, password })
 
       if (res.data.token !== '') {
         sessionStorage.setItem('user', JSON.stringify(res.data))
