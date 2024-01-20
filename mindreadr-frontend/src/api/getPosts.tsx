@@ -8,6 +8,7 @@ export interface RawPost {
   author: string
   content: string
   parent: number
+  parent_author: string
   created_at: string
   likes: number
   liked: boolean

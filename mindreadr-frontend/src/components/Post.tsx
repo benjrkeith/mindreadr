@@ -9,7 +9,7 @@ interface Props {
 
 export default function Post (props: Props): ReactElement {
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  const { author, content, created_at, likes, liked, parent } = props.data
+  const { author, content, created_at, likes, liked, parent, parent_author } = props.data
   const createdAt = new Date(created_at).toUTCString()
 
   return (
@@ -17,7 +17,9 @@ export default function Post (props: Props): ReactElement {
 
       <div className='post-info-container'>
         {/* have parent info be link to parent post */}
-        {parent !== null ? <p className='post-info-parent'>Replying to @{parent}</p> : null}
+        {parent !== null
+          ? <p className='post-info-parent'>Replying to @{parent_author}</p>
+          : null}
         <div className="post-info-outer-container">
           <img src='default-avatar.png' alt="" className="post-info-avatar" />
           <div className="post-info-inner-container">
