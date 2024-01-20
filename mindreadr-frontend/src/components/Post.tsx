@@ -1,6 +1,7 @@
 import React, { type ReactElement } from 'react'
 
 import { type RawPost } from '../api/getPosts'
+import './Post.css'
 
 interface Props {
   data: RawPost
@@ -16,10 +17,15 @@ export default function Post (props: Props): ReactElement {
     <div className='post-container'>
 
       <div className='post-info-container'>
+        {/* have parent info be link to parent post */}
         {parent !== null ? <p className='post-info-parent'>Replying to @{parent}</p> : null}
-        <img src='default-avatar.png' alt="" className="post-info-avatar" />
-        <h2 className='post-info-author'>@{author}</h2>
-        <footer className='post-info-date'>{createdAt}</footer>
+        <div className="post-info-outer-container">
+          <img src='default-avatar.png' alt="" className="post-info-avatar" />
+          <div className="post-info-inner-container">
+            <h1 className='post-info-author'>@{author}</h1>
+            <footer className='post-info-date'>{createdAt}</footer>
+          </div>
+        </div>
       </div>
 
       <p className='post-content'>{content}</p>

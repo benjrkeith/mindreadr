@@ -7,6 +7,7 @@ import Users from './pages/Users'
 import Protected from './components/Protected'
 
 import Auth from './components/Auth'
+import './App.css'
 
 export interface User {
   username: string
