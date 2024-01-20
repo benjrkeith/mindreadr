@@ -9,8 +9,7 @@ interface Props {
 
 export default function Post (props: Props): ReactElement {
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  const { author, content, created_at, likes, liked } = props.data
-  const parent = 2
+  const { author, content, created_at, likes, liked, parent } = props.data
   const createdAt = new Date(created_at).toUTCString()
 
   return (
