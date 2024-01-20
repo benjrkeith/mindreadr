@@ -48,15 +48,15 @@ router.get('/', parseLimits, getFollowers, async (req, res) => {
 
 // create a new post
 router.post('/', async (req, res) => {
-  const { content = '' } = req.body
+  const { content = '', parent = null } = req.body
   if (content === '' || content.length < 3) {
     res.status(400).send({ err: 'Content must be longer than 3 chars.' })
     return
   }
 
   const query = {
-    text: 'INSERT INTO posts(author, content) VALUES($1, $2) RETURNING *',
-    values: [res.locals.user.username, content]
+    text: 'INSERT INTO posts(author, content, parent) VALUES($1, $2, $3) RETURNING *',
+    values: [res.locals.user.username, content, parent]
   }
 
   try {
