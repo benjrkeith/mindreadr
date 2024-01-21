@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import React, { type ReactElement } from 'react'
 
 import { type RawPost } from '../api/getPosts'
@@ -8,8 +9,10 @@ interface Props {
 }
 
 export default function Post (props: Props): ReactElement {
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  const { author, content, created_at, likes, liked, parent, parent_author } = props.data
+  const {
+    author, content, created_at, likes, liked, parent,
+    parent_author, reposted
+  } = props.data
   const createdAt = new Date(created_at).toUTCString()
 
   return (
@@ -44,7 +47,7 @@ export default function Post (props: Props): ReactElement {
         <div className='post-action-container'>
           <button className='post-action' type='submit'>
             {/* need to add backend func for checking if user has replied or retweeted */}
-            <img className={liked
+            <img className={reposted
               ? 'post-action-img-true'
               : 'post-action-img-false'} src='repost.png'/>
           </button>

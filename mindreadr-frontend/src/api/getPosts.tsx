@@ -12,6 +12,7 @@ export interface RawPost {
   created_at: string
   likes: number
   liked: boolean
+  reposted: boolean
 }
 
 export async function getPosts (author = '', offset = 0, limit = 10): Promise<RawPost[]> {
