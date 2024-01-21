@@ -1,0 +1,36 @@
+.user-info-container {
+    background-color: #7289da;
+    color: white;
+    border-bottom: solid white .2rem;
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    padding: .5rem;
+}
+
+.user-info-outer-container {
+    display: flex;
+    gap: 1rem;
+}
+
+.user-info-inner-container {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    padding: 1rem;
+}
+
+.user-info-avatar {
+    width: 40%;
+    border-radius: 15%;
+    border: solid #7289da .1rem;
+}
+
+.user-info-table {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+}
+
+.user-info-table-data {
+    text-align: center;
+}

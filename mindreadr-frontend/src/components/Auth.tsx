@@ -18,7 +18,7 @@ export default function Auth ({ el, setUser }: Args): ReactElement {
   }, [setUser])
 
   if (user.token !== '') {
-    return <Navigate to='/feed' />
+    return <Navigate to='/users' />
   }
 
   return el
