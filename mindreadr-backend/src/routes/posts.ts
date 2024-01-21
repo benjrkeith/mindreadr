@@ -25,7 +25,6 @@ router.get('/', parseLimits, getFollowers, async (req, res) => {
   // specific author, by the list of people you follow, or just all posts
   // if author is specified, and following=true, it will only return posts
   // if you follow the specific author
-  console.log(user.username)
   const query = {
     text: `SELECT key, author, content, created_at, parent,
       (SELECT author AS parent_author FROM POSTS AS s WHERE s.key=p.parent),

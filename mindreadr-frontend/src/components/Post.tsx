@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import React, { type ReactElement } from 'react'
+import React, { useState, type ReactElement } from 'react'
 
 import { type RawPost } from '../api/getPosts'
 import './Post.css'
+import handleLike from '../api/likePost'
 
 interface Props {
   data: RawPost
@@ -10,10 +11,13 @@ interface Props {
 
 export default function Post (props: Props): ReactElement {
   const {
-    author, content, created_at, likes, liked, parent,
+    key, author, content, created_at, parent,
     parent_author, reposted, replied
   } = props.data
   const createdAt = new Date(created_at).toUTCString()
+
+  const [likes, setLikes] = useState<number>(props.data.likes)
+  const [liked, setLiked] = useState<boolean>(props.data.liked)
 
   return (
     <div className='post-container'>
@@ -36,7 +40,9 @@ export default function Post (props: Props): ReactElement {
 
       <div className='post-actions-container'>
         <div className='post-action-container'>
-          <button className='post-action' type='submit'>
+          <button className='post-action'
+            onClick={async () => { await handleLike(key, liked, setLikes, setLiked) }}
+            type='submit'>
             <img className={liked
               ? 'post-action-img-true'
               : 'post-action-img-false'} src='heart.png'/>
