@@ -14,9 +14,14 @@ export interface RawPost {
   liked: boolean
 }
 
-export async function getPosts (offset = 0, limit = 10): Promise<RawPost[]> {
-  const args = { headers: getHeader(), params: { offset, limit } }
+export async function getPosts (author = '', offset = 0, limit = 10): Promise<RawPost[]> {
+  let params
+  if (author === '') params = { offset, limit }
+  else params = { offset, limit, author }
+
+  const args = { headers: getHeader(), params }
   const response = await axios.get(POSTS_URL, args)
+
   console.log(response.data)
   return response.data
 }
