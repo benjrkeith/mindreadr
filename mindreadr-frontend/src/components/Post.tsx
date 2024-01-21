@@ -11,7 +11,7 @@ interface Props {
 export default function Post (props: Props): ReactElement {
   const {
     author, content, created_at, likes, liked, parent,
-    parent_author, reposted
+    parent_author, reposted, replied
   } = props.data
   const createdAt = new Date(created_at).toUTCString()
 
@@ -46,7 +46,6 @@ export default function Post (props: Props): ReactElement {
         </div>
         <div className='post-action-container'>
           <button className='post-action' type='submit'>
-            {/* need to add backend func for checking if user has replied or retweeted */}
             <img className={reposted
               ? 'post-action-img-true'
               : 'post-action-img-false'} src='repost.png'/>
@@ -56,7 +55,7 @@ export default function Post (props: Props): ReactElement {
         </div>
         <div className='post-action-container'>
           <button className='post-action' type='submit'>
-            <img className={liked
+            <img className={replied
               ? 'post-action-img-true'
               : 'post-action-img-false'} src='reply.png'/>
           </button>
