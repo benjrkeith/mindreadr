@@ -13,17 +13,18 @@ router.use(verifyToken)
 
 // get all users, supports offset and limit
 router.get('/', parseLimits, async (req, res) => {
-  const { offset, limit } = res.locals
+  // const { offset, limit } = res.locals
 
   const query = {
-    text: `SELECT username, created_at, last_login, privilege FROM users 
-            ORDER BY created_at LIMIT $1 OFFSET $2`,
-    values: [limit, offset]
+    // text: `SELECT username, created_at, last_login, privilege FROM users
+    //         ORDER BY created_at LIMIT $1 OFFSET $2`,
+    text: 'SELECT username FROM users'
+    // values: [limit, offset]
   }
 
   try {
     const result = await db.query(query)
-    res.send(result.rows)
+    res.send(result.rows.map((row) => row.username))
   } catch (err) {
     if (err instanceof pg.DatabaseError) {
       console.error(err)
