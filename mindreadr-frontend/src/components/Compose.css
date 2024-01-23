@@ -1,0 +1,10 @@
+.compose-search-container {
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+}
+
+.compose-search-item {
+    width: fit-content;
+}
