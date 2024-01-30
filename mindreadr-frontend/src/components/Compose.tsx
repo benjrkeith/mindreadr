@@ -1,4 +1,4 @@
-import React, { useState, type ReactElement, useEffect, useCallback } from 'react'
+import React, { useState, type ReactElement, useEffect, useCallback, useLayoutEffect } from 'react'
 
 import { getAllUsernames } from '../api/getAllUsernames'
 import './Compose.css'
@@ -7,37 +7,90 @@ export default function Compose (): ReactElement {
   const [input, setInput] = useState<string>('')
   const [users, setUsers] = useState<string[]>([])
   const [filtered, setFiltered] = useState<string[]>([])
+  const [offset, setOffset] = useState<number>(0)
 
-  const re = /@[\w\d]+/
-  const searching = (): boolean => re.test(input)
+  const inputRef = React.useRef<HTMLDivElement>(null)
+
+  const re = /[^>]@[\w\d]+/g
 
   const getUsers = useCallback(async () => {
     setUsers(await getAllUsernames())
-  }, [])
+  }, [setUsers, getAllUsernames])
 
-  useEffect(() => { void getUsers() }, [])
+  useEffect(() => { void getUsers() }, [getUsers])
 
-  function handleChange (e: React.ChangeEvent<HTMLInputElement>): void {
-    const { value } = e.target
+  useLayoutEffect(() => {
+    if (offset === 0 || inputRef.current === null) return
+    const childNodes = Array.from(inputRef.current.childNodes)
+
+    let cumulativeLength = 0
+    let targetNode = null
+    let targetOffset = 0
+
+    for (const node of childNodes) {
+      if (node.textContent === null) return
+
+      if (cumulativeLength + node.textContent.length >= offset) {
+        targetNode = node.childNodes.length === 0 ? node : node.childNodes[0]
+        targetOffset = offset - cumulativeLength
+        break
+      } else {
+        cumulativeLength += node.textContent.length
+      }
+    }
+
+    if (targetNode === null) return
+
+    const newRange = document.createRange()
+    newRange.setStart(targetNode, targetOffset)
+
+    const selection = document.getSelection()
+    selection?.removeAllRanges()
+    selection?.addRange(newRange)
+  })
+
+  function handleInput (e: React.ChangeEvent<HTMLInputElement>): void {
+    const value = e.target.innerHTML ?? ''
     setInput(value)
 
-    const query = value.match(re)
-    if (query === null) return
-    setFiltered(users.filter((u) => u.includes(query[0].replace('@', ''))))
+    const range = document.getSelection()?.getRangeAt(0)
+    if (range === null || range === undefined) return
+
+    const clone = range.cloneRange()
+    clone.selectNodeContents(inputRef.current as HTMLDivElement)
+    clone.setEnd(range.endContainer, range.endOffset)
+    const newOffset = clone.toString().length
+    setOffset(newOffset)
+
+    const newInput = ` ${value}`
+    const match = newInput.match(re)
+
+    if (match === null) {
+      setFiltered([])
+    } else {
+      setFiltered(users.filter((u) => u.startsWith(match[0].replace(' @', ''))))
+    }
   }
 
-  function handleEnter (e: React.KeyboardEvent): void {
-    if (!searching() || e.key !== 'Enter' || filtered.length === 0) return
-    console.log('Confirmed Search')
+  function handleKeyDown (e: React.KeyboardEvent): void {
+    if (e.key === 'Enter') e.preventDefault()
+    if (e.key !== 'Enter' || filtered.length === 0) return
 
-    setInput((prev) => prev.replace(re, `${filtered[0]} `))
+    let newInput = ` ${input}`
+    const match = newInput.match(re)
+    if (match === null) return
+
+    newInput = newInput.replace(re, ` <span class='blue'>@${filtered[0]}</span>\u200B`)
+    setInput(newInput)
+    setOffset(prev => prev + filtered[0].length - match[0].length + 4)
     setFiltered([])
   }
 
   return (
     <div className='compose-container'>
-        <input type='text' value={input} onKeyDown={handleEnter} onChange={handleChange}/>
-        <div className="compose-search-container">
+        <div className='compose-input' contentEditable onKeyDown={handleKeyDown} onInput={handleInput}
+          suppressContentEditableWarning dangerouslySetInnerHTML={{ __html: input }} ref={inputRef}/>
+        <div className='compose-search-container'>
           {filtered.map(i => <span key={i} className='compose-search-item'>{i}</span>)}
         </div>
     </div>

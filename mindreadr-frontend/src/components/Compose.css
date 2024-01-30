@@ -8,3 +8,12 @@
 .compose-search-item {
     width: fit-content;
 }
+
+.blue {
+    color: #1DA1F2;
+    
+}
+
+.compose-input{
+    background-color: white;
+}
