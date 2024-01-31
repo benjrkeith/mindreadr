@@ -8,7 +8,6 @@ import Protected from './components/Protected'
 
 import Auth from './components/Auth'
 import './App.css'
-import Compose from './components/Compose'
 
 export interface User {
   username: string
@@ -35,7 +34,6 @@ export default function App (): ReactElement {
             <Route path='/register' element={<Auth setUser={setUser} el={<Register/>}/>}/>
             <Route path='/feed' element={<Protected el={<Feed/>}/>}/>
             <Route path='/users' element={<Protected el={<Users/>}/>}/>
-            <Route path='/search' element={<Compose/>}/>
           </Routes>
         </BrowserRouter>
       </userCtx.Provider>
