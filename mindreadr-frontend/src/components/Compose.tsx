@@ -3,8 +3,14 @@ import React, { useState, type ReactElement, useEffect, useCallback, useLayoutEf
 import { getAllUsernames } from '../api/getAllUsernames'
 import './Compose.css'
 import createPost from '../api/createPost'
+import { type RawPost } from '../api/getPosts'
 
-export default function Compose (): ReactElement {
+interface Props {
+  posts: RawPost[]
+  setPosts: React.Dispatch<React.SetStateAction<RawPost[]>>
+}
+
+export default function Compose (props: Props): ReactElement {
   const [input, setInput] = useState<string>('')
   const [users, setUsers] = useState<string[]>([])
   const [filtered, setFiltered] = useState<string[]>([])
@@ -116,8 +122,9 @@ export default function Compose (): ReactElement {
     const content = inputRef.current?.innerText
     if (content === undefined || content === '') return
 
-    const post = await createPost(content)
-    console.log(post)
+    const post: RawPost = await createPost(content)
+    post.likes = 0
+    props.setPosts(prev => [post, ...prev])
 
     setInput('')
     setFiltered([])
