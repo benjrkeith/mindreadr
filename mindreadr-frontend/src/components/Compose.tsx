@@ -2,6 +2,7 @@ import React, { useState, type ReactElement, useEffect, useCallback, useLayoutEf
 
 import { getAllUsernames } from '../api/getAllUsernames'
 import './Compose.css'
+import createPost from '../api/createPost'
 
 export default function Compose (): ReactElement {
   const [input, setInput] = useState<string>('')
@@ -48,7 +49,7 @@ export default function Compose (): ReactElement {
     const selection = document.getSelection()
     selection?.removeAllRanges()
     selection?.addRange(newRange)
-  })
+  }, [offset])
 
   function handleInput (e: React.ChangeEvent<HTMLInputElement>): void {
     const value = e.target.innerHTML ?? ''
@@ -78,6 +79,7 @@ export default function Compose (): ReactElement {
     const textInput = inputRef.current
     if (textInput === null) return
 
+    // when pressing backspace on tag, delete whole tag
     if (textInput.innerText.length >= 140 && e.key !== 'Backspace') {
       // display error char limit reached
       e.preventDefault()
@@ -108,14 +110,34 @@ export default function Compose (): ReactElement {
     setTargetUser(0)
   }
 
+  async function handleSubmit (e: React.FormEvent): Promise<void> {
+    e.preventDefault()
+
+    const content = inputRef.current?.innerText
+    if (content === undefined || content === '') return
+
+    const post = await createPost(content)
+    console.log(post)
+
+    setInput('')
+    setFiltered([])
+  }
+
   return (
     <div className='compose-container'>
+      <br/>
         <div className='compose-input' contentEditable onKeyDown={handleKeyDown} onInput={handleInput}
           suppressContentEditableWarning dangerouslySetInnerHTML={{ __html: input }} ref={inputRef}/>
-        <div className='compose-search-container'>
+        {/* <div className='compose-search-container'>
           {filtered.map((user, i) => <span key={user} className={i === targetUser
             ? 'compose-search-target'
             : 'compose-search-item'}>{user}</span>)}
+        </div> */}
+        {/* length doesn't update if u tag someone until you type another char */}
+        <div className='compose-inner-container'>
+          <p>{filtered[targetUser]}</p>
+          <p className='compose-char-count'>{inputRef.current?.innerText.length}/140</p>
+          <button type="button" onClick={handleSubmit} className='compose-submit'>Submit</button>
         </div>
     </div>
   )
