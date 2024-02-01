@@ -1,13 +1,14 @@
-import React, { type ReactElement, useContext, useEffect } from 'react'
+import React, { type ReactElement, useEffect } from 'react'
 import { Navigate } from 'react-router-dom'
 
-import { userCtx, type User } from '../App'
+import { type User } from '../App'
 import { acquireUser } from '../services/Auth'
+import useAuth from '../hooks/useAuth'
 
 interface Args { el: ReactElement, setUser: React.Dispatch<React.SetStateAction<User>> }
 
 export default function Auth ({ el, setUser }: Args): ReactElement {
-  const user = useContext(userCtx)
+  const user = useAuth()
 
   useEffect(() => {
     const user = acquireUser()
