@@ -6,6 +6,10 @@
     font-size: x-large;
 }
 
+html, body, #root {
+    height: 100%;
+}
+
 body {
     background-color: #1e2124;
 }
