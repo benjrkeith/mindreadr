@@ -5,9 +5,11 @@ import Register from './pages/Register'
 import Feed from './pages/Feed'
 import Users from './pages/Users'
 import Protected from './components/Protected'
+import Trending from './pages/Trending'
 
 import Auth from './components/Auth'
 import './App.css'
+import Nav from './components/Nav'
 
 export interface User {
   username: string
@@ -33,8 +35,10 @@ export default function App (): ReactElement {
             }/>
             <Route path='/register' element={<Auth setUser={setUser} el={<Register/>}/>}/>
             <Route path='/feed' element={<Protected el={<Feed/>}/>}/>
+            <Route path='/trending' element={<Protected el={<Trending/>}/>}/>
             <Route path='/users' element={<Protected el={<Users/>}/>}/>
           </Routes>
+          <Nav/>
         </BrowserRouter>
       </userCtx.Provider>
     </div>
