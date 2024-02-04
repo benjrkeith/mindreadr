@@ -1,29 +1,29 @@
 .user-info-container {
-    background-color: #7289da;
     color: white;
-    border-bottom: solid white .2rem;
-    display: flex;
-    flex-direction: column;
-    gap: .75rem;
-    padding: .5rem;
-}
-
-.user-info-outer-container {
-    display: flex;
-    gap: 1rem;
 }
 
 .user-info-inner-container {
-    display: flex;
+    /* display: flex;
     flex-direction: column;
-    gap: .5rem;
-    padding: 1rem;
+    gap: .5rem; */
+    position: relative;
+    top: -8vh
 }
 
-.user-info-avatar {
-    width: 40%;
+.user-img-cover {
+    width: 100%;
+    height: 20vh;
+    object-fit: cover;
+    overflow: hidden;
+    border-bottom: solid #7289da .1rem;
+}
+
+.user-img-avatar {
+    width: 30%;
     border-radius: 15%;
     border: solid #7289da .1rem;
+    z-index: 1;
+    margin-left: .5rem;
 }
 
 .user-info-table {
