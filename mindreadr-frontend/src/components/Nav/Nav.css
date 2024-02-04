@@ -1,0 +1,23 @@
+#nav {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    justify-items: center;
+    align-items: center;
+    height: 10%;
+    box-sizing: border-box;
+    border-top: solid white .1rem;
+    width: 100%;
+    padding: .5rem;
+}
+
+.nav-link {
+    min-height: 0;
+    height: 100%;
+}
+
+.nav-img {
+    min-height: 0;
+    max-height: 100%;
+    object-fit: cover;
+    filter: invert(100%) sepia(89%) saturate(132%) hue-rotate(281deg) brightness(119%) contrast(100%);
+}

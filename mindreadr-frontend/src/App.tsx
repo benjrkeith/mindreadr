@@ -1,5 +1,5 @@
 import React, { useState, type ReactElement, createContext } from 'react'
-import { Route, Routes, BrowserRouter, Navigate } from 'react-router-dom'
+import { Route, Routes, BrowserRouter } from 'react-router-dom'
 import LogIn from './pages/Login'
 import Register from './pages/Register'
 import Feed from './pages/Feed'
@@ -9,7 +9,7 @@ import Trending from './pages/Trending'
 
 import Auth from './components/Auth'
 import './App.css'
-import Nav from './components/Nav'
+import Nav from './components/Nav/Nav'
 // import Compose from './components/Compose'
 
 export interface User {
@@ -40,10 +40,8 @@ export default function App (): ReactElement {
           <Route path='/feed' element={<Protected el={<Feed/>}/>}/>
           <Route path='/trending' element={<Protected el={<Trending/>}/>}/>
           <Route path='/users/*' element={<Protected el={<Users/>}/>}/>
-          {/* <Route path='/test' element={<Protected el={<Compose />} />}/> */}
         </Routes>
-        {/* <br/><br/><br/>
-        <Nav/> */}
+        <Nav/>
       </BrowserRouter>
     </userCtx.Provider>
   )
