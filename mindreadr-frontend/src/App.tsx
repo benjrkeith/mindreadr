@@ -8,9 +8,9 @@ import Protected from './components/Protected'
 import Trending from './pages/Trending'
 
 import Auth from './components/Auth'
-import './App.css'
-import Nav from './components/Nav/Nav'
+import Nav from './components/Nav'
 // import Compose from './components/Compose'
+import './App.css'
 
 export interface User {
   username: string
