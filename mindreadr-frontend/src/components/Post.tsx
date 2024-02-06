@@ -1,4 +1,5 @@
 import React, { useState, type ReactElement } from 'react'
+import { Link } from 'react-router-dom'
 
 import handleLike from '../api/likePost'
 import { type RawPost } from '../api/getPosts'
@@ -9,18 +10,17 @@ interface Props {
 
 export default function Post (props: Props): ReactElement {
   const {
-    key, author, content, created_at: createdAt, parent,
-    parent_author: parentAuthor, reposted, replied
+    key, author, content, parent, parent_author: parentAuthor, reposted, replied
   } = props.data
 
-  const date = new Date(createdAt).toLocaleString()
+  let { created_at: createdAt } = props.data
+  createdAt = new Date(createdAt).toLocaleString()
 
   const [likes, setLikes] = useState<number>(props.data.likes)
   const [liked, setLiked] = useState<boolean>(props.data.liked)
 
   return (
     <div className='text-white pt-4 pb-4 ml-2 mr-2 border-t-2 border-solid border-gray-600'>
-
       <div className='flex flex-col'>
         {/* have parent info be link to parent post */}
         {parent !== null
@@ -31,12 +31,17 @@ export default function Post (props: Props): ReactElement {
             className='w-3/12 rounded-full' />
           <div className='grid grid-rows-2'>
             <h1 className='text-purple-500 text-2xl font-semibold h-fit leading-7 self-end'>@{author}</h1>
-            <footer className='text-sm leading-4 self-start'>{date}</footer>
+            <footer className='text-sm leading-4 self-start'>{createdAt}</footer>
           </div>
         </div>
       </div>
 
-      <p className='p-3'>{content}</p>
+      <div className='p-3'>
+        {content.split(/(@[\w\d]+)/g).map((word) => word.startsWith('@')
+          ? <Link key={word} className='text-purple-500'
+            to={`/users/${word.replace('@', '')}`}>{word}</Link>
+          : word)}
+      </div>
 
       <div className='grid grid-cols-3'>
         <div className='flex justify-center items-center gap-1'>
