@@ -1,9 +1,7 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import React, { useState, type ReactElement } from 'react'
 
-import { type RawPost } from '../api/getPosts'
-import './Post.css'
 import handleLike from '../api/likePost'
+import { type RawPost } from '../api/getPosts'
 
 interface Props {
   data: RawPost
@@ -11,70 +9,65 @@ interface Props {
 
 export default function Post (props: Props): ReactElement {
   const {
-    key, author, content, created_at, parent,
-    parent_author, reposted, replied
+    key, author, content, created_at: createdAt, parent,
+    parent_author: parentAuthor, reposted, replied
   } = props.data
-  const createdAt = new Date(created_at).toUTCString()
+
+  const date = new Date(createdAt).toLocaleString()
 
   const [likes, setLikes] = useState<number>(props.data.likes)
   const [liked, setLiked] = useState<boolean>(props.data.liked)
 
   return (
-    <div className='post-container'>
+    <div className='text-white pt-4 pb-4 ml-2 mr-2 border-t-2 border-solid border-gray-600'>
 
-      <div className='post-info-container'>
+      <div className='flex flex-col'>
         {/* have parent info be link to parent post */}
         {parent !== null
-          ? <p className='post-info-parent'>Replying to @{parent_author}</p>
+          ? <p className=''>Replying to @{parentAuthor}</p>
           : null}
-        <div className="post-info-outer-container">
-          <img src='default-avatar.png' alt="" className="post-info-avatar" />
-          <div className="post-info-inner-container">
-            <h1 className='post-info-author'>@{author}</h1>
-            <footer className='post-info-date'>{createdAt}</footer>
+        <div className='flex flex-row gap-3'>
+          <img src='default-avatar.png' alt=''
+            className='w-3/12 rounded-full' />
+          <div className='grid grid-rows-2'>
+            <h1 className='text-purple-500 text-2xl font-semibold h-fit leading-7 self-end'>@{author}</h1>
+            <footer className='text-sm leading-4 self-start'>{date}</footer>
           </div>
         </div>
       </div>
 
-      <p className='post-content'>{content}</p>
+      <p className='p-3'>{content}</p>
 
-      <div className='post-actions-container'>
-        <div className='post-action-container'>
-          <button className='post-action'
-            onClick={async () => { await handleLike(key, liked, setLikes, setLiked) }}
-            type='submit'>
+      <div className='grid grid-cols-3'>
+        <div className='flex justify-center items-center gap-1'>
+          <button className='h-fit' type='submit'
+              onClick={async () => { await handleLike(key, liked, setLikes, setLiked) }}>
             <img className={liked
-              ? 'post-action-img-true'
-              : 'post-action-img-false'} src='heart.png'/>
+              ? 'filter-purple object-cover h-6 pt-0.5'
+              : 'filter-white object-cover h-6 pt-0.5'} src='heart.png'/>
           </button>
-          <p className='post-action-separator'>•</p>
-          <button className='post-action' type='submit'>{likes}</button>
+          <p className='text-xl text-center'>•</p>
+          <button className='text-xl' type='submit'>{likes}</button>
         </div>
-        <div className='post-action-container'>
-          <button className='post-action' type='submit'>
+        <div className='flex justify-center items-center gap-1'>
+          <button className='h-fit' type='submit'>
             <img className={reposted
-              ? 'post-action-img-true'
-              : 'post-action-img-false'} src='repost.png'/>
+              ? 'filter-purple object-cover h-6 pt-1'
+              : 'filter-white object-cover h-6 pt-1'} src='repost.png'/>
           </button>
-          <p className='post-action-separator'>•</p>
-          <button className='post-action'type='submit'>{likes}</button>
+          <p className='text-xl text-center'>•</p>
+          <button className='text-xl' type='submit'>{likes}</button>
         </div>
-        <div className='post-action-container'>
-          <button className='post-action' type='submit'>
+        <div className='flex justify-center items-center gap-1'>
+          <button className='h-fit' type='submit'>
             <img className={replied
-              ? 'post-action-img-true'
-              : 'post-action-img-false'} src='reply.png'/>
+              ? 'filter-purple object-cover h-6 pt-0.5'
+              : 'filter-white object-cover h-6 pt-0.5'} src='reply.png'/>
           </button>
-          <p className='post-action-separator'>•</p>
-          <button className='post-action' type='submit'>{likes}</button>
+          <p className='text-xl text-center'>•</p>
+          <button className='text-xl' type='submit'>{likes}</button>
         </div>
       </div>
-
-      {/* {showLikes
-        ? <div className='post-interactions-container'>
-        {usersLiked.map((user) => <li className='' key={user}>{user}</li>)}
-      </div>
-        : null} */}
     </div>
   )
 }

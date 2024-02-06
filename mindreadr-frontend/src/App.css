@@ -21,3 +21,7 @@ body {
 .filter-white {
     filter: invert(100%) sepia(89%) saturate(132%) hue-rotate(281deg) brightness(119%) contrast(100%);
 }
+
+.filter-purple {
+    filter: invert(47%) sepia(44%) saturate(6045%) hue-rotate(246deg) brightness(98%) contrast(97%);
+}
