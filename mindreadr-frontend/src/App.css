@@ -25,3 +25,9 @@ body {
 .filter-purple {
     filter: invert(47%) sepia(44%) saturate(6045%) hue-rotate(246deg) brightness(98%) contrast(97%);
 }
+
+@media (max-width: 400px), (max-height: 700px) {
+    html {
+        font-size: large;
+    }
+}

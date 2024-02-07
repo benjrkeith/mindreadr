@@ -30,7 +30,7 @@ export default function Post (props: Props): ReactElement {
           <img src='default-avatar.png' alt=''
             className='w-3/12 rounded-full' />
           <div className='grid grid-rows-2'>
-            <h1 className='text-purple-500 text-2xl font-semibold h-fit leading-7 self-end'>@{author}</h1>
+            <h1 className='text-purple-600 text-2xl font-semibold h-fit leading-7 self-end'>@{author}</h1>
             <footer className='text-sm leading-4 self-start'>{createdAt}</footer>
           </div>
         </div>
@@ -38,7 +38,7 @@ export default function Post (props: Props): ReactElement {
 
       <div className='p-3'>
         {content.split(/(@[\w\d]+)/g).map((word) => word.startsWith('@')
-          ? <Link key={word} className='text-purple-500'
+          ? <Link key={word} className='text-purple-600'
             to={`/users/${word.replace('@', '')}`}>{word}</Link>
           : word)}
       </div>

@@ -41,7 +41,7 @@ export default function App (): ReactElement {
           <Route path='/trending' element={<Protected el={<Trending/>}/>}/>
           <Route path='/users/*' element={<Protected el={<Users/>}/>}/>
         </Routes>
-        <Nav/>
+        {user.token === '' ? <></> : <Nav/>}
       </BrowserRouter>
     </userCtx.Provider>
   )

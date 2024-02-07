@@ -1,9 +1,9 @@
-import React, { useState, type FormEvent, type ReactElement } from 'react'
-import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import React, { useState, type FormEvent, type ReactElement } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 
-import { type User } from '../App'
 import { AUTH_URL } from '../api/common'
+import { type User } from '../App'
 
 interface Args { setUser: React.Dispatch<React.SetStateAction<User>> }
 
@@ -18,9 +18,16 @@ export default function LogIn ({ setUser }: Args): ReactElement {
   async function handleSubmit (e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault()
 
+    if (username === '') {
+      setError('Username is a required field.')
+      return
+    } else if (password === '') {
+      setError('Password is a required field.')
+      return
+    }
+
     try {
       const res = await axios.post(URL, { username, password })
-
       if (res.data.token !== '') {
         sessionStorage.setItem('user', JSON.stringify(res.data))
       }
@@ -34,31 +41,25 @@ export default function LogIn ({ setUser }: Args): ReactElement {
   }
 
   return (
-    <form className='auth-form' onSubmit={handleSubmit}>
-      {error !== '' && <p>{error}</p>}
-      <div className='auth-creds-container'>
-        <input
-          className='auth-creds-input'
-          required
-          type='text'
-          placeholder='Username'
-          value={username}
-          onChange={(e) => { setUsername(e.target.value) }}
-        />
-        <input
-          className='auth-creds-input'
-          required
-          type='password'
-          placeholder='Password'
-          value={password}
-          onChange={(e) => { setPassword(e.target.value) }}
-        />
-      </div>
-
-      <div className='auth-buttons-container'>
-        <input className='auth-button auth-button-register' type='button' value='Register'
-          onClick={() => { navigate('/register') }}/>
-        <input className='auth-button auth-button-login' type='submit' value='Log In' />
+    <form className='h-full grid grid-rows-9 gap-5 pl-3 pr-3 justify-items-center' onSubmit={handleSubmit}>
+      <h1 className='row-[2/2] text-center text-4xl font-bold text-white'>Log In</h1>
+      <input type='text' placeholder='Username' value={username}
+        onChange={(e) => { setUsername(e.target.value) }}
+        className='row-[4/4] text-center rounded-full p-2 pl-5 pr-5  w-5/6'
+      />
+      <input type='password' placeholder='Password' value={password}
+        onChange={(e) => { setPassword(e.target.value) }}
+        className='row-[5/5] text-center rounded-full p-2 pl-5 pr-5  w-5/6'
+      />
+      <input type='submit' value='Log In' className='rounded-full bg-purple-600 text-xl pb-2 pt-2 pl-5 pr-5
+        text-white font-semibold row-[6/6] w-5/6 leading-4'/>
+      {error === ''
+        ? <></>
+        : <div className='row-[3/3] flex items-end'>
+        <p className='text-red-500 text-center w-full h-fit'>• {error}</p></div>}
+      <div className='row-[9/9] flex items-center mb-4 m-[auto]'>
+        <p className='text-sm pr-2 text-white'>Don&apos;t have an account?</p>
+        <Link to='/register' className='text-center text-purple-600 pb-[0.5] text-lg row-[8/8]'>Sign Up</Link>
       </div>
     </form>
   )
