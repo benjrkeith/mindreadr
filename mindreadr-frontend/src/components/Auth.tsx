@@ -1,5 +1,6 @@
-import React, { type ReactElement, useEffect } from 'react'
-import { Navigate } from 'react-router-dom'
+import type React from 'react'
+import { type ReactElement, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { type User } from '../App'
 import { acquireUser } from '../services/auth'
@@ -9,6 +10,7 @@ interface Args { el: ReactElement, setUser: React.Dispatch<React.SetStateAction<
 
 export default function Auth ({ el, setUser }: Args): ReactElement {
   const user = useAuth()
+  const nav = useNavigate()
 
   useEffect(() => {
     const user = acquireUser()
@@ -18,9 +20,6 @@ export default function Auth ({ el, setUser }: Args): ReactElement {
     }
   }, [setUser])
 
-  if (user.token !== '') {
-    return <Navigate to='/feed' />
-  }
-
+  if (user.token !== '') nav(-1)
   return el
 }
