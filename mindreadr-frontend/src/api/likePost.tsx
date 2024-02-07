@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-import { getHeader } from '../services/Auth'
+import { getHeader } from '../services/auth'
 import { API_URL } from './common'
 
 export default async function handleLike (key: number, liked: boolean,

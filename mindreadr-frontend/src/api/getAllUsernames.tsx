@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-import { getHeader } from '../services/Auth'
+import { getHeader } from '../services/auth'
 import { USERS_URL } from './common'
 
 export async function getAllUsernames (): Promise<string[]> {

@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-import { getHeader } from '../services/Auth'
+import { getHeader } from '../services/auth'
 import { POSTS_URL } from './common'
 
 export interface RawPost {

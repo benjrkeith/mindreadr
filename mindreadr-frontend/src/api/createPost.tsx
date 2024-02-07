@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 import { POSTS_URL } from './common'
-import { getHeader } from '../services/Auth'
+import { getHeader } from '../services/auth'
 import { type RawPost } from './getPosts'
 
 export default async function createPost (content: string): Promise<RawPost> {

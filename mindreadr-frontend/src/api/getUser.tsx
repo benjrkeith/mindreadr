@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 import { type User } from '../App'
-import { getHeader } from '../services/Auth'
+import { getHeader } from '../services/auth'
 import { USERS_URL } from './common'
 
 export default async function getUser (username: string): Promise<User> {

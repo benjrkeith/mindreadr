@@ -28,12 +28,11 @@ export default function LogIn ({ setUser }: Args): ReactElement {
 
     try {
       const res = await axios.post(URL, { username, password })
-      if (res.data.token !== '') {
-        sessionStorage.setItem('user', JSON.stringify(res.data))
-      }
+      if (res.data.token === '') return
 
+      sessionStorage.setItem('user', JSON.stringify(res.data))
       setUser(res.data)
-      navigate('/users')
+      navigate('/feed')
     } catch (err) {
       if (!(err instanceof axios.AxiosError)) throw err
       else setError(err.response?.data.err)
@@ -59,7 +58,7 @@ export default function LogIn ({ setUser }: Args): ReactElement {
         <p className='text-red-500 text-center w-full h-fit'>• {error}</p></div>}
       <div className='row-[9/9] flex items-center mb-4 m-[auto]'>
         <p className='text-sm pr-2 text-white'>Don&apos;t have an account?</p>
-        <Link to='/register' className='text-center text-purple-600 pb-[0.5] text-lg row-[8/8]'>Sign Up</Link>
+        <Link to='/register' className='text-center text-purple-600 text-sm row-[8/8]'>Sign Up</Link>
       </div>
     </form>
   )
