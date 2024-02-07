@@ -54,37 +54,5 @@ export default function Register (): ReactElement {
         <Link to='/login' className='text-center text-purple-600 text-sm row-[8/8]'>Log In</Link>
       </div>
     </form>
-
-  // <form className='auth-form' onSubmit={handleSubmit}>
-  //   {error !== '' && <p>{error}</p>}
-  //   <div className='auth-creds-container'>
-  //     <input
-  //       className='auth-creds-input'
-  //       required
-  //       type='text'
-  //       placeholder='Username'
-  //       value={username}
-  //       onChange={(e) => { setUsername(e.target.value) }}
-  //     />
-  //     <input
-  //     className='auth-creds-input'
-  //       required
-  //       type='password'
-  //       placeholder='Password'
-  //       value={password}
-  //       onChange={(e) => { setPassword(e.target.value) }}
-  //     />
-  //   </div>
-
-  //   <div className='auth-buttons-container'>
-  //     <input
-  //       className='auth-button auth-button-register'
-  //       type='button'
-  //       value='Login'
-  //       onClick={() => { navigate('/login') }}
-  //     />
-  //     <input className='auth-button auth-button-login' type='submit' value='Register' />
-  //   </div>
-  // </form>
   )
 }
