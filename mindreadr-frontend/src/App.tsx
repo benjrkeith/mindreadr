@@ -1,15 +1,14 @@
 import React, { useState, type ReactElement, createContext } from 'react'
 import { Route, Routes, BrowserRouter, Navigate } from 'react-router-dom'
+
+import Feed from './pages/Feed'
 import LogIn from './pages/Login'
 import Register from './pages/Register'
-import Feed from './pages/Feed'
-import Users from './pages/Users'
-import Protected from './components/Protected'
 import Trending from './pages/Trending'
-
+import Users from './pages/Users'
 import Auth from './components/Auth'
 import Nav from './components/Nav'
-// import Compose from './components/Compose'
+import Protected from './components/Protected'
 import './App.css'
 
 export interface User {
