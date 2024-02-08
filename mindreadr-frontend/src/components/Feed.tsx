@@ -17,9 +17,5 @@ export default function Feed (props: Props): ReactElement {
 
   useEffect(() => { void loadMore() }, [loadMore])
 
-  return (
-    <div className='feed-container'>
-      {props.posts.map(data => <Post key={data.key} data={data}/>)}
-    </div>
-  )
+  return (<>{props.posts.map(data => <Post key={data.key} data={data}/>)}</>)
 }

@@ -8,8 +8,9 @@ export default function Users (): ReactElement {
   const [posts, setPosts] = useState<RawPost[]>([])
 
   return (
-    <>
+    <div className='h-[90%] overflow-scroll'>
       <Compose posts={posts} setPosts={setPosts}/>
       <Feed posts={posts} setPosts={setPosts} user=''></Feed>
-      </>)
+    </div>
+  )
 }
