@@ -1,11 +1,14 @@
 import React, { type ReactElement } from 'react'
 import UserInfo from '../components/UserInfo'
 import { useParams } from 'react-router-dom'
+import useAuth from '../hooks/useAuth'
 // import Feed from '../components/Feed'
 
 export default function Users (): ReactElement {
   const params = useParams()
-  const target = params['*'] === '' ? 'user1' : params['*']
+  const user = useAuth()
+
+  const target = params['*'] === '' ? user.username : params['*']
 
   if (target === undefined) return <></>
 
