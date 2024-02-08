@@ -1,5 +1,5 @@
 import React, { useState, type ReactElement, createContext } from 'react'
-import { Route, Routes, BrowserRouter } from 'react-router-dom'
+import { Route, Routes, BrowserRouter, Navigate } from 'react-router-dom'
 import LogIn from './pages/Login'
 import Register from './pages/Register'
 import Feed from './pages/Feed'
@@ -33,6 +33,7 @@ export default function App (): ReactElement {
     <userCtx.Provider value={user}>
       <BrowserRouter>
         <Routes>
+          <Route path='/' element={<Navigate to='/feed'/>}/>
           <Route path='/login' element={
             <Auth setUser={setUser} el={<LogIn setUser={setUser}/>}/>
           }/>
