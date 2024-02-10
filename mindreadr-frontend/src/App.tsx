@@ -2,6 +2,7 @@ import React, { useState, type ReactElement, createContext } from 'react'
 import { Route, Routes, BrowserRouter, Navigate } from 'react-router-dom'
 
 import Feed from './pages/Feed'
+import Inbox from './pages/Inbox'
 import LogIn from './pages/Login'
 import Register from './pages/Register'
 import Trending from './pages/Trending'
@@ -40,6 +41,7 @@ export default function App (): ReactElement {
           <Route path='/feed' element={<Protected el={<Feed/>}/>}/>
           <Route path='/trending' element={<Protected el={<Trending/>}/>}/>
           <Route path='/users/*' element={<Protected el={<Users/>}/>}/>
+          <Route path='/inbox' element={<Protected el={<Inbox/>}/>} />
         </Routes>
         {user.token === '' ? <></> : <Nav/>}
       </BrowserRouter>

@@ -14,7 +14,7 @@ export default function Nav (): ReactElement {
         <Link to='/users' className='min-h-0 h-full'>
           <img src='users.png' alt='' className='min-h-0 max-h-full object-cover filter-white' />
         </Link>
-        <Link to='/users' className='min-h-0 h-full'>
+        <Link to='/inbox' className='min-h-0 h-full'>
           <img src='settings.png' alt='' className='min-h-0 max-h-full object-cover filter-white' />
         </Link>
     </div>

@@ -24,6 +24,5 @@ export async function getPosts (author = '', offset = 0, limit = 10): Promise<Ra
   const args = { headers: getHeader(), params }
   const response = await axios.get(POSTS_URL, args)
 
-  console.log(response.data)
   return response.data
 }
