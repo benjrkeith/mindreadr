@@ -1,13 +1,13 @@
 import React, { useState, type ReactElement, useEffect, useCallback, useLayoutEffect } from 'react'
 
 import { getAllUsernames } from '../api/getAllUsernames'
-import './Compose.css'
 import createPost from '../api/createPost'
 import { type RawPost } from '../api/getPosts'
 
 interface Props {
   posts: RawPost[]
   setPosts: React.Dispatch<React.SetStateAction<RawPost[]>>
+  setCreatePost: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export default function Compose (props: Props): ReactElement {
@@ -94,7 +94,7 @@ export default function Compose (props: Props): ReactElement {
 
     if (e.key === 'ArrowDown') {
       e.preventDefault()
-      if (targetUser < filtered.length - 1) setTargetUser(prev => prev + 1)
+      if (targetUser < 4) setTargetUser(prev => prev + 1)
       return
     } else if (e.key === 'ArrowUp') {
       e.preventDefault()
@@ -109,7 +109,7 @@ export default function Compose (props: Props): ReactElement {
     const match = newInput.match(re)
     if (match === null) return
 
-    newInput = newInput.replace(re, ` <span class='blue'>@${filtered[targetUser]}</span>\u200B`)
+    newInput = newInput.replace(re, ` <span class='text-purple-600'>@${filtered[targetUser]}</span>\u200B`)
     setInput(newInput)
     setOffset(prev => prev + filtered[targetUser].length - match[0].length + 4)
     setFiltered([])
@@ -128,24 +128,27 @@ export default function Compose (props: Props): ReactElement {
 
     setInput('')
     setFiltered([])
+    props.setCreatePost(false)
   }
 
   return (
-    <div className='compose-container'>
-      <br/>
-        <div className='compose-input' contentEditable onKeyDown={handleKeyDown} onInput={handleInput}
-          suppressContentEditableWarning dangerouslySetInnerHTML={{ __html: input }} ref={inputRef}/>
-        {/* <div className='compose-search-container'>
-          {filtered.map((user, i) => <span key={user} className={i === targetUser
-            ? 'compose-search-target'
-            : 'compose-search-item'}>{user}</span>)}
-        </div> */}
-        {/* length doesn't update if u tag someone until you type another char */}
-        <div className='compose-inner-container'>
-          <p>{filtered[targetUser]}</p>
-          <p className='compose-char-count'>{inputRef.current?.innerText.length}/140</p>
-          <button type="button" onClick={handleSubmit} className='compose-submit'>Submit</button>
-        </div>
+    <div className='absolute h-dvh w-dvw bg-[#1e2124] z-10'>
+      <div className='flex h-[10dvh] items-center border-b-2 border-solid border-white ml-4 mr-4'>
+        <button type="button" onClick={() => { props.setCreatePost(false) }} className='text-red-700 text-3xl p-3 col-[1] text-left font-semibold'>X</button>
+        <p className='col-[2] grow text-right text-white p-3 align-middle justify-center font-semibold'>{inputRef.current?.innerText.length}/140</p>
+      </div>
+      <div className='p-5 text-white' contentEditable onKeyDown={handleKeyDown} onInput={handleInput}
+        suppressContentEditableWarning dangerouslySetInnerHTML={{ __html: input }} ref={inputRef}/>
+      {filtered.length > 0 && <div className='bg-white flex flex-col w-fit m-auto'>
+        {filtered.slice(0, 5).map((user, i) => <span key={user} className={i === targetUser
+          ? 'bg-purple-600 text-white w-fit p-1'
+          : 'w-fit p-1'}>{user}</span>)}
+      </div>}
+      {/* length doesn't update if u tag someone until you type another char */}
+      <div className='h-[20dvh] absolute top-[80%] w-[90%] left-[5%] flex border-t-2 border-solid border-white'>
+        <button type="button" onClick={handleSubmit} className='bg-purple-600 text-white m-7 w-full rounded-full
+          font-bold text-2xl'>Submit</button>
+      </div>
     </div>
   )
 }
