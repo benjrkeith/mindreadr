@@ -3,7 +3,6 @@ import { Link, useLocation } from 'react-router-dom'
 
 export default function Nav (): ReactElement {
   const loc = useLocation()
-  console.log(loc)
 
   return (
     <div className='grid grid-cols-4 justify-items-center items-center h-[10%] box-border border-t-2 border-white

@@ -13,7 +13,9 @@ export interface RawPost {
   likes: number
   liked: boolean
   reposted: boolean
+  reposts: number
   replied: boolean
+  replies: number
 }
 
 export async function getPosts (author = '', offset = 0, limit = 10): Promise<RawPost[]> {
