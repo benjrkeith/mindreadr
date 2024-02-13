@@ -13,7 +13,7 @@ export default async (req: Request, res: Response, next: NextFunction): Promise<
   }
 
   const query = {
-    text: `SELECT username, created_at, last_login, privilege,
+    text: `SELECT username, created_at, last_login, privilege, avatar,
             (SELECT COUNT(key) AS posts FROM posts WHERE author = $1),
             (SELECT COUNT(username) AS followers FROM followers WHERE username = $1),
             (SELECT COUNT(follower) AS following FROM followers WHERE follower = $1)
