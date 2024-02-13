@@ -1,8 +1,9 @@
 import React, { useEffect, type ReactElement, useState, useCallback } from 'react'
 
 import { type User } from '../App'
-import getUser from '../api/getUser'
 import Followers from './Followers'
+import Following from './Following'
+import getUser from '../api/getUser'
 
 interface Props {
   user: string
@@ -11,6 +12,7 @@ interface Props {
 export default function UserInfo (props: Props): ReactElement {
   const [user, setUser] = useState<User>()
   const [showFollowers, setShowFollowers] = useState<boolean>(false)
+  const [showFollowing, setShowFollowing] = useState<boolean>(false)
 
   const fetchUser = useCallback(async () => {
     setUser(await getUser(props.user))
@@ -24,6 +26,7 @@ export default function UserInfo (props: Props): ReactElement {
 
   return (
     <>
+      <Following target={props.user} showFollowing={showFollowing} setShowFollowing={setShowFollowing}/>
       <Followers target={props.user} showFollowers={showFollowers} setShowFollowers={setShowFollowers}/>
       <div className='flex flex-col'>
         <div className='h-full border-b-2 border-white border-double grid grid-rows-8
@@ -47,10 +50,10 @@ export default function UserInfo (props: Props): ReactElement {
             <h1 className='text-2xl'>{user.followers}</h1>
             <p className='text-xs'>Followers</p>
           </button>
-          <div className='border-2 border-white border-double rounded-md p-2 w-4/5'>
+          <button onClick={() => { setShowFollowing(true) }} className='border-2 border-white border-double rounded-md p-2 w-4/5'>
             <h1 className='text-2xl'>{user.following}</h1>
             <p className='text-xs'>Following</p>
-          </div>
+          </button>
         </div>
       </div>
     </>
