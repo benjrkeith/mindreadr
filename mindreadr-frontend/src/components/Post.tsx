@@ -8,7 +8,6 @@ import { type RawPost } from '../api/getPosts'
 import heart from '../../public/heart.png'
 import repost from '../../public/repost.png'
 import reply from '../../public/reply.png'
-import avatar from '../../public/default-avatar.png'
 
 interface Props {
   data: RawPost
@@ -16,7 +15,7 @@ interface Props {
 
 export default function Post (props: Props): ReactElement {
   const {
-    key, author, content, parent, parent_author: parentAuthor, reposted, replied, reposts, replies
+    key, author, content, parent, parent_author: parentAuthor, reposted, replied, reposts, replies, avatar
   } = props.data
 
   let { created_at: createdAt } = props.data
@@ -33,7 +32,7 @@ export default function Post (props: Props): ReactElement {
           ? <p className='pb-2'>Replying to <span className='text-purple-600'>@{parentAuthor}</span></p>
           : null}
         <div className='flex flex-row gap-3'>
-          <img src={avatar} alt='' className='w-3/12 rounded-full' />
+          <img src={avatar} alt='' className='rounded-full w-1/5' />
           <div className='grid grid-rows-2'>
             <h1 className='text-purple-600 text-2xl font-semibold h-fit leading-7 self-end'>@{author}</h1>
             <footer className='text-sm leading-4 self-start'>{createdAt}</footer>
