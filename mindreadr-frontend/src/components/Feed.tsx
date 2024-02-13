@@ -19,7 +19,9 @@ export default function Feed (props: Props): ReactElement {
 
   return (
     <>
-      {props.posts.map(data => <Post key={data.key} data={data}/>)}
+      {props.posts.length > 0
+        ? props.posts.map(data => <Post key={data.key} data={data}/>)
+        : <p className='text-white w-full text-center'>No posts found.</p>}
     </>
   )
 }
