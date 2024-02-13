@@ -5,6 +5,11 @@ import handleLike from '../api/likePost'
 import createRepost from '../api/createRepost'
 import { type RawPost } from '../api/getPosts'
 
+import heart from '../../public/heart.png'
+import repost from '../../public/repost.png'
+import reply from '../../public/reply.png'
+import avatar from '../../public/default-avatar.png'
+
 interface Props {
   data: RawPost
 }
@@ -28,7 +33,7 @@ export default function Post (props: Props): ReactElement {
           ? <p className='pb-2'>Replying to <span className='text-purple-600'>@{parentAuthor}</span></p>
           : null}
         <div className='flex flex-row gap-3'>
-          <img src='default-avatar.png' alt='' className='w-3/12 rounded-full' />
+          <img src={avatar} alt='' className='w-3/12 rounded-full' />
           <div className='grid grid-rows-2'>
             <h1 className='text-purple-600 text-2xl font-semibold h-fit leading-7 self-end'>@{author}</h1>
             <footer className='text-sm leading-4 self-start'>{createdAt}</footer>
@@ -49,7 +54,7 @@ export default function Post (props: Props): ReactElement {
               onClick={async () => { await handleLike(key, liked, setLikes, setLiked) }}>
             <img className={liked
               ? 'filter-purple object-cover h-6 pt-0.5'
-              : 'filter-white object-cover h-6 pt-0.5'} src='heart.png'/>
+              : 'filter-white object-cover h-6 pt-0.5'} src={heart}/>
           </button>
           <p className='text-xl text-center'>•</p>
           <button className='text-xl' type='submit'>{likes}</button>
@@ -58,7 +63,7 @@ export default function Post (props: Props): ReactElement {
           <button className='h-fit' type='submit' onClick={ async () => { await createRepost(key, reposted, content) }}>
             <img className={reposted
               ? 'filter-purple object-cover h-6 pt-1'
-              : 'filter-white object-cover h-6 pt-1'} src='repost.png'/>
+              : 'filter-white object-cover h-6 pt-1'} src={repost}/>
           </button>
           <p className='text-xl text-center'>•</p>
           <button className='text-xl' type='submit'>{reposts}</button>
@@ -67,7 +72,7 @@ export default function Post (props: Props): ReactElement {
           <button className='h-fit' type='submit'>
             <img className={replied
               ? 'filter-purple object-cover h-6 pt-0.5'
-              : 'filter-white object-cover h-6 pt-0.5'} src='reply.png'/>
+              : 'filter-white object-cover h-6 pt-0.5'} src={reply}/>
           </button>
           <p className='text-xl text-center'>•</p>
           <button className='text-xl' type='submit'>{replies}</button>

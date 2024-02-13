@@ -13,9 +13,9 @@ export default function Feed (props: Props): ReactElement {
   const loadMore = useCallback(async () => {
     const next = await getPosts(props.user)
     props.setPosts(next)
-  }, [])
+  }, [props.user])
 
-  useEffect(() => { void loadMore() }, [loadMore])
+  useEffect(() => { void loadMore() }, [loadMore, props.user])
 
   return (
     <>

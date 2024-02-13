@@ -1,10 +1,13 @@
-import React, { type ReactElement } from 'react'
-import UserInfo from '../components/UserInfo'
+import React, { type ReactElement, useState } from 'react'
 import { useParams } from 'react-router-dom'
+
+import Feed from '../components/Feed'
+import UserInfo from '../components/UserInfo'
 import useAuth from '../hooks/useAuth'
-// import Feed from '../components/Feed'
+import { type RawPost } from '../api/getPosts'
 
 export default function Users (): ReactElement {
+  const [posts, setPosts] = useState<RawPost[]>([])
   const params = useParams()
   const user = useAuth()
 
@@ -13,9 +16,9 @@ export default function Users (): ReactElement {
   if (target === undefined) return <></>
 
   return (
-  <div className='h-[90%] flex flex-col'>
+  <div className='h-[90%] flex flex-col overflow-scroll'>
     <UserInfo user={target}/>
-    {/* <Feed user={user.username}/> */}
+    <Feed posts={posts} setPosts={setPosts} user={target}/>
   </div>
 
   )
