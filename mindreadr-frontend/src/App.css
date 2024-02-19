@@ -7,27 +7,23 @@
     padding: 0;
     border: 0;
     outline: 0;
-    font-size: x-large;
+    font-size: large;
 }
 
 html, body, #root {
     height: 100%;
+    min-width: 256px;
+    min-height: 512px;
+    color: white;
+    background-color: #1e2124;
+    font-family: "Roboto", sans-serif;
+    font-weight: 400;
 }
 
-body {
-    background-color: #1e2124;
-}
- 
 .filter-white {
     filter: invert(100%) sepia(89%) saturate(132%) hue-rotate(281deg) brightness(119%) contrast(100%);
 }
 
 .filter-purple {
     filter: invert(47%) sepia(44%) saturate(6045%) hue-rotate(246deg) brightness(98%) contrast(97%);
-}
-
-@media (max-width: 400px), (max-height: 700px) {
-    html {
-        font-size: large;
-    }
 }

@@ -40,25 +40,43 @@ export default function LogIn ({ setUser }: Args): ReactElement {
   }
 
   return (
-    <form className='h-full grid grid-rows-9 gap-5 pl-3 pr-3 justify-items-center' onSubmit={handleSubmit}>
-      <h1 className='row-[2/2] text-center text-4xl font-bold text-white'>Log In</h1>
-      <input type='text' placeholder='Username' value={username}
-        onChange={(e) => { setUsername(e.target.value) }}
-        className='row-[4/4] text-center rounded-full p-2 pl-5 pr-5  w-5/6'
-      />
-      <input type='password' placeholder='Password' value={password}
-        onChange={(e) => { setPassword(e.target.value) }}
-        className='row-[5/5] text-center rounded-full p-2 pl-5 pr-5  w-5/6'
-      />
-      <input type='submit' value='Log In' className='rounded-full bg-purple-600 text-xl pb-2 pt-2 pl-5 pr-5
-        text-white font-semibold row-[6/6] w-5/6 leading-4'/>
-      {error === ''
-        ? <></>
-        : <div className='row-[3/3] flex items-end'>
-        <p className='text-red-500 text-center w-full h-fit'>• {error}</p></div>}
-      <div className='row-[9/9] flex items-center mb-4 m-[auto]'>
-        <p className='text-sm pr-2 text-white'>Don&apos;t have an account?</p>
-        <Link to='/register' className='text-center text-purple-600 text-sm row-[8/8]'>Sign Up</Link>
+    <form className='h-full flex flex-col items-center'
+        onSubmit={handleSubmit}>
+      <div className='flex items-end grow-[1]'>
+        <h1 className='text-5xl font-bold justify-end italic sm:text-7xl'>
+          Log In
+        </h1>
+      </div>
+      <div className='flex flex-col w-full gap-3 h-2/6 items-center grow-[2]
+          justify-center lg:h-1/6'>
+        {error === ''
+          ? <></>
+          : <div className='flex items-end w-full'>
+              <p className='text-red-500 text-center w-full text-sm'>
+                {error}
+              </p>
+            </div>}
+        <input type='text' placeholder='Username' value={username}
+          onChange={(e) => { setUsername(e.target.value) }} spellCheck='false'
+          className='text-center text-black rounded-lg w-10/12 h-fit
+            py-2 max-w-96 sm:text-2xl sm:py-4'
+        />
+        <input type='password' placeholder='Password' value={password}
+          onChange={(e) => { setPassword(e.target.value) }}
+          className='text-center text-black rounded-lg w-10/12 h-fit
+            py-2 max-w-96 sm:text-2xl sm:py-4'
+        />
+        <input type='submit' value='Log In' className='rounded-lg bg-purple-600
+          text-white font-semibold w-6/12 max-w-64 text-xl py-2 h-fit mt-3
+          sm:text-3xl sm:py-4'/>
+      </div>
+      <div className='flex items-end w-full mx-auto mb-2 justify-evenly grow-[1]
+        sm:mb-5 lg:items-start'>
+        <p className='text-sm text-white sm:text-xl'>
+          Don&apos;t have an account?
+          <Link to='/register' className='text-purple-600 text-base
+            sm:text-2xl'> Sign Up</Link>
+        </p>
       </div>
     </form>
   )
