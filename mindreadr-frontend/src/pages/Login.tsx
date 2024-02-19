@@ -8,7 +8,7 @@ import { type User } from '../App'
 interface Args { setUser: React.Dispatch<React.SetStateAction<User>> }
 
 export default function LogIn ({ setUser }: Args): ReactElement {
-  const [error, setError] = useState('')
+  const [error, setError] = useState('\u200B')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const navigate = useNavigate()
@@ -40,7 +40,8 @@ export default function LogIn ({ setUser }: Args): ReactElement {
   }
 
   return (
-    <form className='h-full flex flex-col items-center'
+    <form className='h-full flex flex-col items-center sm:min-h-[600px]
+          lg:min-h-[700px]'
         onSubmit={handleSubmit}>
       <div className='flex items-end grow-[1]'>
         <h1 className='text-5xl font-bold justify-end italic sm:text-7xl'>
@@ -49,13 +50,11 @@ export default function LogIn ({ setUser }: Args): ReactElement {
       </div>
       <div className='flex flex-col w-full gap-3 h-2/6 items-center grow-[2]
           justify-center lg:h-1/6'>
-        {error === ''
-          ? <></>
-          : <div className='flex items-end w-full'>
-              <p className='text-red-500 text-center w-full text-sm'>
-                {error}
-              </p>
-            </div>}
+        <div className='flex items-end w-full'>
+          <p className='text-red-500 text-center w-full text-sm sm:text-lg'>
+            {error}
+          </p>
+        </div>
         <input type='text' placeholder='Username' value={username}
           onChange={(e) => { setUsername(e.target.value) }} spellCheck='false'
           className='text-center text-black rounded-lg w-10/12 h-fit
