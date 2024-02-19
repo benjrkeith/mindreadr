@@ -20,6 +20,11 @@ html, body, #root {
     font-weight: 400;
 }
 
+#root {
+    max-width: 800px;
+    margin: auto;
+}
+
 .filter-white {
     filter: invert(100%) sepia(89%) saturate(132%) hue-rotate(281deg) brightness(119%) contrast(100%);
 }

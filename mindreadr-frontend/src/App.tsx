@@ -23,7 +23,6 @@ export interface User {
   avatar: string
 }
 
-export const API_URL = '/api/'
 export const defaultUser: User = { username: '', token: '', created_at: '', last_login: '', avatar: '' }
 export const userCtx = createContext(defaultUser)
 
