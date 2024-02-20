@@ -38,12 +38,12 @@ export default function UserInfo (props: Props): ReactElement {
             justify-items-center h-2/6 grow'>
           <img src={cover} alt='' className='h-full w-full object-cover
             row-[1/6] col-[1] opacity-15' />
-          <div className='row-[1/6] col-[1] z-10 flex flex-col p-3 gap-2 w-full'>
+          <div className='row-[1/6] col-[1] z-10 flex flex-col p-3 pb-2 gap-2 w-full'>
             <img src={avatar} alt='' className='h-[30%] outline-white col-[1]
               rounded-full outline-double row-[1/4] outline-2 self-center grow' />
-            <div className='text-white text-center row-[4/4] col-[1] p-1'>
-              <h1 className='text-base leading-5 sm:text-xl md:text-2xl'>Ben Keith</h1>
-              <h1 className='text-base leading-5 sm:text-xl md:text-2xl'>@{user.username}</h1>
+            <div className='text-white text-center row-[4/4] col-[1] md:p-2'>
+              <h1 className='text-base leading-5 sm:text-lg md:text-2xl'>Ben Keith</h1>
+              <h1 className='text-base leading-5 sm:text-lg md:text-2xl'>@{user.username}</h1>
             </div>
           </div>
         </div>

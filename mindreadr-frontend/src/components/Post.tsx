@@ -1,28 +1,28 @@
-import React, { useState, type ReactElement } from 'react'
 import { Link } from 'react-router-dom'
+import React, { useState, type ReactElement } from 'react'
 
-import handleLike from '../api/likePost'
 import createRepost from '../api/createRepost'
+import handleLike from '../api/likePost'
 import { type RawPost } from '../api/getPosts'
 
-import heart from '../../public/heart.png'
-import repost from '../../public/repost.png'
-import reply from '../../public/reply.png'
+import avatar from '../assets/avatar.png'
+import heart from '../assets/heart.png'
+import reply from '../assets/reply.png'
+import repost from '../assets/repost.png'
 
 interface Props {
   data: RawPost
 }
 
 export default function Post (props: Props): ReactElement {
+  const createdAt = new Date(props.data.created_at).toLocaleString()
   const {
-    key, author, content, parent, parent_author: parentAuthor, reposted, replied, reposts, replies, avatar
+    key, author, content, parent, parent_author: parentAuthor, reposted,
+    replied, reposts, replies
   } = props.data
 
-  let { created_at: createdAt } = props.data
-  createdAt = new Date(createdAt).toLocaleString()
-
-  const [likes, setLikes] = useState<number>(props.data.likes)
   const [liked, setLiked] = useState<boolean>(props.data.liked)
+  const likes = liked ? props.data.likes + 1 : props.data.likes
 
   return (
     <div className='text-white pt-2 pb-2 ml-2 mr-2 border-t-2 border-solid border-gray-600'>
@@ -50,7 +50,7 @@ export default function Post (props: Props): ReactElement {
       <div className='grid grid-cols-3'>
         <div className='flex justify-center items-center gap-1'>
           <button className='h-fit' type='submit'
-              onClick={async () => { await handleLike(key, liked, setLikes, setLiked) }}>
+              onClick={async () => { await handleLike(key, liked, setLiked) }}>
             <img className={liked
               ? 'filter-purple object-cover h-6 pt-0.5'
               : 'filter-white object-cover h-6 pt-0.5'} src={heart}/>
