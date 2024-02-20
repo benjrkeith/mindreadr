@@ -30,10 +30,10 @@ router.get('/', parseLimits, getFollowers, async (req, res) => {
       (SELECT avatar FROM users WHERE username=author) AS avatar,
       (SELECT author AS parent_author FROM POSTS AS s WHERE s.key=p.parent),
       EXISTS(SELECT * FROM posts AS n WHERE n.author=$3 AND n.parent=p.key AND n.content=p.content) AS reposted,
-      (SELECT COUNT(*) AS reposts FROM posts WHERE parent=p.key AND content=p.content),
+      (SELECT COUNT(*)::int AS reposts FROM posts WHERE parent=p.key AND content=p.content),
       EXISTS(SELECT * FROM posts AS n WHERE n.author=$3 AND n.parent=p.key AND NOT n.content=p.content) AS replied,
-      (SELECT COUNT(*) AS replies FROM posts WHERE parent=p.key AND NOT content=p.content),
-      (SELECT COUNT(*) AS likes FROM likes WHERE post=key), 
+      (SELECT COUNT(*)::int AS replies FROM posts WHERE parent=p.key AND NOT content=p.content),
+      (SELECT COUNT(*)::int AS likes FROM likes WHERE post=key), 
       EXISTS(SELECT * FROM likes WHERE username=$3 AND post=key) AS liked 
       FROM posts AS p WHERE ($4::text IS NULL AND ($6 IS FALSE OR author=ANY($5)) 
       OR (author=$4 AND $4=ANY($5)) OR (author=$4 AND $6 IS FALSE))
