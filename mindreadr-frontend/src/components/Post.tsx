@@ -15,7 +15,8 @@ interface Props {
 }
 
 export default function Post (props: Props): ReactElement {
-  const createdAt = new Date(props.data.created_at).toLocaleString()
+  let createdAt = new Date(props.data.created_at).toLocaleString()
+  createdAt = createdAt.slice(0, createdAt.length - 3)
   const {
     key, author, content, parent, parent_author: parentAuthor, reposted,
     replied, reposts, replies
@@ -25,56 +26,72 @@ export default function Post (props: Props): ReactElement {
   const likes = liked ? props.data.likes + 1 : props.data.likes
 
   return (
-    <div className='text-white pt-2 pb-2 ml-2 mr-2 border-t-2 border-solid border-gray-600'>
+    <div className='text-white p-2 sm:px-5 md:px-8'>
       <div className='flex flex-col'>
         {/* have parent info be link to parent post */}
-        {parent !== null
+        {/* {parent !== null
           ? <p className='pb-2'>Replying to <span className='text-purple-600'>@{parentAuthor}</span></p>
-          : null}
-        <div className='flex flex-row gap-3'>
-          <img src={avatar} alt='' className='rounded-full w-1/5' />
-          <div className='grid grid-rows-2'>
-            <h1 className='text-purple-600 text-2xl font-semibold h-fit leading-7 self-end'>@{author}</h1>
-            <footer className='text-sm leading-4 self-start'>{createdAt}</footer>
+          : null} */}
+        <div className='flex flex-row gap-2 sm:gap-4'>
+          <img src={avatar} alt='' className='rounded-lg w-[20%] aspect-square
+            ' />
+          <div className='flex flex-col justify-center grow'>
+            <h1 className='text-purple-600 text-lg font-semibold h-fit
+                leading-6 sm:text-2xl'>
+              @{author}
+            </h1>
+            <footer className='text-[0.6rem] leading-3 self-start grow
+                sm:text-sm'>
+              {createdAt}
+            </footer>
           </div>
+          <button className='pr-5'>
+            <div className='leading-[0.4rem]'>•</div>
+            <div className='leading-[0.4rem]'>•</div>
+            <div className='leading-[0.4rem]'>•</div>
+          </button>
         </div>
       </div>
 
-      <div className='p-3'>
+      <div className='px-1 py-2 text-sm sm:py-3 sm:text-lg md:py-4 md:text-2xl'>
         {content.split(/(@[\w\d]+)/g).map((word) => word.startsWith('@')
-          ? <Link key={word} className='text-purple-600'
-            to={`/users/${word.replace('@', '')}`}>{word}</Link>
+          ? <Link key={word} to={`/users/${word.replace('@', '')}`}
+              className='text-purple-600 font-semibold text-sm sm:text-lg
+              md:text-2xl'>{word}</Link>
           : word)}
       </div>
 
-      <div className='grid grid-cols-3'>
-        <div className='flex justify-center items-center gap-1'>
-          <button className='h-fit' type='submit'
-              onClick={async () => { await handleLike(key, liked, setLiked) }}>
-            <img className={liked
-              ? 'filter-purple object-cover h-6 pt-0.5'
-              : 'filter-white object-cover h-6 pt-0.5'} src={heart}/>
+      <div className='grid grid-cols-3 max-w-96 mx-auto'>
+        <div className='flex justify-center gap-1'>
+          <button className='h-fit' type='submit' onClick={async () => {
+            await handleLike(key, liked, setLiked)
+          }}>
+            <img src={heart} className={liked
+              ? 'filter-purple object-cover h-3 sm:h-5'
+              : 'filter-white object-cover h-3 sm:h-5'}/>
           </button>
-          <p className='text-xl text-center'>•</p>
-          <button className='text-xl' type='submit'>{likes}</button>
+          <div className='text-lg self-center leading-3 sm:text-2xl sm:leading-3'>•</div>
+          <button className='leading-3 h-fit sm:text-xl sm:leading-5' type='submit'>{likes}</button>
         </div>
-        <div className='flex justify-center items-center gap-1'>
-          <button className='h-fit' type='submit' onClick={ async () => { await createRepost(key, reposted, content) }}>
+        <div className='flex justify-center gap-1'>
+          <button className='h-fit' type='submit' onClick={ async () => {
+            await createRepost(key, reposted, content)
+          }}>
             <img className={reposted
-              ? 'filter-purple object-cover h-6 pt-1'
-              : 'filter-white object-cover h-6 pt-1'} src={repost}/>
+              ? 'filter-purple object-cover h-3 sm:h-5'
+              : 'filter-white object-cover h-3 sm:h-5'} src={repost}/>
           </button>
-          <p className='text-xl text-center'>•</p>
-          <button className='text-xl' type='submit'>{reposts}</button>
+          <div className='text-lg self-center leading-3 sm:text-2xl sm:leading-3'>•</div>
+          <button className='leading-3 h-fit sm:text-xl sm:leading-5' type='submit'>{reposts}</button>
         </div>
         <div className='flex justify-center items-center gap-1'>
           <button className='h-fit' type='submit'>
             <img className={replied
-              ? 'filter-purple object-cover h-6 pt-0.5'
-              : 'filter-white object-cover h-6 pt-0.5'} src={reply}/>
+              ? 'filter-purple object-cover h-3 sm:h-5'
+              : 'filter-white object-cover h-3 sm:h-5'} src={reply}/>
           </button>
-          <p className='text-xl text-center'>•</p>
-          <button className='text-xl' type='submit'>{replies}</button>
+          <div className='text-lg self-center leading-3 sm:text-2xl sm:leading-3'>•</div>
+          <button className='leading-3 h-fit sm:text-xl sm:leading-5' type='submit'>{replies}</button>
         </div>
       </div>
     </div>
