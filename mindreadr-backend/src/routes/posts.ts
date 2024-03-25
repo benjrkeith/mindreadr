@@ -8,7 +8,7 @@ import verifyToken from '../middleware/verifyToken.js'
 import getPost from '../middleware/getPost.js'
 import checkPrivilege from '../middleware/checkPrivilege.js'
 import parseLimits from '../middleware/parseLimits.js'
-import getFollowers from '../middleware/getFollowers.js'
+import getFollowing from '../middleware/getFollowing.js'
 
 const router = Router()
 
@@ -17,9 +17,9 @@ router.use('/:key/likes', likesRouter)
 router.use('/:key/replies', repliesRouter)
 
 // get all posts, supports by author and offset/limit
-router.get('/', parseLimits, getFollowers, async (req, res) => {
+router.get('/', parseLimits, getFollowing, async (req, res) => {
   const { author, following = false } = req.query
-  const { offset, limit, user, followers } = res.locals
+  const { offset, limit, user, _following } = res.locals
 
   // the where clause allows postgres to evaluate whether to filter by a
   // specific author, by the list of people you follow, or just all posts
@@ -27,7 +27,7 @@ router.get('/', parseLimits, getFollowers, async (req, res) => {
   // if you follow the specific author
   const query = {
     text: `SELECT key, author, content, created_at, parent,
-      (SELECT avatar FROM users WHERE username=author) AS avatar,
+      (SELECT avatar FROM users WHERE username=author) AS author_avatar,
       (SELECT author AS parent_author FROM POSTS AS s WHERE s.key=p.parent),
       EXISTS(SELECT * FROM posts AS n WHERE n.author=$3 AND n.parent=p.key AND n.content=p.content) AS reposted,
       (SELECT COUNT(*)::int AS reposts FROM posts WHERE parent=p.key AND content=p.content),
@@ -38,7 +38,7 @@ router.get('/', parseLimits, getFollowers, async (req, res) => {
       FROM posts AS p WHERE ($4::text IS NULL AND ($6 IS FALSE OR author=ANY($5)) 
       OR (author=$4 AND $4=ANY($5)) OR (author=$4 AND $6 IS FALSE))
       ORDER BY created_at DESC LIMIT $1 OFFSET $2`,
-    values: [limit, offset, user.username, author, followers, following]
+    values: [limit, offset, user.username, author, _following, following]
   }
 
   try {
@@ -80,11 +80,11 @@ router.post('/', async (req, res) => {
 // this will get up to 5 of the most liked posts in the last 24 hours
 router.get('/trending', async (req, res) => {
   const query = `
-  SELECT key, author, content, total_likes FROM posts join 
+  SELECT key, author, content, total_likes FROM posts JOIN 
     (SELECT post, COUNT(post) as total_likes FROM likes 
       WHERE created_at > current_date - interval '24' hour 
-      group by post order by total_likes desc limit 5) 
-    on post=key order by total_likes desc;`
+      GROUP BY post ORDER BY total_likes DESC LIMIT 5) AS likes 
+    ON post=key ORDER BY total_likes DESC;`
 
   try {
     const result = await db.query(query)

@@ -15,7 +15,7 @@ export default async (req: Request, res: Response, next: NextFunction): Promise<
 
   try {
     const result = await db.query(query)
-    res.locals.followers = result.rows.map(x => x.username)
+    res.locals._following = result.rows.map(x => x.username)
     next()
   } catch (err) {
     if (err instanceof pg.DatabaseError) {

@@ -1,13 +1,38 @@
-import Router from 'express'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import pg from 'pg'
+import Router from 'express'
 
 import verifyUsername from '../middleware/verifyUsername.js'
 import db from '../db.js'
 import secret from '../config/auth.js'
 
 const router = Router()
+
+// Register a new user account.
+router.post('/register', verifyUsername, async (req, res) => {
+  const { username = '', password = '' } = req.body
+  if (username === '' || password === '') {
+    res.status(400).send({ err: 'You must supply a username and password.' })
+    return
+  }
+
+  const hash = bcrypt.hashSync(JSON.stringify(password), 8)
+  const query = {
+    text: 'INSERT INTO users(username, password) VALUES($1, $2)',
+    values: [username, hash]
+  }
+
+  try {
+    await db.query(query)
+    res.send({ msg: 'User has been registered.' })
+  } catch (err) {
+    if (err instanceof pg.DatabaseError) {
+      console.error(err)
+      res.status(500).send({ err: 'Unknown error occurred.' })
+    } else throw err
+  }
+})
 
 // login as an existing user
 router.post('/login', async (req, res) => {
@@ -43,31 +68,6 @@ router.post('/login', async (req, res) => {
     delete user.password
     const token = jwt.sign({ username: user.username }, secret, { expiresIn: 86400 })
     res.send({ token, ...user })
-  } catch (err) {
-    if (err instanceof pg.DatabaseError) {
-      console.error(err)
-      res.status(500).send({ err: 'Unknown error occurred.' })
-    } else throw err
-  }
-})
-
-// register as a new user
-router.post('/register', verifyUsername, async (req, res) => {
-  const { username = '', password = '' } = req.body
-  if (username === '' || password === '') {
-    res.status(400).send({ err: 'You must supply a username and password.' })
-    return
-  }
-
-  const hash = bcrypt.hashSync(JSON.stringify(password), 8)
-  const query = {
-    text: 'INSERT INTO users(username, password) VALUES($1, $2)',
-    values: [username, hash]
-  }
-
-  try {
-    await db.query(query)
-    res.send({ msg: 'User has been registered.' })
   } catch (err) {
     if (err instanceof pg.DatabaseError) {
       console.error(err)

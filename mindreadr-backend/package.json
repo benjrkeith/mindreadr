@@ -2,7 +2,7 @@
   "name": "mindreadr-backend",
   "author": "benjrkeith",
   "license": "MIT",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Backend Express server for Mindreadr social media.",
   "main": "index.js",
   "type": "module",
