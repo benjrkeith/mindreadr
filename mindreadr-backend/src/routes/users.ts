@@ -2,7 +2,6 @@ import { Router } from 'express'
 import pg from 'pg'
 
 import db from '../db.js'
-import messagesRouter from './messages.js'
 import verifyToken from '../middleware/verifyToken.js'
 import parseLimits from '../middleware/parseLimits.js'
 import getTargetUser from '../middleware/getTargetUser.js'
@@ -11,7 +10,6 @@ import getFollowing from '../middleware/getFollowing.js'
 const router = Router()
 
 router.use(verifyToken)
-router.use('/:username/messages', messagesRouter)
 
 // get all users, supports offset and limit
 router.get('/', parseLimits, async (req, res) => {
