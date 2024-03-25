@@ -2,14 +2,16 @@ import { Router } from 'express'
 import pg from 'pg'
 
 import db from '../db.js'
+import messagesRouter from './messages.js'
 import verifyToken from '../middleware/verifyToken.js'
 import parseLimits from '../middleware/parseLimits.js'
 import getTargetUser from '../middleware/getTargetUser.js'
-import getFollowers from '../middleware/getFollowers.js'
+import getFollowing from '../middleware/getFollowing.js'
 
 const router = Router()
 
 router.use(verifyToken)
+router.use('/:username/messages', messagesRouter)
 
 // get all users, supports offset and limit
 router.get('/', parseLimits, async (req, res) => {
@@ -130,7 +132,7 @@ router.delete('/:username/followers', getTargetUser, async (req, res) => {
 })
 
 // get a list of who a specific user follows
-router.get('/:username/following', getTargetUser, getFollowers, async (req, res) => {
+router.get('/:username/following', getTargetUser, getFollowing, async (req, res) => {
   res.send(res.locals.followers)
 })
 

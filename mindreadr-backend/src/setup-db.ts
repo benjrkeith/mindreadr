@@ -25,6 +25,16 @@ CREATE TABLE IF NOT EXISTS public.posts
 
 ALTER TABLE IF EXISTS public.posts OWNER to mindreadr;
 
+CREATE TABLE IF NOT EXISTS public.messages
+(
+    key INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    author TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,
+    recipient TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE IF EXISTS public.messages OWNER to mindreadr;
 
 CREATE TABLE IF NOT EXISTS public.likes
 (
