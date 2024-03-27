@@ -28,13 +28,22 @@ ALTER TABLE IF EXISTS public.posts OWNER to mindreadr;
 CREATE TABLE IF NOT EXISTS public.messages
 (
     key INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    conversation INT NOT NULL,
     author TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,
-    recipient TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,
     content TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 ALTER TABLE IF EXISTS public.messages OWNER to mindreadr;
+
+CREATE TABLE IF NOT EXISTS public.conversations
+(
+    key INT NOT NULL,
+    username TEXT NOT NULL REFERENCES users(username),
+    PRIMARY KEY (key, username)
+);
+
+ALTER TABLE IF EXISTS public.conversations OWNER to mindreadr;
 
 CREATE TABLE IF NOT EXISTS public.likes
 (
