@@ -16,7 +16,7 @@ export interface RawPost {
   reposts: number
   replied: boolean
   replies: number
-  avatar: string
+  author_avatar: string
 }
 
 export async function getPosts (author = '', offset = 0, limit = 10): Promise<RawPost[]> {
