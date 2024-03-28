@@ -18,10 +18,11 @@ router.get('/', async (req: Request, res: Response, next: NF) => {
   const query = {
     text: `
       SELECT messages.key, messages.conversation, author, content, created_at,
-      (SELECT avatar FROM users WHERE username = author) FROM 
-        (SELECT conversation, MAX(key) AS key FROM messages WHERE conversation IN 
-          (SELECT key FROM conversations WHERE username = $1) GROUP BY conversation) 
-        AS lastMessages JOIN messages on lastMessages.key = messages.key`,
+      (SELECT avatar FROM users WHERE username = author),
+      (SELECT array_agg(username) FROM conversations WHERE key = messages.conversation) as users
+      FROM (SELECT conversation, MAX(key) AS key FROM messages WHERE conversation IN 
+        (SELECT key FROM conversations WHERE username = $1) GROUP BY conversation) 
+      AS lastMessages JOIN messages on lastMessages.key = messages.key`,
     values: [user.username]
   }
 
