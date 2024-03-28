@@ -1,11 +1,10 @@
-import { Link } from 'react-router-dom'
 import React, { useState, type ReactElement } from 'react'
+import { Link } from 'react-router-dom'
 
 import createRepost from '../api/createRepost'
 import handleLike from '../api/likePost'
 import { type RawPost } from '../api/getPosts'
 
-import avatar from '../assets/avatar.png'
 import heart from '../assets/heart.png'
 import reply from '../assets/reply.png'
 import repost from '../assets/repost.png'
@@ -19,7 +18,7 @@ export default function Post (props: Props): ReactElement {
   createdAt = createdAt.slice(0, createdAt.length - 3)
   const {
     key, author, content, parent, parent_author: parentAuthor, reposted,
-    replied, reposts, replies
+    replied, reposts, replies, author_avatar: authorAvatar
   } = props.data
 
   const [liked, setLiked] = useState<boolean>(props.data.liked)
@@ -33,7 +32,7 @@ export default function Post (props: Props): ReactElement {
           ? <p className='pb-2'>Replying to <span className='text-purple-600'>@{parentAuthor}</span></p>
           : null} */}
         <div className='flex flex-row gap-2 sm:gap-4'>
-          <img src={avatar} alt='' className='rounded-lg w-[20%] aspect-square
+          <img src={authorAvatar} alt='' className='rounded-lg w-[20%] aspect-square
             ' />
           <div className='flex flex-col justify-center grow'>
             <h1 className='text-purple-600 text-lg font-semibold h-fit
@@ -71,7 +70,9 @@ export default function Post (props: Props): ReactElement {
               : 'filter-white object-cover h-3 sm:h-5'}/>
           </button>
           <div className='text-lg self-center leading-3 sm:text-2xl sm:leading-3'>•</div>
-          <button className='leading-3 h-fit sm:text-xl sm:leading-5' type='submit'>{likes}</button>
+          <button className='leading-3 h-fit sm:text-xl sm:leading-5' type='submit'>
+            {likes}
+          </button>
         </div>
         <div className='flex justify-center gap-1'>
           <button className='h-fit' type='submit' onClick={ async () => {
@@ -82,7 +83,9 @@ export default function Post (props: Props): ReactElement {
               : 'filter-white object-cover h-3 sm:h-5'} src={repost}/>
           </button>
           <div className='text-lg self-center leading-3 sm:text-2xl sm:leading-3'>•</div>
-          <button className='leading-3 h-fit sm:text-xl sm:leading-5' type='submit'>{reposts}</button>
+          <button className='leading-3 h-fit sm:text-xl sm:leading-5' type='submit'>
+            {reposts}
+          </button>
         </div>
         <div className='flex justify-center items-center gap-1'>
           <button className='h-fit' type='submit'>
@@ -91,7 +94,9 @@ export default function Post (props: Props): ReactElement {
               : 'filter-white object-cover h-3 sm:h-5'} src={reply}/>
           </button>
           <div className='text-lg self-center leading-3 sm:text-2xl sm:leading-3'>•</div>
-          <button className='leading-3 h-fit sm:text-xl sm:leading-5' type='submit'>{replies}</button>
+          <button className='leading-3 h-fit sm:text-xl sm:leading-5' type='submit'>
+            {replies}
+          </button>
         </div>
       </div>
     </div>
