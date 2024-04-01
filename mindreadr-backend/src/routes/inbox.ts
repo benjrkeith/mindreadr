@@ -76,16 +76,13 @@ router.post('/', getNextConvoKey, async (req: Request, res: Response) => {
     values = [nextKey, target]
 
     try {
-      const result = await db.query(query, values)
-      res.send(result.rows[0])
+      await db.query(query, values)
     } catch (err) {
       if (err instanceof pg.DatabaseError) {
-        console.error(err)
         res.sendStatus(500)
       } else throw err
     }
   }
-
   res.send({ conversation_key: nextKey })
 })
 
