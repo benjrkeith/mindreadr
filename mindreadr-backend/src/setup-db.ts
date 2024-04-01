@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS public.conversations
 (
     key INT NOT NULL,
     username TEXT NOT NULL REFERENCES users(username),
+    read BOOLEAN NOT NULL DEFAULT FALSE,
     PRIMARY KEY (key, username)
 );
 
@@ -75,6 +76,18 @@ CREATE TABLE IF NOT EXISTS public.audit
 );
 
 ALTER TABLE IF EXISTS public.audit OWNER to mindreadr;
+
+CREATE TABLE IF NOT EXISTS public.notifications
+(
+    key INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    username TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,
+    sender TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    read BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE IF EXISTS public.notifications OWNER to mindreadr;
 `
 
 db.connect().then((client) => {
