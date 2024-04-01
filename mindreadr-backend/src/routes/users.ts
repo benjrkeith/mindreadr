@@ -18,13 +18,14 @@ router.get('/', parseLimits, async (req, res) => {
   const query = {
     // text: `SELECT username, created_at, last_login, privilege FROM users
     //         ORDER BY created_at LIMIT $1 OFFSET $2`,
-    text: 'SELECT username FROM users'
+    text: 'SELECT username, avatar FROM users WHERE username != $1',
+    values: [res.locals.user.username]
     // values: [limit, offset]
   }
 
   try {
     const result = await db.query(query)
-    res.send(result.rows.map((row) => row.username))
+    res.send(result.rows)
   } catch (err) {
     if (err instanceof pg.DatabaseError) {
       console.error(err)
