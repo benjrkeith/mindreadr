@@ -1,28 +1,41 @@
-import {
-  type Request, type Response, type NextFunction as NF,
-  Router
-} from 'express'
+import { Router, type Request, type Response } from 'express'
 import pg from 'pg'
 
 import db from '../db.js'
-import verifyToken from '../middleware/verifyToken.js'
 import getNextConvoKey from '../middleware/getNextConvoKey.js'
+import verifyToken from '../middleware/verifyToken.js'
 
 const router = Router()
-
 router.use(verifyToken)
 
-// get all conversations that are in your inbox
-router.get('/', async (req: Request, res: Response, next: NF) => {
+// get all conversations and their most recent message from your inbox
+router.get('/', async (req: Request, res: Response) => {
   const { user } = res.locals
   const query = {
     text: `
-      SELECT messages.key, messages.conversation, author, content, created_at,
-      (SELECT avatar FROM users WHERE username = author),
-      (SELECT array_agg(username) FROM conversations WHERE key = messages.conversation) as users
-      FROM (SELECT conversation, MAX(key) AS key FROM messages WHERE conversation IN 
-        (SELECT key FROM conversations WHERE username = $1) GROUP BY conversation) 
-      AS lastMessages JOIN messages on lastMessages.key = messages.key`,
+      SELECT messages.key, 
+             messages.conversation, 
+             author, 
+             content, 
+             created_at,
+             (SELECT read
+              FROM conversations
+              WHERE key = messages.conversation AND username = $1) as read,
+             (SELECT avatar 
+                FROM users 
+               WHERE username = author),
+             (SELECT array_agg(username) 
+                FROM conversations 
+               WHERE key = messages.conversation) as users
+        FROM (SELECT conversation, 
+                     MAX(key) AS key 
+                FROM messages 
+               WHERE conversation IN (SELECT key 
+                                        FROM conversations 
+                                       WHERE username = $1) 
+            GROUP BY conversation) AS lastMessages 
+        JOIN messages on lastMessages.key = messages.key
+      ;`,
     values: [user.username]
   }
 
@@ -37,22 +50,44 @@ router.get('/', async (req: Request, res: Response, next: NF) => {
   }
 })
 
-// get all messages in a conversation
-router.get('/:key', async (req: Request, res: Response) => {
-  const { key } = req.params
-  const query = {
-    text: `SELECT *, (SELECT avatar from users where username = author)
-            FROM messages WHERE conversation = $1 ORDER BY created_at DESC`,
-    values: [key]
+// get all messages in a single conversation
+router.get('/:convo', async (req: Request, res: Response) => {
+  const { user } = res.locals
+  const { convo } = req.params
+  let query = {
+    text: `
+      SELECT key, 
+             conversation,
+             author,
+             content,
+             created_at,
+             (SELECT avatar 
+                FROM users 
+                WHERE username = author)
+        FROM messages 
+       WHERE conversation = $1 
+    ORDER BY created_at DESC
+    ;`,
+    values: [convo]
   }
 
   try {
     const result = await db.query(query)
     res.send(result.rows)
+
+    query = {
+      text: `
+        UPDATE conversations 
+        SET read = TRUE 
+        WHERE key = $1 AND username = $2
+      ;`,
+      values: [convo, user.username]
+    }
+    await db.query(query)
   } catch (err) {
     if (err instanceof pg.DatabaseError) {
       console.error(err)
-      res.sendStatus(500)
+      if (!res.headersSent) res.sendStatus(500)
     } else throw err
   }
 })
@@ -69,55 +104,74 @@ router.post('/', getNextConvoKey, async (req: Request, res: Response) => {
   const targets = rawTargets.split('&')
   targets.push(user.username as string)
 
-  const query = 'INSERT INTO conversations (key, username) VALUES ($1, $2)'
-  let values = []
+  const query = `
+    INSERT INTO conversations (key, username) 
+    VALUES ($1, $2)
+  ;`
 
   for (const target of targets) {
-    values = [nextKey, target]
+    const values = [nextKey, target]
 
     try {
       await db.query(query, values)
     } catch (err) {
       if (err instanceof pg.DatabaseError) {
-        res.sendStatus(500)
+        if (!res.headersSent) res.sendStatus(500)
       } else throw err
     }
   }
-  res.send({ conversation_key: nextKey })
+  if (!res.headersSent) res.send({ conversation_key: nextKey })
 })
 
-// create a new message in an existing conversatian
-router.post('/:key', async (req: Request, res: Response) => {
+// create a new message in an existing conversation you are apart of
+router.post('/:convo', async (req: Request, res: Response) => {
   const { user } = res.locals
-  const { key } = req.params
+  const { convo } = req.params
   const { content } = req.body
 
-  const query = {
-    text: `INSERT INTO messages (conversation, author, content)
-            VALUES ($1, $2, $3) RETURNING *`,
-    values: [key, user.username, content]
+  let query = {
+    text: `
+      INSERT INTO messages (conversation, author, content)
+      VALUES ($1, $2, $3) 
+      RETURNING *
+    ;`,
+    values: [convo, user.username, content]
   }
 
   try {
     const result = await db.query(query)
     res.send(result.rows[0])
+
+    query = {
+      text: `
+        UPDATE conversations 
+        SET read = FALSE 
+        WHERE key = $1 AND username != $2
+      ;`,
+      values: [convo, user.username]
+    }
+    await db.query(query)
   } catch (err) {
     if (err instanceof pg.DatabaseError) {
       console.error(err)
-      res.sendStatus(500)
+      if (!res.headersSent) res.sendStatus(500)
     } else throw err
   }
 })
 
 // modify the content of a message that you own
-router.patch('/:conversation/messages/:key', async (req: Request, res: Response) => {
+router.patch('/:convo/messages/:msg', async (req: Request, res: Response) => {
   const { user } = res.locals
-  const { key } = req.params
+  const { msg } = req.params
   const { content } = req.body
 
   const query = {
-    text: 'UPDATE messages SET content = $1 WHERE key = $2 AND author = $3',
-    values: [content, key, user.username]
+    text: `
+      UPDATE messages 
+      SET content = $1 
+      WHERE key = $2 AND author = $3
+    ;`,
+    values: [content, msg, user.username]
   }
 
   try {
@@ -134,12 +188,15 @@ router.patch('/:conversation/messages/:key', async (req: Request, res: Response)
 })
 
 // delete a message that you own
-router.delete('/:conversation/messages/:key', async (req: Request, res: Response) => {
+router.delete('/:convo/messages/:msg', async (req: Request, res: Response) => {
   const { user } = res.locals
   const { key } = req.params
 
   const query = {
-    text: 'DELETE FROM messages WHERE key = $1 AND author = $2',
+    text: `
+      DELETE FROM messages 
+      WHERE key = $1 AND author = $2
+    ;`,
     values: [key, user.username]
   }
 
