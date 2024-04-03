@@ -174,8 +174,15 @@ router.post('/:chat', async (req: Request, res: Response) => {
   }
 
   try {
-    const result = await db.query(query)
-    res.status(201).send(result.rows[0])
+    const result = (await db.query(query)).rows[0]
+    const msg = {
+      key: result.key,
+      chat: result.chat,
+      author: result.author,
+      content: result.content,
+      createdAt: new Date(result.created_at as string)
+    }
+    res.status(201).send(msg)
 
     query = {
       text: `
@@ -193,6 +200,8 @@ router.post('/:chat', async (req: Request, res: Response) => {
     } else throw err
   }
 })
+
+// patch and delete need testing and checking
 
 // modify the content of a message that you own
 router.patch('/:chat/messages/:msg', async (req: Request, res: Response) => {
