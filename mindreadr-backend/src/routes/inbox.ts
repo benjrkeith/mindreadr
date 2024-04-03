@@ -57,7 +57,7 @@ router.get('/', async (req: Request, res: Response) => {
             avatar: chat.author_avatar
           },
           content: chat.content,
-          createdAt: new Date(chat.created_at as string)
+          createdAt: chat.created_at
         }
       }
     })
@@ -104,7 +104,7 @@ router.get('/:chat', async (req: Request, res: Response) => {
           avatar: msg.author_avatar
         },
         content: msg.content,
-        createdAt: new Date(msg.created_at as string)
+        createdAt: msg.created_at
       }
     })
     res.send(msgs)
@@ -180,7 +180,7 @@ router.post('/:chat', async (req: Request, res: Response) => {
       chat: result.chat,
       author: result.author,
       content: result.content,
-      createdAt: new Date(result.created_at as string)
+      createdAt: result.created_at
     }
     res.status(201).send(msg)
 
