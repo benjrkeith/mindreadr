@@ -14,5 +14,12 @@ export interface Msg {
   chat?: number
   author: User
   content: string
-  createdAt: Date
+  createdAt: string
+}
+
+export interface Chat {
+  key: number
+  read: boolean
+  users: string[]
+  lastMsg: Msg
 }

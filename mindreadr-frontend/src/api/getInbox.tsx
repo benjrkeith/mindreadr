@@ -1,14 +1,7 @@
 import axios from 'axios'
 
-import { INBOX_URL, type Msg } from './common'
+import { INBOX_URL, type Chat } from './common'
 import { getHeader } from '../services/auth'
-
-interface Chat {
-  key: number
-  read: boolean
-  users: string[]
-  lastMsg: Msg
-}
 
 export default async (): Promise<Chat[]> => {
   const args = { headers: getHeader() }
