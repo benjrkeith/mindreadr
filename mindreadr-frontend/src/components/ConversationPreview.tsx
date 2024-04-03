@@ -10,6 +10,7 @@ interface Props {
     avatar: string
     created_at: string
     content: string
+    read: boolean
   }
 }
 
@@ -24,19 +25,21 @@ export default function ConversationPreview (props: Props): ReactElement {
 
   return (
     <Link key={i} className={`flex p-3 ${i % 2 === 0 ? 'bg-zinc-900' : ''}`}
-          to={`/inbox/${conv.conversation}`}>
-          <img src={conv.avatar} alt='avatar' className='h-16 rounded-full'/>
-          <div className='w-full px-2 flex flex-col my-auto'>
+        to={`/inbox/${conv.conversation}`}>
+        <img src={conv.avatar} alt='avatar' className='h-16 rounded-full'/>
+        <div className='w-full px-2 flex flex-col my-auto'>
             <div className='flex w-full'>
-                <h1 className='text-xl font-semibold w-full'>
+                <h1 className='text-xl font-semibold grow'>
                     {getTitle(conv.users)}
                 </h1>
-                <p className='text-xs my-auto w-full text-end'>
+                {!conv.read && <h1 className='text-3xl leading-7 px-3 font-bold
+                  text-purple-600'>•</h1>}
+                <p className='text-xs my-auto'>
                     {new Date(conv.created_at).toLocaleString().substring(0, 17)}
                 </p>
             </div>
             <p className='text-sm'>{conv.content}</p>
-          </div>
-        </Link>
+        </div>
+    </Link>
   )
 }

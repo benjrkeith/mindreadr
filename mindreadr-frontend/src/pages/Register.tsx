@@ -25,7 +25,7 @@ export default function Register (): ReactElement {
 
     try {
       const res = await axios.post(`${URL}`, { username, password })
-      if (res.status === 200) {
+      if (res.status === 201) {
         setUsername('')
         setPassword('')
 

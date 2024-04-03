@@ -11,6 +11,7 @@ export interface Conversation {
   created_at: string
   avatar: string
   users: string[]
+  read: boolean
 }
 
 export default async function getInbox (): Promise<Conversation[]> {

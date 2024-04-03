@@ -25,7 +25,7 @@ export default function Post (props: Props): ReactElement {
   const likes = liked ? props.data.likes + 1 : props.data.likes
 
   return (
-    <div className='text-white p-2 sm:px-5 md:px-8'>
+    <div className={`text-white p-3 sm:px-5 md:px-8 ${key % 2 === 0 && 'bg-zinc-900'}`}>
       <div className='flex flex-col'>
         {/* have parent info be link to parent post */}
         {/* {parent !== null
@@ -35,10 +35,10 @@ export default function Post (props: Props): ReactElement {
           <img src={authorAvatar} alt='' className='rounded-lg w-[20%] aspect-square
             ' />
           <div className='flex flex-col justify-center grow'>
-            <h1 className='text-purple-600 text-lg font-semibold h-fit
-                leading-6 sm:text-2xl'>
+            <Link className='text-purple-600 text-lg font-semibold h-fit
+                leading-6 sm:text-2xl' to={`/users/${author}`}>
               @{author}
-            </h1>
+            </Link>
             <footer className='text-[0.6rem] leading-3 self-start grow
                 sm:text-sm'>
               {createdAt}

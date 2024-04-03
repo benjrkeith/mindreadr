@@ -132,7 +132,7 @@ export default function Compose (props: Props): ReactElement {
   }
 
   return (
-    <div className='absolute h-dvh w-dvw bg-[#1e2124] z-10'>
+    <div className='absolute h-dvh w-dvw bg-[#1e2124] z-20'>
       <div className='flex h-[10dvh] items-center border-b-2 border-solid border-white ml-4 mr-4'>
         <button type="button" onClick={() => { props.setCreatePost(false) }} className='text-red-700 text-3xl p-3 col-[1] text-left font-semibold'>X</button>
         <p className='col-[2] grow text-right text-white p-3 align-middle justify-center font-semibold'>{inputRef.current?.innerText.length}/140</p>
