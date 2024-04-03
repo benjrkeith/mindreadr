@@ -1,6 +1,7 @@
 import db from './db.js'
 
 const statement = `
+
 CREATE TABLE IF NOT EXISTS public.users
 (
     username TEXT NOT NULL PRIMARY KEY,
@@ -12,7 +13,6 @@ CREATE TABLE IF NOT EXISTS public.users
 );
 
 ALTER TABLE IF EXISTS public.users OWNER to mindreadr;
-
 
 CREATE TABLE IF NOT EXISTS public.posts
 (
@@ -28,7 +28,7 @@ ALTER TABLE IF EXISTS public.posts OWNER to mindreadr;
 CREATE TABLE IF NOT EXISTS public.messages
 (
     key INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    conversation INT NOT NULL,
+    chat INT NOT NULL,
     author TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,
     content TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS public.messages
 
 ALTER TABLE IF EXISTS public.messages OWNER to mindreadr;
 
-CREATE TABLE IF NOT EXISTS public.conversations
+CREATE TABLE IF NOT EXISTS public.chats
 (
     key INT NOT NULL,
     username TEXT NOT NULL REFERENCES users(username),
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS public.conversations
     PRIMARY KEY (key, username)
 );
 
-ALTER TABLE IF EXISTS public.conversations OWNER to mindreadr;
+ALTER TABLE IF EXISTS public.chats OWNER to mindreadr;
 
 CREATE TABLE IF NOT EXISTS public.likes
 (
@@ -88,12 +88,7 @@ CREATE TABLE IF NOT EXISTS public.notifications
 );
 
 ALTER TABLE IF EXISTS public.notifications OWNER to mindreadr;
+
 `
 
-db.connect().then((client) => {
-  client.query(statement).then(res => {
-    console.log(res)
-    client.release()
-    db.end()
-  })
-})
+await db.query(statement)

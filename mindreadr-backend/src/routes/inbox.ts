@@ -2,46 +2,67 @@ import { Router, type Request, type Response } from 'express'
 import pg from 'pg'
 
 import db from '../db.js'
-import getNextConvoKey from '../middleware/getNextConvoKey.js'
+import getNewChatKey from '../middleware/getNewChatKey.js'
 import verifyToken from '../middleware/verifyToken.js'
 
 const router = Router()
 router.use(verifyToken)
 
-// get all conversations and their most recent message from your inbox
+// get all chats and their most recent message from your inbox
 router.get('/', async (req: Request, res: Response) => {
   const { user } = res.locals
   const query = {
     text: `
-      SELECT messages.key, 
-             messages.conversation, 
+      SELECT messages.chat AS key, 
+             messages.key AS last_msg, 
              author, 
+             (SELECT avatar 
+                FROM users 
+               WHERE username = author)
+                  AS author_avatar,
              content, 
              created_at,
              (SELECT read
-              FROM conversations
-              WHERE key = messages.conversation AND username = $1) as read,
-             (SELECT avatar 
-                FROM users 
-               WHERE username = author),
+                FROM chats
+               WHERE key = messages.chat AND username = $1) 
+                  AS read,
              (SELECT array_agg(username) 
-                FROM conversations 
-               WHERE key = messages.conversation) as users
-        FROM (SELECT conversation, 
+                FROM chats 
+               WHERE key = messages.chat) 
+                  AS users
+        FROM (SELECT chat, 
                      MAX(key) AS key 
                 FROM messages 
-               WHERE conversation IN (SELECT key 
-                                        FROM conversations 
-                                       WHERE username = $1) 
-            GROUP BY conversation) AS lastMessages 
-        JOIN messages on lastMessages.key = messages.key
+               WHERE chat IN (SELECT key 
+                              FROM chats 
+                              WHERE username = $1)
+            GROUP BY chat) 
+                  AS lastMsgs 
+        JOIN messages on messages.key = lastMsgs.key
       ;`,
     values: [user.username]
   }
 
   try {
     const result = await db.query(query)
-    res.send(result.rows)
+    const chats = result.rows.map((chat) => {
+      return {
+        key: chat.key,
+        read: chat.read,
+        users: chat.users,
+        lastMsg: {
+          key: chat.last_msg,
+          author: {
+            username: chat.author,
+            avatar: chat.author_avatar
+          },
+          content: chat.content,
+          createdAt: new Date(chat.created_at as string)
+        }
+      }
+    })
+
+    res.send(chats)
   } catch (err) {
     if (err instanceof pg.DatabaseError) {
       console.error(err)
@@ -50,38 +71,51 @@ router.get('/', async (req: Request, res: Response) => {
   }
 })
 
-// get all messages in a single conversation
-router.get('/:convo', async (req: Request, res: Response) => {
+// get all messages in a single chat
+router.get('/:chat', async (req: Request, res: Response) => {
   const { user } = res.locals
-  const { convo } = req.params
+  const { chat } = req.params
+
   let query = {
     text: `
       SELECT key, 
-             conversation,
+             chat,
              author,
-             content,
-             created_at,
              (SELECT avatar 
                 FROM users 
-                WHERE username = author)
+               WHERE username = author) 
+                  AS author_avatar,
+             content,
+             created_at
         FROM messages 
-       WHERE conversation = $1 
-    ORDER BY created_at DESC
+       WHERE chat = $1 
+    ORDER BY created_at ASC
     ;`,
-    values: [convo]
+    values: [chat]
   }
 
   try {
     const result = await db.query(query)
-    res.send(result.rows)
+    const msgs = result.rows.map((msg) => {
+      return {
+        key: msg.key,
+        author: {
+          username: msg.author,
+          avatar: msg.author_avatar
+        },
+        content: msg.content,
+        createdAt: new Date(msg.created_at as string)
+      }
+    })
+    res.send(msgs)
 
     query = {
       text: `
-        UPDATE conversations 
-        SET read = TRUE 
-        WHERE key = $1 AND username = $2
+        UPDATE chats 
+           SET read = TRUE 
+         WHERE key = $1 AND username = $2
       ;`,
-      values: [convo, user.username]
+      values: [chat, user.username]
     }
     await db.query(query)
   } catch (err) {
@@ -92,9 +126,10 @@ router.get('/:convo', async (req: Request, res: Response) => {
   }
 })
 
-// create a new private message conversation
-router.post('/', getNextConvoKey, async (req: Request, res: Response) => {
+// create a new private message chat
+router.post('/', getNewChatKey, async (req: Request, res: Response) => {
   const { user, nextKey } = res.locals
+
   if (req.query.users === undefined) {
     res.sendStatus(400)
     return
@@ -105,8 +140,8 @@ router.post('/', getNextConvoKey, async (req: Request, res: Response) => {
   targets.push(user.username as string)
 
   const query = `
-    INSERT INTO conversations (key, username) 
-    VALUES ($1, $2)
+    INSERT INTO chats (key, username) 
+         VALUES ($1, $2)
   ;`
 
   for (const target of targets) {
@@ -120,22 +155,22 @@ router.post('/', getNextConvoKey, async (req: Request, res: Response) => {
       } else throw err
     }
   }
-  if (!res.headersSent) res.status(201).send({ conversation_key: nextKey })
+  if (!res.headersSent) res.status(201).send({ chat: nextKey })
 })
 
-// create a new message in an existing conversation you are apart of
-router.post('/:convo', async (req: Request, res: Response) => {
+// create a new message in an existing chat you are apart of
+router.post('/:chat', async (req: Request, res: Response) => {
   const { user } = res.locals
-  const { convo } = req.params
+  const { chat } = req.params
   const { content } = req.body
 
   let query = {
     text: `
-      INSERT INTO messages (conversation, author, content)
-      VALUES ($1, $2, $3) 
-      RETURNING *
+      INSERT INTO messages (chat, author, content)
+           VALUES ($1, $2, $3) 
+        RETURNING *
     ;`,
-    values: [convo, user.username, content]
+    values: [chat, user.username, content]
   }
 
   try {
@@ -144,11 +179,11 @@ router.post('/:convo', async (req: Request, res: Response) => {
 
     query = {
       text: `
-        UPDATE conversations 
-        SET read = FALSE 
-        WHERE key = $1 AND username != $2
+        UPDATE chats 
+           SET read = FALSE 
+         WHERE key = $1 AND username != $2
       ;`,
-      values: [convo, user.username]
+      values: [chat, user.username]
     }
     await db.query(query)
   } catch (err) {
@@ -160,25 +195,25 @@ router.post('/:convo', async (req: Request, res: Response) => {
 })
 
 // modify the content of a message that you own
-router.patch('/:convo/messages/:msg', async (req: Request, res: Response) => {
+router.patch('/:chat/messages/:msg', async (req: Request, res: Response) => {
   const { user } = res.locals
-  const { msg } = req.params
+  const { chat, msg } = req.params
   const { content } = req.body
 
   const query = {
     text: `
       UPDATE messages 
-      SET content = $1 
-      WHERE key = $2 AND author = $3
+         SET content = $1 
+       WHERE key = $2 AND chat = $3 AND author = $4
     ;`,
-    values: [content, msg, user.username]
+    values: [content, msg, chat, user.username]
   }
 
   try {
     const result = await db.query(query)
-    if (result.rowCount === 1) {
-      res.status(200).send({ msg: 'Post has been modified.' })
-    } else res.status(400).send({ err: 'You cannot modify this post.' })
+
+    if (result.rowCount === 1) res.status(200)
+    else res.status(400)
   } catch (err) {
     if (err instanceof pg.DatabaseError) {
       console.error(err)
@@ -188,22 +223,23 @@ router.patch('/:convo/messages/:msg', async (req: Request, res: Response) => {
 })
 
 // delete a message that you own
-router.delete('/:convo/messages/:msg', async (req: Request, res: Response) => {
+router.delete('/:chat/messages/:msg', async (req: Request, res: Response) => {
   const { user } = res.locals
-  const { key } = req.params
+  const { chat, msg } = req.params
 
   const query = {
     text: `
       DELETE FROM messages 
-      WHERE key = $1 AND author = $2
+            WHERE key = $1 AND chat = $2 AND author = $3
     ;`,
-    values: [key, user.username]
+    values: [msg, chat, user.username]
   }
 
   try {
     const result = await db.query(query)
-    if (result.rowCount === 1) res.send({ msg: 'Message deleted.' })
-    else res.status(400).send({ err: 'You cannot delete this post.' })
+
+    if (result.rowCount === 1) res.sendStatus(200)
+    else res.status(400)
   } catch (err) {
     if (err instanceof pg.DatabaseError) {
       console.error(err)
