@@ -120,7 +120,7 @@ router.post('/', getNextConvoKey, async (req: Request, res: Response) => {
       } else throw err
     }
   }
-  if (!res.headersSent) res.send({ conversation_key: nextKey })
+  if (!res.headersSent) res.status(201).send({ conversation_key: nextKey })
 })
 
 // create a new message in an existing conversation you are apart of
@@ -140,7 +140,7 @@ router.post('/:convo', async (req: Request, res: Response) => {
 
   try {
     const result = await db.query(query)
-    res.send(result.rows[0])
+    res.status(201).send(result.rows[0])
 
     query = {
       text: `

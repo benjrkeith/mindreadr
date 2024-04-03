@@ -1,15 +1,15 @@
 import bcrypt from 'bcrypt'
+import Router from 'express'
 import jwt from 'jsonwebtoken'
 import pg from 'pg'
-import Router from 'express'
 
-import verifyUsername from '../middleware/verifyUsername.js'
 import db from '../db.js'
+import verifyUsername from '../middleware/verifyUsername.js'
 import secret from '../config/auth.js'
 
 const router = Router()
 
-// Register a new user account.
+// register a new user account
 router.post('/register', verifyUsername, async (req, res) => {
   const { username = '', password = '' } = req.body
   if (username === '' || password === '') {
@@ -25,11 +25,11 @@ router.post('/register', verifyUsername, async (req, res) => {
 
   try {
     await db.query(query)
-    res.send({ msg: 'User has been registered.' })
+    res.status(201).send({ msg: 'User has been registered.' })
   } catch (err) {
     if (err instanceof pg.DatabaseError) {
       console.error(err)
-      res.status(500).send({ err: 'Unknown error occurred.' })
+      res.sendStatus(500)
     } else throw err
   }
 })
@@ -71,7 +71,7 @@ router.post('/login', async (req, res) => {
   } catch (err) {
     if (err instanceof pg.DatabaseError) {
       console.error(err)
-      res.status(500).send({ err: 'Unknown error occurred.' })
+      res.sendStatus(500)
     } else throw err
   }
 })

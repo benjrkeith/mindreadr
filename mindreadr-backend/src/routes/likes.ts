@@ -20,7 +20,7 @@ router.get('/', getPost, async (req, res) => {
   } catch (err) {
     if (err instanceof pg.DatabaseError) {
       console.error(err)
-      res.status(500).send({ err: 'Unknown error occurred.' })
+      res.sendStatus(500)
     } else throw err
   }
 })
