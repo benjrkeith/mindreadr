@@ -178,7 +178,9 @@ router.post('/:chat', async (req: Request, res: Response) => {
     const msg = {
       key: result.key,
       chat: result.chat,
-      author: result.author,
+      author: {
+        username: result.author
+      },
       content: result.content,
       createdAt: result.created_at
     }
