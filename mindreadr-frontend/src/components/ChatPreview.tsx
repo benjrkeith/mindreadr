@@ -23,7 +23,7 @@ export default function ChatPreview ({ i, chat, openChat }: Props): ReactElement
   }
 
   return (
-    <button key={i} className={`flex p-3 ${i % 2 === 0 && 'bg-zinc-900'}`}
+    <button key={i} className={`flex p-3 w-full ${i % 2 === 0 && 'bg-zinc-900'}`}
         onClick={openChat}>
       <img src={chat.lastMsg.author.avatar} alt='avatar' className='h-16 rounded-full'/>
       <div className='w-full px-3 flex flex-col my-auto'>

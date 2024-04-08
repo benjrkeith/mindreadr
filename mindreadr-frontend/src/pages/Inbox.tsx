@@ -40,11 +40,13 @@ export default function Inbox ({ setShowNav }: Props): ReactElement {
   }
 
   return (
-    <div className='h-[90%] flex flex-col overflow-scroll'>
+    <div className='h-[90%] flex flex-col'>
       {focusedChat === -1
         ? <>
             <TitleBar title='Inbox' btnText='New Chat' btnCallback={onNewMessage}/>
-            {chats.map((chat, i) => <ChatPreview key={i} i={i} chat={chat} openChat={() => { openChat(chat.key) }}/>)}
+            <div className='overflow-scroll grow'>
+              {chats.map((chat, i) => <ChatPreview key={i} i={i} chat={chat} openChat={() => { openChat(chat.key) }}/>)}
+            </div>
           </>
         : <Chat id={focusedChat} closeChat={closeChat}/>}
     </div>
