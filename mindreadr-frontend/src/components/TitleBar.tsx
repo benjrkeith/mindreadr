@@ -12,7 +12,7 @@ export default function TitleBar (props: Props): ReactElement {
   const { title, backCallback, btnText, btnCallback } = props
 
   return (
-    <div className='flex sticky top-0 py-2 bg-zinc-900 rounded-lg m-1 z-30'>
+    <div className='flex py-2 bg-zinc-900 rounded-lg m-1 z-30'>
         {backCallback !== undefined &&
           <button type='button' onClick={backCallback} className='font-semibold text-4xl leading-7 my-auto
               pl-3 text-purple-600 sm:text-5xl sm:leading-9'>
