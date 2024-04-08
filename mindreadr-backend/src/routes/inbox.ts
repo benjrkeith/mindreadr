@@ -39,6 +39,7 @@ router.get('/', async (req: Request, res: Response) => {
             GROUP BY chat) 
                   AS lastMsgs 
         JOIN messages on messages.key = lastMsgs.key
+    ORDER BY created_at DESC
       ;`,
     values: [user.username]
   }
