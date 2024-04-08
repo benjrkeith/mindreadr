@@ -6,9 +6,13 @@ import { type User } from '../App'
 import { acquireUser } from '../services/auth'
 import useAuth from '../hooks/useAuth'
 
-interface Args { el: ReactElement, setUser: React.Dispatch<React.SetStateAction<User>> }
+interface Args {
+  el: ReactElement
+  setUser: React.Dispatch<React.SetStateAction<User>>
+  setShowNav: React.Dispatch<React.SetStateAction<boolean>>
+}
 
-export default function Auth ({ el, setUser }: Args): ReactElement {
+export default function Auth ({ el, setUser, setShowNav }: Args): ReactElement {
   const user = useAuth()
   const nav = useNavigate()
 
@@ -17,6 +21,7 @@ export default function Auth ({ el, setUser }: Args): ReactElement {
 
     if (user.token !== '') {
       setUser(user)
+      setShowNav(true)
     }
   }, [setUser])
 

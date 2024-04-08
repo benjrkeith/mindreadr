@@ -17,7 +17,7 @@ export interface Msg {
   createdAt: string
 }
 
-export interface Chat {
+export interface ChatMeta {
   key: number
   read: boolean
   users: string[]

@@ -1,7 +1,6 @@
 import React, { useState, type ReactElement, createContext } from 'react'
 import { Route, Routes, BrowserRouter, Navigate } from 'react-router-dom'
 
-import Conversation from './pages/Conversation'
 import Feed from './pages/Feed'
 import Inbox from './pages/Inbox'
 import LogIn from './pages/Login'
@@ -37,6 +36,7 @@ export const userCtx = createContext(defaultUser)
 
 export default function App (): ReactElement {
   const [user, setUser] = useState(defaultUser)
+  const [showNav, setShowNav] = useState<boolean>(false)
 
   return (
     <userCtx.Provider value={user}>
@@ -44,10 +44,12 @@ export default function App (): ReactElement {
         <Routes>
           <Route path='/' element={<Navigate to='/feed'/>}/>
           <Route path='/login' element={
-            <Auth setUser={setUser} el={<LogIn setUser={setUser}/>}/>
+            <Auth setUser={setUser} setShowNav={setShowNav} el={
+              <LogIn setUser={setUser} setShowNav={setShowNav}/>
+            }/>
           }/>
           <Route path='/register' element={
-            <Auth setUser={setUser} el={<Register/>}/>
+            <Auth setUser={setUser} setShowNav={setShowNav} el={<Register/>}/>
           }/>
           <Route path='/feed' element={
             <Protected el={<Feed/>}/>
@@ -59,13 +61,13 @@ export default function App (): ReactElement {
             <Protected el={<Users/>}/>
           }/>
           <Route path='/inbox' element={
-            <Protected el={<Inbox/>}/>
+            <Protected el={<Inbox setShowNav={setShowNav}/>}/>
           }/>
-          <Route path='/inbox/:conversation' element={
+          {/* <Route path='/inbox/:conversation' element={
             <Protected el={<Conversation/>}/>
-          }/>
+          }/> */}
         </Routes>
-        {user.token === '' ? <></> : <Nav/>}
+        {showNav && <Nav/>}
       </BrowserRouter>
     </userCtx.Provider>
   )

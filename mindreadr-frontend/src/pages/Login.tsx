@@ -5,9 +5,12 @@ import { Link, useNavigate } from 'react-router-dom'
 import { AUTH_URL } from '../api/common'
 import { type User } from '../App'
 
-interface Args { setUser: React.Dispatch<React.SetStateAction<User>> }
+interface Props {
+  setUser: React.Dispatch<React.SetStateAction<User>>
+  setShowNav: React.Dispatch<React.SetStateAction<boolean>>
+}
 
-export default function LogIn ({ setUser }: Args): ReactElement {
+export default function LogIn ({ setUser, setShowNav }: Props): ReactElement {
   const [error, setError] = useState('\u200B')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -32,6 +35,7 @@ export default function LogIn ({ setUser }: Args): ReactElement {
 
       sessionStorage.setItem('user', JSON.stringify(res.data))
       setUser(res.data)
+      setShowNav(true)
       navigate('/feed')
     } catch (err) {
       if (!(err instanceof axios.AxiosError)) throw err
