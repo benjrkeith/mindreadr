@@ -10,22 +10,24 @@ import reply from '../assets/reply.png'
 import repost from '../assets/repost.png'
 
 interface Props {
+  i: number
   data: RawPost
 }
 
-export default function Post (props: Props): ReactElement {
-  let createdAt = new Date(props.data.created_at).toLocaleString()
+export default function Post ({ i, data }: Props): ReactElement {
+  let createdAt = new Date(data.created_at).toLocaleString()
   createdAt = createdAt.slice(0, createdAt.length - 3)
   const {
     key, author, content, parent, parent_author: parentAuthor, reposted,
     replied, reposts, replies, author_avatar: authorAvatar
-  } = props.data
+  } = data
 
-  const [liked, setLiked] = useState<boolean>(props.data.liked)
-  const likes = liked ? props.data.likes + 1 : props.data.likes
+  const [liked, setLiked] = useState<boolean>(data.liked)
+  const likes = liked ? data.likes + 1 : data.likes
+  console.log(data.key)
 
   return (
-    <div className={`text-white p-3 sm:px-5 md:px-8 ${key % 2 === 0 && 'bg-zinc-900'}`}>
+    <div className={`text-white p-3 rounded-lg sm:px-5 md:px-8 ${i % 2 === 0 && 'bg-zinc-900'}`}>
       <div className='flex flex-col'>
         {/* have parent info be link to parent post */}
         {/* {parent !== null

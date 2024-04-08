@@ -18,10 +18,10 @@ export default function Feed (props: Props): ReactElement {
   useEffect(() => { void loadMore() }, [loadMore, props.user])
 
   return (
-    <>
+    <div className='m-2'>
       {props.posts.length > 0
-        ? props.posts.map(data => <Post key={data.key} data={data}/>)
+        ? props.posts.map((data, i) => <Post key={data.key} i={i} data={data}/>)
         : <p className='text-white w-full text-center'>No posts found.</p>}
-    </>
+    </div>
   )
 }

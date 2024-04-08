@@ -17,10 +17,12 @@ export default function Users (): ReactElement {
   if (target === undefined) return <></>
 
   return (
-  <div className='h-[90%] flex flex-col overflow-scroll'>
+  <div className='h-[90%] flex flex-col'>
     <TitleBar title='Users' btnText='Search' btnCallback={() => {}}/>
-    <UserInfo user={target}/>
-    <Feed posts={posts} setPosts={setPosts} user={target}/>
+    <div className='overflow-scroll'>
+      <UserInfo user={target}/>
+      <Feed posts={posts} setPosts={setPosts} user={target}/>
+    </div>
   </div>
 
   )
