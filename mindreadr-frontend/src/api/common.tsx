@@ -7,6 +7,12 @@ export const INBOX_URL = `${API_URL}/inbox`
 export interface User {
   username: string
   avatar: string
+  token?: string
+  created_at?: string
+  last_login?: string
+  posts?: number
+  followers?: number
+  following?: number
 }
 
 export interface Msg {

@@ -9,13 +9,20 @@ export default async (req: Request, res: Response, next: NextFunction): Promise<
   const target = targetUser === undefined ? user : targetUser
 
   const query = {
-    text: 'SELECT username FROM followers WHERE follower = $1',
+    text: `
+      SELECT followers.username,
+             users.avatar
+        FROM followers 
+        JOIN users 
+          ON followers.username = users.username
+       WHERE follower = $1
+    ;`,
     values: [target.username]
   }
 
   try {
     const result = await db.query(query)
-    res.locals._following = result.rows.map(x => x.username)
+    res.locals.following = result.rows
     next()
   } catch (err) {
     if (err instanceof pg.DatabaseError) {

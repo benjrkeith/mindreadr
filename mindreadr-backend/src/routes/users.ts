@@ -2,10 +2,11 @@ import { Router } from 'express'
 import pg from 'pg'
 
 import db from '../db.js'
-import verifyToken from '../middleware/verifyToken.js'
-import parseLimits from '../middleware/parseLimits.js'
+
 import getTargetUser from '../middleware/getTargetUser.js'
 import getFollowing from '../middleware/getFollowing.js'
+import parseLimits from '../middleware/parseLimits.js'
+import verifyToken from '../middleware/verifyToken.js'
 
 const router = Router()
 
@@ -73,20 +74,27 @@ router.get('/:username/likes', getTargetUser, async (req, res) => {
 })
 
 // get a list of who follows a specific user
-router.get('/:username/followers', getTargetUser, async (req, res) => {
-  const { targetUser } = res.locals
+router.get('/:username/followers', async (req, res) => {
+  const { username } = req.params
   const query = {
-    text: 'SELECT follower FROM followers WHERE username = $1',
-    values: [targetUser.username]
+    text: `
+      SELECT followers.follower AS username,
+             users.avatar 
+        FROM followers 
+        JOIN users
+          ON followers.follower = users.username
+       WHERE followers.username = $1
+    ;`,
+    values: [username]
   }
 
   try {
     const result = await db.query(query)
-    res.send(result.rows.map(x => x.follower))
+    res.send(result.rows)
   } catch (err) {
     if (err instanceof pg.DatabaseError) {
       console.error(err)
-      res.status(500).send({ err: 'Unknown error occurred.' })
+      res.sendStatus(500)
     } else throw err
   }
 })
@@ -132,7 +140,7 @@ router.delete('/:username/followers', getTargetUser, async (req, res) => {
 
 // get a list of who a specific user follows
 router.get('/:username/following', getTargetUser, getFollowing, async (req, res) => {
-  res.send(res.locals.followers)
+  res.send(res.locals.following)
 })
 
 export default router

@@ -1,10 +1,11 @@
 import axios from 'axios'
 
+import { type User, USERS_URL } from './common'
 import { getHeader } from '../services/auth'
-import { USERS_URL } from './common'
 
-export async function getFollowers (target: string): Promise<string[]> {
+export default async (target: string): Promise<User[]> => {
+  const url = `${USERS_URL}/${target}/followers`
   const args = { headers: getHeader() }
-  const response = await axios.get(`${USERS_URL}/${target}/followers`, args)
-  return response.data
+  const res = await axios.get(url, args)
+  return res.data
 }
