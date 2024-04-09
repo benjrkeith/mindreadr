@@ -2,6 +2,7 @@ import React, { useEffect, type ReactElement, useState, useCallback } from 'reac
 
 import { type User } from '../api/common'
 import getUser from '../api/getUser'
+import StatButton from './StatButton'
 
 interface Props {
   username: string
@@ -30,22 +31,17 @@ export default function UserInfo ({ username, setSelectedTab }: Props): ReactEle
           <h1 className='text-3xl font-normal'>@{user.username}</h1>
         </div>
       </div>
-      <div className='grid grid-cols-3 text-center text-white box-border w-full justify-items-center p-1'>
-        <button onClick={() => { setSelectedTab('posts') }}
-         className='bg-zinc-900 rounded-xl p-2 w-4/5'>
-          <h1 className='text-xl sm:text-2xl'>{user.posts}</h1>
-          <p className=' text-[0.6rem] sm:text-base'>Posts</p>
-        </button>
-        <button onClick={() => { setSelectedTab('followers') }}
-            className='bg-zinc-900 rounded-xl p-2 w-4/5'>
-          <h1 className='text-xl sm:text-2xl'>{user.followers}</h1>
-          <p className='text-[0.6rem] sm:text-base'>Followers</p>
-        </button>
-        <button onClick={() => { setSelectedTab('following') }}
-        className='bg-zinc-900 rounded-xl p-2 w-4/5'>
-          <h1 className='text-xl sm:text-2xl'>{user.following}</h1>
-          <p className='text-[0.6rem] sm:text-base'>Following</p>
-        </button>
+      <div className='grid grid-cols-3 text-center text-white box-border w-full
+          justify-items-center p-1'>
+        <StatButton stat={user.posts ?? 0} text='Posts' callback={() => {
+          setSelectedTab('posts')
+        }}/>
+        <StatButton stat={user.followers ?? 0} text='Followers' callback={() => {
+          setSelectedTab('followers')
+        }}/>
+        <StatButton stat={user.following ?? 0} text='Following' callback={() => {
+          setSelectedTab('following')
+        }}/>
       </div>
     </>
   )

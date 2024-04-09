@@ -1,4 +1,4 @@
-import React, { type ReactElement, useState } from 'react'
+import React, { type ReactElement, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import Feed from '../components/Feed'
@@ -13,12 +13,17 @@ import { type RawPost } from '../api/getPosts'
 
 export default function Users (): ReactElement {
   const [posts, setPosts] = useState<RawPost[]>([])
-  const [selectedTab, setSelectedTab] = useState<string>('followers')
+  const [selectedTab, setSelectedTab] = useState<string>('posts')
 
   const params = useParams()
   const user = useAuth()
 
   const target = params['*'] === '' ? user.username : params['*']
+
+  useEffect(() => {
+    setSelectedTab('posts')
+  }, [target])
+
   if (target === undefined) return <></>
 
   const getTab = (): ReactElement => {
