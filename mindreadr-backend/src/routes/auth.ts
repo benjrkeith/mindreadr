@@ -1,10 +1,11 @@
-import bcrypt from 'bcrypt'
+import { hashSync, compareSync } from 'bcrypt'
 import Router from 'express'
 import jwt from 'jsonwebtoken'
 import pg from 'pg'
 
-import db from '../db.js'
 import verifyUsername from '../middleware/verifyUsername.js'
+
+import db from '../db.js'
 import secret from '../config/auth.js'
 
 const router = Router()
@@ -13,19 +14,22 @@ const router = Router()
 router.post('/register', verifyUsername, async (req, res) => {
   const { username = '', password = '' } = req.body
   if (username === '' || password === '') {
-    res.status(400).send({ err: 'You must supply a username and password.' })
+    res.sendStatus(400)
     return
   }
 
-  const hash = bcrypt.hashSync(JSON.stringify(password), 8)
+  const hash = hashSync(JSON.stringify(password), 8)
   const query = {
-    text: 'INSERT INTO users(username, password) VALUES($1, $2)',
+    text: `
+      INSERT INTO users(username, password) 
+           VALUES ($1, $2)
+    ;`,
     values: [username, hash]
   }
 
   try {
     await db.query(query)
-    res.status(201).send({ msg: 'User has been registered.' })
+    res.sendStatus(201)
   } catch (err) {
     if (err instanceof pg.DatabaseError) {
       console.error(err)
@@ -38,12 +42,21 @@ router.post('/register', verifyUsername, async (req, res) => {
 router.post('/login', async (req, res) => {
   const { username = '', password = '' } = req.body
   if (username === '' || password === '') {
-    res.status(400).send({ err: 'You must supply a username and password.' })
+    res.sendStatus(400)
     return
   }
 
   const query = {
-    text: 'SELECT * FROM users WHERE username = $1',
+    text: `
+      SELECT username,
+             password,
+             created_at,
+             last_login,
+             avatar,
+             privilege 
+        FROM users 
+       WHERE username = $1
+    ;`,
     values: [username]
   }
 
@@ -51,27 +64,37 @@ router.post('/login', async (req, res) => {
     const result = await db.query(query)
 
     if (result.rowCount === 0) {
-      res.status(404).send({ err: 'User could not be found.' })
+      res.sendStatus(404)
       return
     }
 
     const user = result.rows[0]
-    const valid = bcrypt.compareSync(JSON.stringify(password), user.password as string)
+    const valid = compareSync(JSON.stringify(password), user.password as string)
     if (!valid) {
-      res.status(401).send({ err: 'Incorrect password.' })
+      res.sendStatus(401)
       return
     }
 
-    query.text = 'UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE username = $1'
-    await db.query(query)
-
-    delete user.password
     const token = jwt.sign({ username: user.username }, secret, { expiresIn: 86400 })
-    res.send({ token, ...user })
+    res.send({
+      username: user.username,
+      avatar: user.avatar,
+      createdAt: user.created_at,
+      lastLogin: user.last_login,
+      privilege: user.privilege,
+      token
+    })
+
+    query.text = `
+      UPDATE users 
+         SET last_login = CURRENT_TIMESTAMP 
+       WHERE username = $1
+    ;`
+    await db.query(query)
   } catch (err) {
     if (err instanceof pg.DatabaseError) {
       console.error(err)
-      res.sendStatus(500)
+      if (!res.headersSent) res.sendStatus(500)
     } else throw err
   }
 })
