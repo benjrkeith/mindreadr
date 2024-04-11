@@ -1,9 +1,10 @@
 import { Router, type Request, type Response } from 'express'
 import pg from 'pg'
 
-import db from '../db.js'
 import getNewChatKey from '../middleware/getNewChatKey.js'
 import verifyToken from '../middleware/verifyToken.js'
+
+import db from '../db.js'
 
 const router = Router()
 router.use(verifyToken)
@@ -11,57 +12,62 @@ router.use(verifyToken)
 // get all chats and their most recent message from your inbox
 router.get('/', async (req: Request, res: Response) => {
   const { user } = res.locals
+
   const query = {
     text: `
-      SELECT messages.chat AS key, 
-             messages.key AS last_msg, 
-             author, 
-             (SELECT avatar 
-                FROM users 
-               WHERE username = author)
-                  AS author_avatar,
-             content, 
-             created_at,
-             (SELECT read
-                FROM chats
-               WHERE key = messages.chat AND username = $1) 
-                  AS read,
-             (SELECT array_agg(username) 
-                FROM chats 
-               WHERE key = messages.chat) 
-                  AS users
-        FROM (SELECT chat, 
-                     MAX(key) AS key 
-                FROM messages 
-               WHERE chat IN (SELECT key 
-                              FROM chats 
-                              WHERE username = $1)
-            GROUP BY chat) 
-                  AS lastMsgs 
-        JOIN messages on messages.key = lastMsgs.key
-    ORDER BY created_at DESC
-      ;`,
+      WITH users_chats 
+        AS (SELECT key,
+                   read
+              FROM chat_members
+             WHERE username = $1),
+      
+           last_msg_per_chat 
+        AS (SELECT chat,
+                   MAX(key) AS key
+              FROM messages
+             WHERE chat 
+                IN (SELECT key 
+                      FROM users_chats)
+          GROUP BY chat)
+    
+      SELECT m.chat AS key,
+             c.name,
+             uc.read,
+             m.key AS last_msg,
+             m.author AS lm_author,
+             m.content AS lm_content,
+             m.created_at AS lm_created_at,
+             u.avatar AS lm_author_avatar
+        FROM last_msg_per_chat lm
+        JOIN messages m
+          ON lm.key = m.key
+        JOIN users_chats uc
+          ON uc.key = m.chat
+        JOIN users u
+          ON u.username = m.author
+        JOIN chats c
+          ON c.key = m.chat
+      ORDER BY m.created_at DESC
+    ;`,
     values: [user.username]
   }
 
   try {
     const result = await db.query(query)
-    const chats = result.rows.map((chat) => {
-      return {
-        key: chat.key,
-        read: chat.read,
-        users: chat.users,
-        lastMsg: {
-          key: chat.last_msg,
-          author: {
-            username: chat.author,
-            avatar: chat.author_avatar
-          },
-          content: chat.content,
-          createdAt: chat.created_at
-        }
+    const chats = result.rows.map((chat) => ({
+      key: chat.key,
+      read: chat.read,
+      users: chat.users,
+      lastMsg: {
+        key: chat.last_msg,
+        author: {
+          username: chat.author,
+          avatar: chat.author_avatar
+        },
+        content: chat.content,
+        createdAt: chat.created_at
       }
-    })
+    }))
 
     res.send(chats)
   } catch (err) {
@@ -82,13 +88,12 @@ router.get('/:chat', async (req: Request, res: Response) => {
       SELECT key, 
              chat,
              author,
-             (SELECT avatar 
-                FROM users 
-               WHERE username = author) 
-                  AS author_avatar,
+             avatar AS author_avatar,
              content,
-             created_at
-        FROM messages 
+             messages.created_at
+        FROM messages
+        JOIN users 
+          ON author = username 
        WHERE chat = $1 
     ORDER BY created_at ASC
     ;`,
@@ -97,24 +102,24 @@ router.get('/:chat', async (req: Request, res: Response) => {
 
   try {
     const result = await db.query(query)
-    const msgs = result.rows.map((msg) => {
-      return {
-        key: msg.key,
-        author: {
-          username: msg.author,
-          avatar: msg.author_avatar
-        },
-        content: msg.content,
-        createdAt: msg.created_at
-      }
-    })
+    const msgs = result.rows.map((msg) => ({
+      key: msg.key,
+      author: {
+        username: msg.author,
+        avatar: msg.author_avatar
+      },
+      content: msg.content,
+      createdAt: msg.created_at
+    }))
+
     res.send(msgs)
 
     query = {
       text: `
         UPDATE chats 
            SET read = TRUE 
-         WHERE key = $1 AND username = $2
+         WHERE key = $1 
+           AND username = $2
       ;`,
       values: [chat, user.username]
     }
@@ -169,7 +174,10 @@ router.post('/:chat', async (req: Request, res: Response) => {
     text: `
       INSERT INTO messages (chat, author, content)
            VALUES ($1, $2, $3) 
-        RETURNING *
+        RETURNING *,
+                  (SELECT avatar
+                    FROM users
+                   WHERE username = author) AS author_avatar
     ;`,
     values: [chat, user.username, content]
   }
@@ -180,12 +188,16 @@ router.post('/:chat', async (req: Request, res: Response) => {
       key: result.key,
       chat: result.chat,
       author: {
-        username: result.author
+        username: result.author,
+        avatar: result.author_avatar
       },
       content: result.content,
       createdAt: result.created_at
     }
     res.status(201).send(msg)
+
+    const ws = req.app.get('ws')
+    ws.emit('message', msg)
 
     query = {
       text: `
