@@ -26,6 +26,6 @@ export interface Msg {
 export interface ChatMeta {
   key: number
   read: boolean
-  users: string[]
+  name: string
   lastMsg: Msg
 }
