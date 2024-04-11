@@ -1,7 +1,6 @@
 import { Router, type Request, type Response } from 'express'
 import pg from 'pg'
 
-import getNewChatKey from '../middleware/getNewChatKey.js'
 import verifyToken from '../middleware/verifyToken.js'
 
 import db from '../db.js'
@@ -47,7 +46,7 @@ router.get('/', async (req: Request, res: Response) => {
           ON u.username = m.author
         JOIN chats c
           ON c.key = m.chat
-      ORDER BY m.created_at DESC
+    ORDER BY m.created_at DESC
     ;`,
     values: [user.username]
   }
@@ -56,16 +55,16 @@ router.get('/', async (req: Request, res: Response) => {
     const result = await db.query(query)
     const chats = result.rows.map((chat) => ({
       key: chat.key,
+      name: chat.name,
       read: chat.read,
-      users: chat.users,
       lastMsg: {
         key: chat.last_msg,
         author: {
-          username: chat.author,
-          avatar: chat.author_avatar
+          username: chat.lm_author,
+          avatar: chat.lm_author_avatar
         },
-        content: chat.content,
-        createdAt: chat.created_at
+        content: chat.lm_content,
+        createdAt: chat.lm_created_at
       }
     }))
 
@@ -116,7 +115,7 @@ router.get('/:chat', async (req: Request, res: Response) => {
 
     query = {
       text: `
-        UPDATE chats 
+        UPDATE chat_members 
            SET read = TRUE 
          WHERE key = $1 
            AND username = $2
@@ -133,35 +132,54 @@ router.get('/:chat', async (req: Request, res: Response) => {
 })
 
 // create a new private message chat
-router.post('/', getNewChatKey, async (req: Request, res: Response) => {
-  const { user, nextKey } = res.locals
+router.post('/', async (req: Request, res: Response) => {
+  const { user } = res.locals
+  const { name, targets } = req.body
 
-  if (req.query.users === undefined) {
+  if (name === undefined || targets === undefined || targets.length === 0) {
     res.sendStatus(400)
     return
   }
 
-  const rawTargets = req.query.users as string
-  const targets = rawTargets.split('&')
-  targets.push(user.username as string)
+  const createChatQuery = {
+    text: `
+      INSERT INTO chats (name) 
+           VALUES ($1)
+        RETURNING key
+    ;`,
+    values: [name]
+  }
 
-  const query = `
-    INSERT INTO chats (key, username) 
+  const sendFirstMsgQuery = `
+      INSERT INTO messages (chat, author, content, system)
+           VALUES ($1, $2, $3, $4)
+    ;`
+
+  const addMemberQuery = `
+    INSERT INTO chat_members (key, username) 
          VALUES ($1, $2)
   ;`
 
-  for (const target of targets) {
-    const values = [nextKey, target]
+  try {
+    const result = await db.query(createChatQuery)
+    const key = result.rows[0].key
 
-    try {
-      await db.query(query, values)
-    } catch (err) {
-      if (err instanceof pg.DatabaseError) {
-        if (!res.headersSent) res.sendStatus(500)
-      } else throw err
+    const msg = `${user.username} created the '${name}'`
+    const values = [key, user.username, msg, true]
+    await db.query(sendFirstMsgQuery, values)
+
+    for (const target of targets) {
+      const values = [key, target]
+      await db.query(addMemberQuery, values)
     }
+
+    if (!res.headersSent) res.status(201).send({ chat: key })
+  } catch (err) {
+    if (err instanceof pg.DatabaseError) {
+      console.error(err)
+      if (!res.headersSent) res.sendStatus(500)
+    } else throw err
   }
-  if (!res.headersSent) res.status(201).send({ chat: nextKey })
 })
 
 // create a new message in an existing chat you are apart of
@@ -176,8 +194,8 @@ router.post('/:chat', async (req: Request, res: Response) => {
            VALUES ($1, $2, $3) 
         RETURNING *,
                   (SELECT avatar
-                    FROM users
-                   WHERE username = author) AS author_avatar
+                     FROM users
+                    WHERE username = author) AS author_avatar
     ;`,
     values: [chat, user.username, content]
   }
@@ -201,7 +219,7 @@ router.post('/:chat', async (req: Request, res: Response) => {
 
     query = {
       text: `
-        UPDATE chats 
+        UPDATE chat_members 
            SET read = FALSE 
          WHERE key = $1 AND username != $2
       ;`,
