@@ -1,6 +1,8 @@
 import { Router, type Request, type Response } from 'express'
 import pg from 'pg'
 
+import verifyChat from '../middleware/verifyChat.js'
+import verifyContent from '../middleware/verifyContent.js'
 import verifyToken from '../middleware/verifyToken.js'
 
 import db from '../db.js'
@@ -78,7 +80,7 @@ router.get('/', async (req: Request, res: Response) => {
 })
 
 // get all messages in a single chat
-router.get('/:chat', async (req: Request, res: Response) => {
+router.get('/:chat', verifyChat, async (req: Request, res: Response) => {
   const { user } = res.locals
   const { chat } = req.params
 
@@ -101,6 +103,11 @@ router.get('/:chat', async (req: Request, res: Response) => {
 
   try {
     const result = await db.query(query)
+    if (result.rowCount === 0) {
+      res.sendStatus(404)
+      return
+    }
+
     const msgs = result.rows.map((msg) => ({
       key: msg.key,
       author: {
@@ -134,9 +141,15 @@ router.get('/:chat', async (req: Request, res: Response) => {
 // create a new private message chat
 router.post('/', async (req: Request, res: Response) => {
   const { user } = res.locals
-  const { name, targets } = req.body
+  const { name, targets: _targets } = req.body
 
-  if (name === undefined || targets === undefined || targets.length === 0) {
+  if (_targets === undefined || !Array.isArray(_targets)) {
+    res.sendStatus(400)
+    return
+  }
+
+  const targets = new Set([..._targets, user.username])
+  if (name === undefined || name?.length === 0 || targets.size < 2) {
     res.sendStatus(400)
     return
   }
@@ -151,9 +164,9 @@ router.post('/', async (req: Request, res: Response) => {
   }
 
   const sendFirstMsgQuery = `
-      INSERT INTO messages (chat, author, content, system)
-           VALUES ($1, $2, $3, $4)
-    ;`
+    INSERT INTO messages (chat, author, content, system)
+          VALUES ($1, $2, $3, $4)
+  ;`
 
   const addMemberQuery = `
     INSERT INTO chat_members (key, username) 
@@ -164,7 +177,7 @@ router.post('/', async (req: Request, res: Response) => {
     const result = await db.query(createChatQuery)
     const key = result.rows[0].key
 
-    const msg = `${user.username} created the '${name}'`
+    const msg = `${user.username} created '${name}'`
     const values = [key, user.username, msg, true]
     await db.query(sendFirstMsgQuery, values)
 
@@ -183,7 +196,7 @@ router.post('/', async (req: Request, res: Response) => {
 })
 
 // create a new message in an existing chat you are apart of
-router.post('/:chat', async (req: Request, res: Response) => {
+router.post('/:chat', verifyChat, verifyContent(1), async (req: Request, res: Response) => {
   const { user } = res.locals
   const { chat } = req.params
   const { content } = req.body
@@ -195,7 +208,8 @@ router.post('/:chat', async (req: Request, res: Response) => {
         RETURNING *,
                   (SELECT avatar
                      FROM users
-                    WHERE username = author) AS author_avatar
+                    WHERE username = author) 
+                       AS author_avatar
     ;`,
     values: [chat, user.username, content]
   }
@@ -214,14 +228,15 @@ router.post('/:chat', async (req: Request, res: Response) => {
     }
     res.status(201).send(msg)
 
-    const ws = req.app.get('ws')
-    ws.emit('message', msg)
+    // const ws = req.app.get('ws')
+    // ws.emit('message', msg)
 
     query = {
       text: `
         UPDATE chat_members 
            SET read = FALSE 
-         WHERE key = $1 AND username != $2
+         WHERE key = $1 
+           AND username != $2
       ;`,
       values: [chat, user.username]
     }
