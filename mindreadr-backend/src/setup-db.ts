@@ -28,7 +28,7 @@ ALTER TABLE IF EXISTS public.posts OWNER to mindreadr;
 CREATE TABLE IF NOT EXISTS public.messages
 (
     key INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    chat INT NOT NULL,
+    chat INT NOT NULL REFERENCES chats(key) ON DELETE CASCADE,
     author TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,
     content TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -36,12 +36,20 @@ CREATE TABLE IF NOT EXISTS public.messages
 
 ALTER TABLE IF EXISTS public.messages OWNER to mindreadr;
 
-CREATE TABLE IF NOT EXISTS public.chats
+CREATE TABLE IF NOT EXISTS public.chat_members
 (
-    key INT NOT NULL,
+    key INT NOT NULL REFERENCES chats(key) ON DELETE CASCADE,
     username TEXT NOT NULL REFERENCES users(username),
     read BOOLEAN NOT NULL DEFAULT FALSE,
     PRIMARY KEY (key, username)
+);
+
+ALTER TABLE IF EXISTS public.chat_members OWNER to mindreadr;
+
+CREATE TABLE IF NOT EXISTS public.chats
+(
+    key INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name TEXT NOT NULL
 );
 
 ALTER TABLE IF EXISTS public.chats OWNER to mindreadr;
