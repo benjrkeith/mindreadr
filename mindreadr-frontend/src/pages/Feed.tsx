@@ -9,6 +9,7 @@ export default function Users (): ReactElement {
   const [posts, setPosts] = useState<RawPost[]>([])
   const [createPost, setCreatePost] = useState<boolean>(false)
 
+  // look into moving posts state into feed component, use context to pass down setter to compose
   return (
     <div className='h-[90%] overflow-scroll'>
       {createPost &&

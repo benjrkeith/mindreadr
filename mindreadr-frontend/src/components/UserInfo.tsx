@@ -25,7 +25,7 @@ export default function UserInfo ({ username, setSelectedTab }: Props): ReactEle
   return (
     <>
       <div className='flex w-full m-2 gap-2'>
-        <img src={user.avatar} alt='' className='w-[40%] rounded-2xl' />
+        <img src={`data:image/jpeg;base64,${user.avatar}`} alt='' className='w-[40%] rounded-2xl' />
         <div className=''>
           <h1 className='text-3xl font-semibold'>Ben Keith</h1>
           <h1 className='text-3xl font-normal'>@{user.username}</h1>

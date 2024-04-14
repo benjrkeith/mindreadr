@@ -34,7 +34,7 @@ export default function Post ({ i, data }: Props): ReactElement {
           ? <p className='pb-2'>Replying to <span className='text-purple-600'>@{parentAuthor}</span></p>
           : null} */}
         <div className='flex flex-row gap-2 sm:gap-4'>
-          <img src={authorAvatar} alt='' className='rounded-lg w-[20%] aspect-square
+          <img src={`data:image/jpeg;base64,${authorAvatar}`} alt='' className='rounded-lg w-[20%] aspect-square
             ' />
           <div className='flex flex-col justify-center grow'>
             <Link className='text-purple-600 text-lg font-semibold h-fit
