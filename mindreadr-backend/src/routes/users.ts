@@ -1,5 +1,7 @@
 import { Router } from 'express'
+import multer from 'multer'
 import pg from 'pg'
+import sharp from 'sharp'
 
 import db from '../db.js'
 
@@ -7,10 +9,11 @@ import getTargetUser from '../middleware/getTargetUser.js'
 import getFollowing from '../middleware/getFollowing.js'
 import parseLimits from '../middleware/parseLimits.js'
 import verifyToken from '../middleware/verifyToken.js'
+import { unlink } from 'fs'
 
 const router = Router()
-
 router.use(verifyToken)
+const upload = multer({ dest: 'avatars/' })
 
 // get all users, supports offset and limit
 router.get('/', parseLimits, async (req, res) => {
@@ -19,7 +22,12 @@ router.get('/', parseLimits, async (req, res) => {
   const query = {
     // text: `SELECT username, created_at, last_login, privilege FROM users
     //         ORDER BY created_at LIMIT $1 OFFSET $2`,
-    text: 'SELECT LOWER(username) as username, avatar FROM users WHERE username != $1',
+    text: `
+      SELECT LOWER(username) AS username, 
+             ENCODE(avatar, 'base64') AS avatar 
+        FROM users 
+       WHERE username != $1
+    ;`,
     values: [res.locals.user.username]
     // values: [limit, offset]
   }
@@ -30,7 +38,7 @@ router.get('/', parseLimits, async (req, res) => {
   } catch (err) {
     if (err instanceof pg.DatabaseError) {
       console.error(err)
-      res.status(500).send({ err: 'Unknown error occurred.' })
+      res.sendStatus(500)
     } else throw err
   }
 })
@@ -39,6 +47,32 @@ router.get('/', parseLimits, async (req, res) => {
 router.get('/:username', getTargetUser, async (req, res) => {
   const { targetUser } = res.locals
   res.send(targetUser)
+})
+
+// change your avatar
+router.post('/:username/avatars', upload.single('avatar'), async (req, res) => {
+  if (req.file === undefined) { return res.sendStatus(400) }
+  const img = sharp(req.file.path).resize(128, 128).jpeg({ quality: 50 })
+
+  const query = {
+    text: `
+      UPDATE users
+         SET avatar = $1
+       WHERE username = $2
+    ;`,
+    values: [await img.toBuffer(), req.params.username]
+  }
+
+  try {
+    await db.query(query)
+    res.sendStatus(201)
+    unlink(req.file.path, () => {})
+  } catch (err) {
+    if (err instanceof pg.DatabaseError) {
+      console.error(err)
+      res.sendStatus(500)
+    } else throw err
+  }
 })
 
 // get a specific users posts - alias to /posts?author={user}
@@ -68,7 +102,7 @@ router.get('/:username/likes', getTargetUser, async (req, res) => {
   } catch (err) {
     if (err instanceof pg.DatabaseError) {
       console.error(err)
-      res.status(500).send({ err: 'Unknown error occurred.' })
+      res.sendStatus(500)
     } else throw err
   }
 })
@@ -79,7 +113,7 @@ router.get('/:username/followers', async (req, res) => {
   const query = {
     text: `
       SELECT followers.follower AS username,
-             users.avatar 
+             ENCODE(avatar, 'base64') AS avatar
         FROM followers 
         JOIN users
           ON followers.follower = users.username

@@ -14,14 +14,19 @@ const app = express()
 const server = createServer(app)
 const ws = new Server(server, {
   cors: {
-    origin: 'http://localhost:5173'
+    origin: ['http://192.168.0.129:5173', 'http://localhost:5173']
   }
 })
 
 ws.on('connection', (socket) => {
-  console.log('a user connected')
-  socket.on('disconnect', () => {
-    console.log('user disconnected')
+  console.log('connected')
+  socket.on('join', async (room) => {
+    console.log('joining', room)
+    await socket.join(room as string)
+  })
+  socket.on('leave', async (room) => {
+    console.log('leave', room)
+    await socket.leave(room as string)
   })
 })
 

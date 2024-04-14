@@ -27,7 +27,7 @@ router.get('/', parseLimits, getFollowing, async (req, res) => {
   // if you follow the specific author
   const query = {
     text: `SELECT key, author, content, created_at, parent,
-      (SELECT avatar FROM users WHERE username=author) AS author_avatar,
+      (SELECT ENCODE(avatar, 'base64') FROM users WHERE username=author) AS author_avatar,
       (SELECT author AS parent_author FROM POSTS AS s WHERE s.key=p.parent),
       EXISTS(SELECT * FROM posts AS n WHERE n.author=$3 AND n.parent=p.key AND n.content=p.content) AS reposted,
       (SELECT COUNT(*)::int AS reposts FROM posts WHERE parent=p.key AND content=p.content),

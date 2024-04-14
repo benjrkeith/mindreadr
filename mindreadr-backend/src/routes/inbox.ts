@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express'
 import pg from 'pg'
+import { type Server } from 'socket.io'
 
 import verifyChat from '../middleware/verifyChat.js'
 import verifyContent from '../middleware/verifyContent.js'
@@ -38,7 +39,7 @@ router.get('/', async (req: Request, res: Response) => {
              m.author AS lm_author,
              m.content AS lm_content,
              m.created_at AS lm_created_at,
-             u.avatar AS lm_author_avatar
+             ENCODE(u.avatar, 'base64') AS lm_author_avatar
         FROM last_msg_per_chat lm
         JOIN messages m
           ON lm.key = m.key
@@ -89,7 +90,7 @@ router.get('/:chat', verifyChat, async (req: Request, res: Response) => {
       SELECT key, 
              chat,
              author,
-             avatar AS author_avatar,
+             ENCODE(avatar, 'base64') AS author_avatar,
              content,
              messages.created_at
         FROM messages
@@ -206,7 +207,7 @@ router.post('/:chat', verifyChat, verifyContent(1), async (req: Request, res: Re
       INSERT INTO messages (chat, author, content)
            VALUES ($1, $2, $3) 
         RETURNING *,
-                  (SELECT avatar
+                  (SELECT ENCODE(avatar, 'base64') AS avatar
                      FROM users
                     WHERE username = author) 
                        AS author_avatar
@@ -228,8 +229,9 @@ router.post('/:chat', verifyChat, verifyContent(1), async (req: Request, res: Re
     }
     res.status(201).send(msg)
 
-    // const ws = req.app.get('ws')
-    // ws.emit('message', msg)
+    const ws: Server = req.app.get('ws')
+    ws.to(chat).emit('message', msg)
+    console.log('emit', chat)
 
     query = {
       text: `
@@ -261,7 +263,9 @@ router.patch('/:chat/messages/:msg', async (req: Request, res: Response) => {
     text: `
       UPDATE messages 
          SET content = $1 
-       WHERE key = $2 AND chat = $3 AND author = $4
+       WHERE key = $2 
+         AND chat = $3 
+         AND author = $4
     ;`,
     values: [content, msg, chat, user.username]
   }
@@ -287,7 +291,9 @@ router.delete('/:chat/messages/:msg', async (req: Request, res: Response) => {
   const query = {
     text: `
       DELETE FROM messages 
-            WHERE key = $1 AND chat = $2 AND author = $3
+            WHERE key = $1 
+              AND chat = $2 
+              AND author = $3
     ;`,
     values: [msg, chat, user.username]
   }
