@@ -17,8 +17,8 @@ export default function SearchBar (props: Props): ReactElement {
       <BackBtn callback={backCallback} />
 
       <input type='text' autoFocus value={query} onKeyDown={handleKeyDown}
-      onChange={(e) => { setQuery(e.target.value) }} className='bg-zinc-900
-      grow outline-none px-3'/>
+      onChange={(e) => { setQuery(e.target.value) }} placeholder='Search...'
+      className='bg-zinc-900 grow outline-none px-3'/>
     </div>
   )
 }
