@@ -1,37 +1,43 @@
-import { type Request, type Response, type NextFunction } from 'express'
+import { type Request, type Response, type NextFunction as NF } from 'express'
 import pg from 'pg'
 
 import db from '../db.js'
 
-// middleware to get the target user object from the db
-export default async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  const { username } = req.params
-
-  if (username === ':username') {
-    res.status(400).send({ err: 'You must provide a username.' })
-    return
-  }
+// get the target user object from the db
+export default async (req: Request, res: Response, next: NF): Promise<void> => {
+  const { target } = req.params
 
   const query = {
-    text: `SELECT username, created_at, last_login, privilege, ENCODE(avatar, 'base64') AS avatar,
-            (SELECT COUNT(key) AS posts FROM posts WHERE author = $1),
-            (SELECT COUNT(username) AS followers FROM followers WHERE username = $1),
-            (SELECT COUNT(follower) AS following FROM followers WHERE follower = $1)
-            FROM users WHERE username = $1`,
-    values: [username]
+    text: `
+      SELECT username,
+             created_at,
+             last_login,
+             ENCODE(avatar, 'base64') AS avatar,
+             (SELECT COUNT(key)
+                FROM posts
+               WHERE username = $1) AS post_count,
+             (SELECT COUNT(username)
+                FROM followers
+               WHERE username = $1) AS follower_count,
+             (SELECT COUNT(follower)
+                FROM followers
+               WHERE follower = $1) AS following_count
+        FROM users
+       WHERE username = $1
+    ;`,
+    values: [target]
   }
 
   try {
     const result = await db.query(query)
-    if (result.rowCount === 0) res.status(404).send({ err: 'User could not be found.' })
+
+    if (result.rowCount === 0) res.sendStatus(404)
     else {
-      res.locals.targetUser = result.rows[0]
+      res.locals.target = result.rows[0]
       next()
     }
   } catch (err) {
-    if (err instanceof pg.DatabaseError) {
-      console.error(err)
-      res.status(500).send()
-    } else throw err
+    if (err instanceof pg.DatabaseError) res.sendStatus(500)
+    else throw err
   }
 }

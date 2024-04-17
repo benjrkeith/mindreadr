@@ -1,59 +1,58 @@
 import { Router } from 'express'
+import { unlink } from 'fs'
 import multer from 'multer'
 import pg from 'pg'
 import sharp from 'sharp'
 
 import db from '../db.js'
 
-import getTargetUser from '../middleware/getTargetUser.js'
+import checkSelf from '../middleware/checkSelf.js'
+import checkToken from '../middleware/checkToken.js'
 import getFollowing from '../middleware/getFollowing.js'
-import parseLimits from '../middleware/parseLimits.js'
-import verifyToken from '../middleware/verifyToken.js'
-import { unlink } from 'fs'
+import getTargetUser from '../middleware/getTargetUser.js'
 
 const router = Router()
-router.use(verifyToken)
+router.use(checkToken)
+
 const upload = multer({ dest: 'avatars/' })
 
-// get all users, supports offset and limit
-router.get('/', parseLimits, async (req, res) => {
-  // const { offset, limit } = res.locals
-
+// get all usernames + avatars
+router.get('/', async (req, res) => {
   const query = {
-    // text: `SELECT username, created_at, last_login, privilege FROM users
-    //         ORDER BY created_at LIMIT $1 OFFSET $2`,
     text: `
-      SELECT LOWER(username) AS username, 
+      SELECT username, 
              ENCODE(avatar, 'base64') AS avatar 
         FROM users 
        WHERE username != $1
     ;`,
     values: [res.locals.user.username]
-    // values: [limit, offset]
   }
 
   try {
     const result = await db.query(query)
     res.send(result.rows)
   } catch (err) {
-    if (err instanceof pg.DatabaseError) {
-      console.error(err)
-      res.sendStatus(500)
-    } else throw err
+    if (err instanceof pg.DatabaseError) res.sendStatus(500)
+    else throw err
   }
 })
 
-// get a specific user object
-router.get('/:username', getTargetUser, async (req, res) => {
-  const { targetUser } = res.locals
-  res.send(targetUser)
+// get a target user object
+router.get('/:target', getTargetUser, async (req, res) => {
+  const { target } = res.locals
+  res.send(target)
 })
 
 // change your avatar
-router.post('/:username/avatars', upload.single('avatar'), async (req, res) => {
-  if (req.file === undefined) { return res.sendStatus(400) }
-  const img = sharp(req.file.path).resize(128, 128).jpeg({ quality: 50 })
+router.post('/:target/avatar', checkSelf, upload.single('avatar'), async (req, res) => {
+  const { file } = req
 
+  if (file === undefined) {
+    res.sendStatus(400)
+    return
+  }
+
+  const img = sharp(file.path).resize(128, 128).jpeg({ quality: 50 })
   const query = {
     text: `
       UPDATE users
@@ -66,79 +65,83 @@ router.post('/:username/avatars', upload.single('avatar'), async (req, res) => {
   try {
     await db.query(query)
     res.sendStatus(201)
-    unlink(req.file.path, () => {})
+    unlink(file.path, () => {})
   } catch (err) {
-    if (err instanceof pg.DatabaseError) {
-      console.error(err)
-      res.sendStatus(500)
-    } else throw err
+    if (err instanceof pg.DatabaseError) res.sendStatus(500)
+    else throw err
   }
 })
 
-// get a specific users posts - alias to /posts?author={user}
-// not a fan of this implementation for passing through query, unsure how else to do it
-router.get('/:username/posts', async (req, res) => {
-  const { username } = req.params
-  const { limit, offset } = req.query
-
-  const argsLim = limit !== undefined ? `&limit=${limit as string}` : ''
-  const argsOffset = offset !== undefined ? `&offset=${offset as string}` : ''
-
-  res.redirect(`/api/posts?author=${username}${argsLim}${argsOffset}`)
-})
-
-// get a list of posts a user has liked
-router.get('/:username/likes', getTargetUser, async (req, res) => {
-  const { targetUser } = res.locals
+// get a list of posts a target user has liked
+router.get('/:target/likes', async (req, res) => {
+  const { target } = req.params
   const query = {
-    text: `SELECT key, author, content, parent, posts.created_at
-      FROM likes JOIN posts on post = key WHERE author = $1`,
-    values: [targetUser.username]
+    text: `
+      SELECT posts.key, 
+             author, 
+             content, 
+             parent, 
+             posts.created_at
+        FROM likes 
+        JOIN posts 
+          ON likes.post = posts.key 
+       WHERE likes.username = $1
+    ;`,
+    values: [target]
   }
 
   try {
     const result = await db.query(query)
-    res.send(result.rows)
+    const likes = result.rows.map((like) => ({
+      key: like.key,
+      author: like.author,
+      content: like.content,
+      parent: like.parent,
+      createdAt: like.created_at
+    }))
+
+    res.send(likes)
   } catch (err) {
-    if (err instanceof pg.DatabaseError) {
-      console.error(err)
-      res.sendStatus(500)
-    } else throw err
+    if (err instanceof pg.DatabaseError) res.sendStatus(500)
+    else throw err
   }
 })
 
-// get a list of who follows a specific user
-router.get('/:username/followers', async (req, res) => {
-  const { username } = req.params
+// get a list of users who follow a target user
+router.get('/:target/followers', async (req, res) => {
+  const { target } = req.params
   const query = {
     text: `
-      SELECT followers.follower AS username,
+      SELECT follower AS username,
              ENCODE(avatar, 'base64') AS avatar
         FROM followers 
         JOIN users
           ON followers.follower = users.username
        WHERE followers.username = $1
     ;`,
-    values: [username]
+    values: [target]
   }
 
   try {
     const result = await db.query(query)
     res.send(result.rows)
   } catch (err) {
-    if (err instanceof pg.DatabaseError) {
-      console.error(err)
-      res.sendStatus(500)
-    } else throw err
+    if (err instanceof pg.DatabaseError) res.sendStatus(500)
+    else throw err
   }
 })
 
-// follow a specific user
-router.post('/:username/followers', getTargetUser, async (req, res) => {
-  const { user, targetUser } = res.locals
+// follow a target user
+router.post('/:target/followers', async (req, res) => {
+  const { user } = res.locals
+  const { target } = req.params
+
   const query = {
-    text: 'INSERT INTO followers(username, follower) VALUES($1, $2)',
-    values: [targetUser.username, user.username]
+    text: `
+      INSERT INTO followers(username, follower) 
+           VALUES ($1, $2)
+    ;`,
+    values: [target, user.username]
   }
 
   try {
@@ -146,34 +149,39 @@ router.post('/:username/followers', getTargetUser, async (req, res) => {
     res.sendStatus(200)
   } catch (err) {
     if (err instanceof pg.DatabaseError) {
-      console.error(err)
-      res.status(500).send({ err: 'Unknown error occurred.' })
+      if (err.code === '23505') res.sendStatus(409) // already following
+      else if (err.code === '23503') res.sendStatus(404) // user doesn't exist
+      else res.sendStatus(500)
     } else throw err
   }
 })
 
-// unfollow a specific user
-router.delete('/:username/followers', getTargetUser, async (req, res) => {
-  const { user, targetUser } = res.locals
+// unfollow a target user
+router.delete('/:target/followers', async (req, res) => {
+  const { user } = res.locals
+  const { target } = req.params
+
   const query = {
-    text: 'DELETE FROM followers WHERE username = $1 AND follower = $2',
-    values: [targetUser.username, user.username]
+    text: `
+      DELETE FROM followers 
+            WHERE username = $1 
+              AND follower = $2
+    ;`,
+    values: [target, user.username]
   }
 
   try {
     const result = await db.query(query)
     if (result.rowCount === 1) res.sendStatus(200)
-    else res.sendStatus(500)
+    else res.sendStatus(404) // not following
   } catch (err) {
-    if (err instanceof pg.DatabaseError) {
-      console.error(err)
-      res.status(500).send({ err: 'Unknown error occurred.' })
-    } else throw err
+    if (err instanceof pg.DatabaseError) res.sendStatus(500)
+    else throw err
   }
 })
 
-// get a list of who a specific user follows
-router.get('/:username/following', getTargetUser, getFollowing, async (req, res) => {
+// get a list of people a target user follows
+router.get('/:target/following', getFollowing, async (req, res) => {
   res.send(res.locals.following)
 })
 

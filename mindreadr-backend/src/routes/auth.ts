@@ -3,28 +3,27 @@ import Router from 'express'
 import jwt from 'jsonwebtoken'
 import pg from 'pg'
 
-import verifyUsername from '../middleware/verifyUsername.js'
+import checkCreds from '../middleware/checkCreds.js'
 
 import db from '../db.js'
 import secret from '../config/auth.js'
+import { type RawUser } from '../types.js'
 
 const router = Router()
+router.use(checkCreds)
 
 // register a new user account
-router.post('/register', verifyUsername, async (req, res) => {
-  const { username = '', password = '' } = req.body
-  if (username === '' || password === '') {
-    res.sendStatus(400)
-    return
-  }
+router.post('/register', async (req, res) => {
+  const username = JSON.stringify(req.body.username)
+  const password = JSON.stringify(req.body.password)
 
-  const hash = hashSync(JSON.stringify(password), 8)
+  const hash = hashSync(password, 8)
   const query = {
     text: `
       INSERT INTO users(username, password) 
            VALUES ($1, $2)
     ;`,
-    values: [username, hash]
+    values: [username.toLowerCase(), hash]
   }
 
   try {
@@ -32,19 +31,16 @@ router.post('/register', verifyUsername, async (req, res) => {
     res.sendStatus(201)
   } catch (err) {
     if (err instanceof pg.DatabaseError) {
-      console.error(err)
-      res.sendStatus(500)
+      if (err.code === '23505') res.sendStatus(409) // user already exists
+      else res.sendStatus(500)
     } else throw err
   }
 })
 
 // login as an existing user
 router.post('/login', async (req, res) => {
-  const { username = '', password = '' } = req.body
-  if (username === '' || password === '') {
-    res.sendStatus(400)
-    return
-  }
+  const username = JSON.stringify(req.body.username)
+  const password = JSON.stringify(req.body.password)
 
   const query = {
     text: `
@@ -52,37 +48,37 @@ router.post('/login', async (req, res) => {
              password,
              created_at,
              last_login,
-             avatar,
-             privilege 
+             privilege,
+             ENCODE(avatar, 'base64') AS avatar
         FROM users 
        WHERE username = $1
     ;`,
-    values: [username]
+    values: [username.toLowerCase()]
   }
 
   try {
     const result = await db.query(query)
 
     if (result.rowCount === 0) {
-      res.sendStatus(404)
+      res.sendStatus(404) // user doesn't exist
       return
     }
 
-    const user = result.rows[0]
-    const valid = compareSync(JSON.stringify(password), user.password as string)
+    const user: RawUser = result.rows[0]
+    const valid = compareSync(password, user.password)
     if (!valid) {
-      res.sendStatus(401)
+      res.sendStatus(401) // password is incorrect
       return
     }
 
     const token = jwt.sign({ username: user.username }, secret, { expiresIn: 86400 })
     res.send({
       username: user.username,
-      avatar: user.avatar,
       createdAt: user.created_at,
       lastLogin: user.last_login,
       privilege: user.privilege,
-      token
+      token,
+      avatar: user.avatar
     })
 
     query.text = `
@@ -93,7 +89,6 @@ router.post('/login', async (req, res) => {
     await db.query(query)
   } catch (err) {
     if (err instanceof pg.DatabaseError) {
-      console.error(err)
       if (!res.headersSent) res.sendStatus(500)
     } else throw err
   }

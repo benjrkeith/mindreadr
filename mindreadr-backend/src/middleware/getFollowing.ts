@@ -1,23 +1,22 @@
-import { type Request, type Response, type NextFunction } from 'express'
+import { type Request, type Response, type NextFunction as NF } from 'express'
 import pg from 'pg'
 
 import db from '../db.js'
 
-// middleware to get a list of a users followers
-export default async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  const { user, targetUser } = res.locals
-  const target = targetUser === undefined ? user : targetUser
+// get a list of people a target user follows
+export default async (req: Request, res: Response, next: NF): Promise<void> => {
+  const { target } = req.params
 
   const query = {
     text: `
       SELECT followers.username,
-             users.avatar
+             ENCODE(users.avatar, 'base64') AS avatar
         FROM followers 
         JOIN users 
           ON followers.username = users.username
        WHERE follower = $1
     ;`,
-    values: [target.username]
+    values: [target]
   }
 
   try {
@@ -25,9 +24,7 @@ export default async (req: Request, res: Response, next: NextFunction): Promise<
     res.locals.following = result.rows
     next()
   } catch (err) {
-    if (err instanceof pg.DatabaseError) {
-      console.error(err)
-      res.status(500).send({ err: 'Unknown error occurred.' })
-    } else throw err
+    if (err instanceof pg.DatabaseError) res.sendStatus(500)
+    else throw err
   }
 }
