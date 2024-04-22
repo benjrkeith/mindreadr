@@ -3,8 +3,8 @@ import pg from 'pg'
 import { type Server } from 'socket.io'
 
 import verifyChat from '../middleware/verifyChat.js'
-import verifyContent from '../middleware/verifyContent.js'
-import verifyToken from '../middleware/verifyToken.js'
+import verifyContent from '../middleware/checkContent.js'
+import verifyToken from '../middleware/checkToken.js'
 
 import db from '../db.js'
 
@@ -92,7 +92,11 @@ router.get('/:chat', verifyChat, async (req: Request, res: Response) => {
              author,
              ENCODE(avatar, 'base64') AS author_avatar,
              content,
-             messages.created_at
+             messages.created_at,
+             (SELECT ARRAY_AGG(username)
+                FROM chat_members
+               WHERE key = chat) 
+                  AS users
         FROM messages
         JOIN users 
           ON author = username 
@@ -119,7 +123,7 @@ router.get('/:chat', verifyChat, async (req: Request, res: Response) => {
       createdAt: msg.created_at
     }))
 
-    res.send(msgs)
+    res.send({ msgs, users: result.rows[0].users })
 
     query = {
       text: `

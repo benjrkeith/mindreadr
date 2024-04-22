@@ -2,76 +2,81 @@ import { Router } from 'express'
 import pg from 'pg'
 
 import db from '../db.js'
-import getPost from '../middleware/getPost.js'
+import { type ParentParams } from './replies.js'
 
 const router = Router({ mergeParams: true })
 
 // get a list of all users who liked a post
-router.get('/', getPost, async (req, res) => {
-  const { post } = res.locals
+router.get('/', async (req, res) => {
+  const { key } = req.params as ParentParams
+
   const query = {
-    text: 'SELECT username FROM likes WHERE post = $1',
-    values: [post.key]
+    text: `
+      SELECT likes.username,
+             ENCODE(avatar, 'base64') AS avatar 
+        FROM likes
+        JOIN users
+          ON likes.username = users.username 
+       WHERE post = $1
+    ;`,
+    values: [key]
   }
 
   try {
     const result = await db.query(query)
-    res.send(result.rows.map((x) => x.username))
+    res.send(result.rows)
   } catch (err) {
-    if (err instanceof pg.DatabaseError) {
-      console.error(err)
-      res.sendStatus(500)
-    } else throw err
+    if (err instanceof pg.DatabaseError) res.sendStatus(500)
+    else throw err
   }
 })
 
 // like a post
-router.post('/', getPost, async (req, res) => {
-  const { post } = res.locals
-  if (post.liked as boolean) {
-    res.status(409).send({ err: 'You have already liked this post.' })
-    return
-  }
+router.post('/', async (req, res) => {
+  const { user } = res.locals
+  const { key } = req.params as ParentParams
 
   const query = {
-    text: 'INSERT INTO likes VALUES($1, $2)',
-    values: [res.locals.user.username, post.key]
+    text: `
+      INSERT INTO likes 
+           VALUES ($1, $2)
+    ;`,
+    values: [user.username, key]
   }
 
   try {
-    const result = await db.query(query)
-    if (result.rowCount === 1) res.status(201).send({ msg: 'Post has been liked.' })
-    else res.status(500).send({ err: 'Post could not be liked.' })
+    await db.query(query)
+    res.sendStatus(201)
   } catch (err) {
     if (err instanceof pg.DatabaseError) {
-      console.error(err)
-      res.status(500).send({ err: 'Unknown error occurred.' })
+      if (err.code === '23505') res.sendStatus(409)
+      else if (err.code === '23503') res.sendStatus(404)
+      else res.sendStatus(500)
     } else throw err
   }
 })
 
-// unlike a given post
-router.delete('/', getPost, async (req, res) => {
-  const { post } = res.locals
-  if (!(post.liked as boolean)) {
-    res.status(404).send({ err: 'You have not liked this post.' })
-    return
-  }
+// unlike a post
+router.delete('/', async (req, res) => {
+  const { user } = res.locals
+  const { key } = req.params as ParentParams
 
   const query = {
-    text: 'DELETE FROM likes WHERE username = $1 AND post = $2',
-    values: [res.locals.user.username, post.key]
+    text: `
+      DELETE FROM likes 
+            WHERE username = $1 
+              AND post = $2
+    ;`,
+    values: [user.username, key]
   }
 
   try {
     const result = await db.query(query)
-    if (result.rowCount === 1) res.status(200).send({ msg: 'Like successfully removed.' })
-    else res.status(500).send({ err: 'Like could not be removed.' })
+    if (result.rowCount === 1) res.sendStatus(200)
+    else res.sendStatus(404)
   } catch (err) {
-    if (err instanceof pg.DatabaseError) {
-      console.error(err)
-      res.status(500).send({ err: 'Unknown error occurred.' })
-    } else throw err
+    if (err instanceof pg.DatabaseError) res.sendStatus(500)
+    else throw err
   }
 })
 

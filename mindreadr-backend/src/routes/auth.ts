@@ -14,7 +14,7 @@ router.use(checkCreds)
 
 // register a new user account
 router.post('/register', async (req, res) => {
-  const username = JSON.stringify(req.body.username)
+  const { username } = req.body
   const password = JSON.stringify(req.body.password)
 
   const hash = hashSync(password, 8)
@@ -39,7 +39,7 @@ router.post('/register', async (req, res) => {
 
 // login as an existing user
 router.post('/login', async (req, res) => {
-  const username = JSON.stringify(req.body.username)
+  const { username } = req.body
   const password = JSON.stringify(req.body.password)
 
   const query = {

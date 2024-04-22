@@ -1,42 +1,68 @@
 import { Router } from 'express'
 import pg from 'pg'
 
+import checkContent from '../middleware/checkContent.js'
+
 import db from '../db.js'
-import getPost from '../middleware/getPost.js'
+
+export interface ParentParams {
+  key: string
+}
 
 const router = Router({ mergeParams: true })
 
-// get a list of all direct replies to a post
-router.get('/', getPost, async (req, res) => {
-  const { post } = res.locals
+// get a list of all replies to a post
+router.get('/', async (req, res) => {
+  const { key } = req.params as ParentParams
+
   const query = {
-    text: 'SELECT * FROM posts WHERE parent = $1',
-    values: [post.key]
+    text: `
+      SELECT key,
+             author,
+             ENCODE(avatar, 'base64') AS author_avatar,
+             content,
+             replies.created_at
+        FROM replies
+        JOIN users
+          ON replies.author = users.username
+       WHERE parent = $1
+    ORDER BY created_at DESC
+    ;`,
+    values: [key]
   }
 
   try {
     const result = await db.query(query)
-    res.send(result.rows)
+    const replies = result.rows.map(reply => ({
+      key: reply.key,
+      author: {
+        username: reply.author,
+        avatar: reply.author_avatar
+      },
+      content: reply.content,
+      createdAt: reply.created_at
+    }))
+
+    res.send(replies)
   } catch (err) {
-    if (err instanceof pg.DatabaseError) {
-      console.error(err)
-      res.status(500).send({ err: 'Unknown error occurred.' })
-    } else throw err
+    if (err instanceof pg.DatabaseError) res.sendStatus(500)
+    else throw err
   }
 })
 
 // reply to an existing post
-router.post('/', getPost, async (req, res) => {
-  const { post } = res.locals
+router.post('/', checkContent(3), async (req, res) => {
+  const { user } = res.locals
+  const { key } = req.params
   const { content = '' } = req.body
-  if (content === '' || content.length < 3) {
-    res.status(400).send({ err: 'Content must be longer than 3 chars.' })
-    return
-  }
 
   const query = {
-    text: 'INSERT INTO posts(author, content, parent) VALUES($1, $2, $3) RETURNING *',
-    values: [res.locals.user.username, content, post.key]
+    text: `
+      INSERT INTO replies(author, content, parent) 
+           VALUES ($1, $2, $3) 
+        RETURNING *
+    ;`,
+    values: [user.username, content, key]
   }
 
   try {
@@ -44,8 +70,8 @@ router.post('/', getPost, async (req, res) => {
     res.status(201).send(result.rows[0])
   } catch (err) {
     if (err instanceof pg.DatabaseError) {
-      console.error(err)
-      res.status(500).send({ err: 'Unknown error occurred.' })
+      if (err.code === '23503') res.sendStatus(404)
+      else res.sendStatus(500)
     } else throw err
   }
 })

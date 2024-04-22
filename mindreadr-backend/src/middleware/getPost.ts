@@ -1,34 +1,83 @@
-import { type Request, type Response, type NextFunction } from 'express'
+import { type Request, type Response, type NextFunction as NF } from 'express'
 import pg from 'pg'
 
 import db from '../db.js'
 
-// middleware to get the post object from the db
-export default async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+// get the post object from the db
+export default async (req: Request, res: Response, next: NF): Promise<void> => {
+  const { user } = res.locals
   const { key } = req.params
+
   if (isNaN(parseInt(key))) {
-    res.status(400).send({ err: 'Post key must be a number.' })
+    res.sendStatus(400)
     return
   }
 
   const query = {
-    text: `SELECT *, (SELECT COUNT(*) AS likes FROM likes WHERE post=key), 
-      EXISTS(SELECT * FROM likes WHERE username=$1 AND post=key) AS liked 
-      FROM posts WHERE key = $2`,
-    values: [res.locals.user.username, key]
+    text: `
+      WITH likes
+        AS (SELECT post,
+                   COUNT(post)::int AS likes,
+                   EXISTS(SELECT 1
+                            FROM likes l
+                           WHERE l.post = $2
+                             AND l.username = $1) AS liked
+              FROM likes
+             WHERE post = $2
+          GROUP BY post, liked),
+
+         replies
+        AS (SELECT parent,
+                   COUNT(parent)::int AS replies,
+                   EXISTS(SELECT 1
+                            FROM replies r
+                           WHERE r.author = $1
+                             AND r.parent = $2) AS replied
+              FROM replies
+             WHERE parent = $2
+          GROUP BY parent, replied),
+
+         reposts
+        AS (SELECT posts.key,
+                   0 AS reposts,
+                   FALSE AS reposted
+              FROM posts
+             WHERE posts.key = $2)
+
+      SELECT posts.key,
+             author,
+             ENCODE(avatar, 'base64') AS author_avatar,
+             content,
+             posts.created_at,
+             COALESCE(likes, 0) AS likes,
+             COALESCE(liked, FALSE) AS liked,
+             COALESCE(replies, 0) AS replies,
+             COALESCE(replied, FALSE) AS replied,
+             COALESCE(reposts, 0) AS reposts,
+             COALESCE(reposted, FALSE) AS reposted
+        FROM posts
+   FULL JOIN likes
+          ON likes.post = posts.key
+   FULL JOIN replies
+          ON replies.parent = posts.key
+   FULL JOIN reposts
+          ON reposts.key = posts.key
+        JOIN users
+          ON posts.author = users.username
+       WHERE posts.key = $2
+    `,
+    values: [user.username, key]
   }
 
   try {
     const result = await db.query(query)
-    if (result.rowCount === 0) res.status(404).send({ err: 'Post could not be found.' })
+    if (result.rowCount === 0) res.sendStatus(404)
     else {
       res.locals.post = result.rows[0]
       next()
     }
   } catch (err) {
-    if (err instanceof pg.DatabaseError) {
-      console.error(err)
-      res.status(500).send({ err: 'Unknown error occurred.' })
-    } else throw err
+    if (err instanceof pg.DatabaseError) res.sendStatus(500)
+    else throw err
   }
 }
