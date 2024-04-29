@@ -39,6 +39,7 @@ router.get('/', async (req: Request, res: Response) => {
            m.author AS lm_author,
            m.content AS lm_content,
            m.created_at AS lm_created_at,
+           m.system AS lm_system,
            ENCODE(u.avatar, 'base64') AS lm_author_avatar
       FROM last_msg_per_chat lm
       JOIN messages m
@@ -56,20 +57,30 @@ router.get('/', async (req: Request, res: Response) => {
 
   try {
     const result = await db.query(query)
-    const chats = result.rows.map((chat) => ({
-      key: chat.key,
-      name: chat.name,
-      read: chat.read,
-      lastMsg: {
-        key: chat.last_msg,
-        author: {
-          username: chat.lm_author,
-          avatar: chat.lm_author_avatar
-        },
-        content: chat.lm_content,
-        createdAt: chat.lm_created_at
+    const chats = result.rows.map((chat) => {
+      if (chat.lm_system as boolean) {
+        switch (chat.lm_content) {
+          case '0000':
+            chat.lm_content = `${chat.lm_author} created the chat.`
+            break
+        }
       }
-    }))
+      return {
+        key: chat.key,
+        name: chat.name,
+        read: chat.read,
+        lastMsg: {
+          key: chat.last_msg,
+          author: {
+            username: chat.lm_author,
+            avatar: chat.lm_author_avatar
+          },
+          content: chat.lm_content,
+          createdAt: chat.lm_created_at,
+          system: chat.lm_system
+        }
+      }
+    })
 
     res.send(chats)
   } catch (err) {
@@ -90,6 +101,7 @@ router.get('/:chat', checkChatPerms, async (req: Request, res: Response) => {
              author,
              ENCODE(avatar, 'base64') AS author_avatar,
              content,
+             system,
              messages.created_at,
              (SELECT ARRAY_AGG(username)
                 FROM chat_members
@@ -111,15 +123,25 @@ router.get('/:chat', checkChatPerms, async (req: Request, res: Response) => {
       return
     }
 
-    const msgs = result.rows.map((msg) => ({
-      key: msg.key,
-      author: {
-        username: msg.author,
-        avatar: msg.author_avatar
-      },
-      content: msg.content,
-      createdAt: msg.created_at
-    }))
+    const msgs = result.rows.map((msg) => {
+      if (msg.system as boolean) {
+        switch (msg.content) {
+          case '0000':
+            msg.content = `${msg.author} created the chat.`
+            break
+        }
+      }
+      return {
+        key: msg.key,
+        author: {
+          username: msg.author,
+          avatar: msg.author_avatar
+        },
+        content: msg.content,
+        createdAt: msg.created_at,
+        system: msg.system
+      }
+    })
 
     res.send({ msgs, users: result.rows[0].users })
 
