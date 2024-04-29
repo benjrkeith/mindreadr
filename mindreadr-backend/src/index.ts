@@ -8,7 +8,7 @@ import inboxRouter from './routes/inbox.js'
 import postsRouter from './routes/posts.js'
 import usersRouter from './routes/users.js'
 
-import validateJSON from './middleware/validateJSON.js'
+import checkJSON from './middleware/checkJSON.js'
 
 const app = express()
 const server = createServer(app)
@@ -32,7 +32,7 @@ ws.on('connection', (socket) => {
 
 app.use(logger('dev'))
 app.use(json())
-app.use(validateJSON)
+app.use(checkJSON)
 
 app.use('/api/auth', authRouter)
 app.use('/api/inbox', inboxRouter)

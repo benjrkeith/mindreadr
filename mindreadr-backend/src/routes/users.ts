@@ -4,12 +4,12 @@ import multer from 'multer'
 import pg from 'pg'
 import sharp from 'sharp'
 
-import db from '../db.js'
-
 import checkSelf from '../middleware/checkSelf.js'
 import checkToken from '../middleware/checkToken.js'
 import getFollowing from '../middleware/getFollowing.js'
 import getTargetUser from '../middleware/getTargetUser.js'
+
+import db from '../db.js'
 
 const router = Router()
 router.use(checkToken)

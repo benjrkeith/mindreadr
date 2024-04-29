@@ -3,13 +3,13 @@ import pg from 'pg'
 import { type Server } from 'socket.io'
 
 import verifyChat from '../middleware/verifyChat.js'
-import verifyContent from '../middleware/checkContent.js'
-import verifyToken from '../middleware/checkToken.js'
+import checkContent from '../middleware/checkContent.js'
+import checkToken from '../middleware/checkToken.js'
 
 import db from '../db.js'
 
 const router = Router()
-router.use(verifyToken)
+router.use(checkToken)
 
 // get all chats and their most recent message from your inbox
 router.get('/', async (req: Request, res: Response) => {
@@ -201,7 +201,7 @@ router.post('/', async (req: Request, res: Response) => {
 })
 
 // create a new message in an existing chat you are apart of
-router.post('/:chat', verifyChat, verifyContent(1), async (req: Request, res: Response) => {
+router.post('/:chat', verifyChat, checkContent(1), async (req: Request, res: Response) => {
   const { user } = res.locals
   const { chat } = req.params
   const { content } = req.body

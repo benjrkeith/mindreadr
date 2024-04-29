@@ -4,12 +4,12 @@ import pg from 'pg'
 import likesRouter from './likes.js'
 import repliesRouter from './replies.js'
 
+import checkContent from '../middleware/checkContent.js'
 import checkOffsetLimit from '../middleware/checkOffsetLimit.js'
 import checkToken from '../middleware/checkToken.js'
 import getPost from '../middleware/getPost.js'
 
 import db from '../db.js'
-import checkContent from '../middleware/checkContent.js'
 
 const router = Router()
 
