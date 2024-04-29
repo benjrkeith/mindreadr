@@ -189,6 +189,12 @@ router.post('/', async (req: Request, res: Response) => {
     }
 
     if (!res.headersSent) res.status(201).send({ chat: key })
+
+    const ws: Server = req.app.get('ws')
+    ws.to(_targets).emit('newChat', {
+      key,
+      name
+    })
   } catch (err) {
     if (err instanceof pg.DatabaseError) {
       if (!res.headersSent) res.sendStatus(500)
@@ -210,7 +216,11 @@ router.post('/:chat', checkChatPerms, checkContent(1), async (req: Request, res:
                   (SELECT ENCODE(avatar, 'base64') AS avatar
                      FROM users
                     WHERE username = author) 
-                       AS author_avatar
+                       AS author_avatar,
+                  (SELECT ARRAY_AGG(username)
+                     FROM chat_members
+                    WHERE key = chat) 
+                       AS users
     ;`,
     values: [chat, user.username, content]
   }
@@ -230,7 +240,7 @@ router.post('/:chat', checkChatPerms, checkContent(1), async (req: Request, res:
     res.status(201).send(msg)
 
     const ws: Server = req.app.get('ws')
-    ws.to(chat).emit('message', msg)
+    ws.to(result.users as string[]).emit('msg', msg)
 
     query = {
       text: `

@@ -9,6 +9,7 @@ import postsRouter from './routes/posts.js'
 import usersRouter from './routes/users.js'
 
 import checkJSON from './middleware/checkJSON.js'
+import checkSocketToken from './middleware/checkSocketToken.js'
 
 const app = express()
 const server = createServer(app)
@@ -18,16 +19,10 @@ const ws = new Server(server, {
   }
 })
 
+ws.use(checkSocketToken)
+
 ws.on('connection', (socket) => {
   console.log('connected')
-  socket.on('join', async (room) => {
-    console.log('joining', room)
-    await socket.join(room as string)
-  })
-  socket.on('leave', async (room) => {
-    console.log('leave', room)
-    await socket.leave(room as string)
-  })
 })
 
 app.use(logger('dev'))
