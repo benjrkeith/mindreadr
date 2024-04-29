@@ -2,7 +2,7 @@ import { Router, type Request, type Response } from 'express'
 import pg from 'pg'
 import { type Server } from 'socket.io'
 
-import verifyChat from '../middleware/verifyChat.js'
+import checkChatPerms from '../middleware/checkChatPerms.js'
 import checkContent from '../middleware/checkContent.js'
 import checkToken from '../middleware/checkToken.js'
 
@@ -32,24 +32,24 @@ router.get('/', async (req: Request, res: Response) => {
                       FROM users_chats)
           GROUP BY chat)
     
-      SELECT m.chat AS key,
-             c.name,
-             uc.read,
-             m.key AS last_msg,
-             m.author AS lm_author,
-             m.content AS lm_content,
-             m.created_at AS lm_created_at,
-             ENCODE(u.avatar, 'base64') AS lm_author_avatar
-        FROM last_msg_per_chat lm
-        JOIN messages m
-          ON lm.key = m.key
-        JOIN users_chats uc
-          ON uc.key = m.chat
-        JOIN users u
-          ON u.username = m.author
-        JOIN chats c
-          ON c.key = m.chat
-    ORDER BY m.created_at DESC
+    SELECT m.chat AS key,
+           c.name,
+           uc.read,
+           m.key AS last_msg,
+           m.author AS lm_author,
+           m.content AS lm_content,
+           m.created_at AS lm_created_at,
+           ENCODE(u.avatar, 'base64') AS lm_author_avatar
+      FROM last_msg_per_chat lm
+      JOIN messages m
+        ON lm.key = m.key
+      JOIN users_chats uc
+        ON uc.key = m.chat
+      JOIN users u
+        ON u.username = m.author
+      JOIN chats c
+        ON c.key = m.chat
+  ORDER BY m.created_at DESC
     ;`,
     values: [user.username]
   }
@@ -73,15 +73,13 @@ router.get('/', async (req: Request, res: Response) => {
 
     res.send(chats)
   } catch (err) {
-    if (err instanceof pg.DatabaseError) {
-      console.error(err)
-      res.sendStatus(500)
-    } else throw err
+    if (err instanceof pg.DatabaseError) res.sendStatus(500)
+    else throw err
   }
 })
 
 // get all messages in a single chat
-router.get('/:chat', verifyChat, async (req: Request, res: Response) => {
+router.get('/:chat', checkChatPerms, async (req: Request, res: Response) => {
   const { user } = res.locals
   const { chat } = req.params
 
@@ -137,7 +135,6 @@ router.get('/:chat', verifyChat, async (req: Request, res: Response) => {
     await db.query(query)
   } catch (err) {
     if (err instanceof pg.DatabaseError) {
-      console.error(err)
       if (!res.headersSent) res.sendStatus(500)
     } else throw err
   }
@@ -170,7 +167,7 @@ router.post('/', async (req: Request, res: Response) => {
 
   const sendFirstMsgQuery = `
     INSERT INTO messages (chat, author, content, system)
-          VALUES ($1, $2, $3, $4)
+         VALUES ($1, $2, $3, TRUE)
   ;`
 
   const addMemberQuery = `
@@ -182,8 +179,8 @@ router.post('/', async (req: Request, res: Response) => {
     const result = await db.query(createChatQuery)
     const key = result.rows[0].key
 
-    const msg = `${user.username} created '${name}'`
-    const values = [key, user.username, msg, true]
+    // if msg is system, content is the code for the type of system message
+    const values = [key, user.username, '0000']
     await db.query(sendFirstMsgQuery, values)
 
     for (const target of targets) {
@@ -194,14 +191,13 @@ router.post('/', async (req: Request, res: Response) => {
     if (!res.headersSent) res.status(201).send({ chat: key })
   } catch (err) {
     if (err instanceof pg.DatabaseError) {
-      console.error(err)
       if (!res.headersSent) res.sendStatus(500)
     } else throw err
   }
 })
 
 // create a new message in an existing chat you are apart of
-router.post('/:chat', verifyChat, checkContent(1), async (req: Request, res: Response) => {
+router.post('/:chat', checkChatPerms, checkContent(1), async (req: Request, res: Response) => {
   const { user } = res.locals
   const { chat } = req.params
   const { content } = req.body
@@ -235,7 +231,6 @@ router.post('/:chat', verifyChat, checkContent(1), async (req: Request, res: Res
 
     const ws: Server = req.app.get('ws')
     ws.to(chat).emit('message', msg)
-    console.log('emit', chat)
 
     query = {
       text: `
@@ -249,16 +244,13 @@ router.post('/:chat', verifyChat, checkContent(1), async (req: Request, res: Res
     await db.query(query)
   } catch (err) {
     if (err instanceof pg.DatabaseError) {
-      console.error(err)
       if (!res.headersSent) res.sendStatus(500)
     } else throw err
   }
 })
 
-// patch and delete need testing and checking
-
 // modify the content of a message that you own
-router.patch('/:chat/messages/:msg', async (req: Request, res: Response) => {
+router.patch('/:chat/msgs/:msg', checkContent(1), async (req: Request, res: Response) => {
   const { user } = res.locals
   const { chat, msg } = req.params
   const { content } = req.body
@@ -270,6 +262,7 @@ router.patch('/:chat/messages/:msg', async (req: Request, res: Response) => {
        WHERE key = $2 
          AND chat = $3 
          AND author = $4
+         AND system = FALSE
     ;`,
     values: [content, msg, chat, user.username]
   }
@@ -277,18 +270,16 @@ router.patch('/:chat/messages/:msg', async (req: Request, res: Response) => {
   try {
     const result = await db.query(query)
 
-    if (result.rowCount === 1) res.status(200)
-    else res.status(400)
+    if (result.rowCount === 1) res.sendStatus(200)
+    else res.sendStatus(400)
   } catch (err) {
-    if (err instanceof pg.DatabaseError) {
-      console.error(err)
-      res.sendStatus(500)
-    } else throw err
+    if (err instanceof pg.DatabaseError) res.sendStatus(500)
+    else throw err
   }
 })
 
 // delete a message that you own
-router.delete('/:chat/messages/:msg', async (req: Request, res: Response) => {
+router.delete('/:chat/msgs/:msg', async (req: Request, res: Response) => {
   const { user } = res.locals
   const { chat, msg } = req.params
 
@@ -298,6 +289,7 @@ router.delete('/:chat/messages/:msg', async (req: Request, res: Response) => {
             WHERE key = $1 
               AND chat = $2 
               AND author = $3
+              AND system = FALSE
     ;`,
     values: [msg, chat, user.username]
   }
@@ -306,10 +298,10 @@ router.delete('/:chat/messages/:msg', async (req: Request, res: Response) => {
     const result = await db.query(query)
 
     if (result.rowCount === 1) res.sendStatus(200)
-    else res.status(400)
+    else res.sendStatus(400)
   } catch (err) {
     if (err instanceof pg.DatabaseError) {
-      console.error(err)
+      console.log(err)
       res.sendStatus(500)
     } else throw err
   }
