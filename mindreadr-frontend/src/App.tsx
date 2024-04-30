@@ -41,32 +41,31 @@ export default function App (): ReactElement {
   return (
     <userCtx.Provider value={user}>
       <BrowserRouter>
-        <Routes>
-          <Route path='/' element={<Navigate to='/feed'/>}/>
-          <Route path='/login' element={
-            <Auth setUser={setUser} setShowNav={setShowNav} el={
-              <LogIn setUser={setUser} setShowNav={setShowNav}/>
+        <div className='h-[91%] overflow-scroll'>
+          <Routes>
+            <Route path='/' element={<Navigate to='/feed'/>}/>
+            <Route path='/login' element={
+              <Auth setUser={setUser} setShowNav={setShowNav} el={
+                <LogIn setUser={setUser} setShowNav={setShowNav}/>
+              }/>
             }/>
-          }/>
-          <Route path='/register' element={
-            <Auth setUser={setUser} setShowNav={setShowNav} el={<Register/>}/>
-          }/>
-          <Route path='/feed' element={
-            <Protected el={<Feed/>}/>
-          }/>
-          <Route path='/trending' element={
-            <Protected el={<Trending/>}/>
-          }/>
-          <Route path='/users/*' element={
-            <Protected el={<Users/>}/>
-          }/>
-          <Route path='/inbox' element={
-            <Protected el={<Inbox setShowNav={setShowNav}/>}/>
-          }/>
-          {/* <Route path='/inbox/:conversation' element={
-            <Protected el={<Conversation/>}/>
-          }/> */}
-        </Routes>
+            <Route path='/register' element={
+              <Auth setUser={setUser} setShowNav={setShowNav} el={<Register/>}/>
+            }/>
+            <Route path='/feed' element={
+              <Protected el={<Feed/>}/>
+            }/>
+            <Route path='/trending' element={
+              <Protected el={<Trending/>}/>
+            }/>
+            <Route path='/users/*' element={
+              <Protected el={<Users/>}/>
+            }/>
+            <Route path='/inbox' element={
+              <Protected el={<Inbox setShowNav={setShowNav}/>}/>
+            }/>
+          </Routes>
+        </div>
         {showNav && <Nav/>}
       </BrowserRouter>
     </userCtx.Provider>
