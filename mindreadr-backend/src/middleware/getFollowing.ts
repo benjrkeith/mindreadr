@@ -2,6 +2,7 @@ import { type Request, type Response, type NextFunction as NF } from 'express'
 import pg from 'pg'
 
 import db from '../db.js'
+import { type User } from '../types.js'
 
 // get a list of people a target user follows
 export default async (req: Request, res: Response, next: NF): Promise<void> => {
@@ -21,7 +22,8 @@ export default async (req: Request, res: Response, next: NF): Promise<void> => {
 
   try {
     const result = await db.query(query)
-    res.locals.following = result.rows
+    const users: User[] = result.rows
+    res.locals.following = users
     next()
   } catch (err) {
     if (err instanceof pg.DatabaseError) res.sendStatus(500)

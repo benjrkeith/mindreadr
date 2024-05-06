@@ -1,11 +1,12 @@
 import { type Request, type Response, type NextFunction as NF } from 'express'
 
 import db from '../db.js'
+import { type User } from '../types.js'
 
 // checks that the provided chat id is a number
 // also checks the current user has permission to access the chat
 export default async (req: Request, res: Response, next: NF): Promise<void> => {
-  const { user } = res.locals
+  const user = res.locals.user as User
   const { chat } = req.params
 
   if (isNaN(parseInt(chat))) {

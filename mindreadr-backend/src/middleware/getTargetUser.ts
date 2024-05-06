@@ -2,6 +2,7 @@ import { type Request, type Response, type NextFunction as NF } from 'express'
 import pg from 'pg'
 
 import db from '../db.js'
+import { type User } from '../types.js'
 
 // get the target user object from the db
 export default async (req: Request, res: Response, next: NF): Promise<void> => {
@@ -30,12 +31,22 @@ export default async (req: Request, res: Response, next: NF): Promise<void> => {
 
   try {
     const result = await db.query(query)
-
-    if (result.rowCount === 0) res.sendStatus(404)
-    else {
-      res.locals.target = result.rows[0]
-      next()
+    if (result.rowCount === 0) {
+      res.sendStatus(404)
+      return
     }
+
+    const user: User = {
+      ...result.rows[0],
+      createdAt: result.rows[0].created_at,
+      lastLogin: result.rows[0].last_login,
+      postCount: result.rows[0].post_count,
+      followerCount: result.rows[0].follower_count,
+      followingCount: result.rows[0].following_count
+    }
+
+    res.locals.target = user
+    next()
   } catch (err) {
     if (err instanceof pg.DatabaseError) res.sendStatus(500)
     else throw err

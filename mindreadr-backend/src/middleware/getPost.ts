@@ -2,10 +2,11 @@ import { type Request, type Response, type NextFunction as NF } from 'express'
 import pg from 'pg'
 
 import db from '../db.js'
+import { type Post, type User } from '../types.js'
 
 // get the post object from the db
 export default async (req: Request, res: Response, next: NF): Promise<void> => {
-  const { user } = res.locals
+  const user = res.locals.user as User
   const { key } = req.params
 
   if (isNaN(parseInt(key))) {
@@ -71,11 +72,34 @@ export default async (req: Request, res: Response, next: NF): Promise<void> => {
 
   try {
     const result = await db.query(query)
-    if (result.rowCount === 0) res.sendStatus(404)
-    else {
-      res.locals.post = result.rows[0]
-      next()
+    if (result.rowCount === 0) {
+      res.sendStatus(404)
+      return
     }
+
+    const post: Post = {
+      ...result.rows[0],
+      author: {
+        username: result.rows[0].author,
+        avatar: result.rows[0].author_avatar
+      },
+      createdAt: result.rows[0].created_at,
+      likes: {
+        count: result.rows[0].likes,
+        liked: result.rows[0].liked
+      },
+      replies: {
+        count: result.rows[0].replies,
+        replied: result.rows[0].replied
+      },
+      reposts: {
+        count: result.rows[0].reposts,
+        reposted: result.rows[0].reposted
+      }
+    }
+
+    res.locals.post = post
+    next()
   } catch (err) {
     if (err instanceof pg.DatabaseError) res.sendStatus(500)
     else throw err
