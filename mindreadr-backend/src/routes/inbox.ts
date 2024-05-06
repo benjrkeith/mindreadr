@@ -11,6 +11,15 @@ import db from '../db.js'
 const router = Router()
 router.use(checkToken)
 
+const translateSystemMsg = (msg: any): any => {
+  switch (msg.content) {
+    case '0000':
+      msg.content = `${msg.author.username} created the chat.`
+      break
+  }
+  return msg
+}
+
 // get all chats and their most recent message from your inbox
 router.get('/', async (req: Request, res: Response) => {
   const { user } = res.locals
@@ -58,27 +67,26 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     const result = await db.query(query)
     const chats = result.rows.map((chat) => {
-      if (chat.lm_system as boolean) {
-        switch (chat.lm_content) {
-          case '0000':
-            chat.lm_content = `${chat.lm_author} created the chat.`
-            break
-        }
+      let msg = {
+        key: chat.last_msg,
+        author: {
+          username: chat.lm_author,
+          avatar: chat.lm_author_avatar
+        },
+        content: chat.lm_content,
+        createdAt: chat.lm_created_at,
+        system: chat.lm_system
       }
+
+      if (msg.system as boolean) {
+        msg = translateSystemMsg(msg)
+      }
+
       return {
         key: chat.key,
         name: chat.name,
         read: chat.read,
-        lastMsg: {
-          key: chat.last_msg,
-          author: {
-            username: chat.lm_author,
-            avatar: chat.lm_author_avatar
-          },
-          content: chat.lm_content,
-          createdAt: chat.lm_created_at,
-          system: chat.lm_system
-        }
+        msgs: [msg]
       }
     })
 
@@ -102,11 +110,7 @@ router.get('/:chat', checkChatPerms, async (req: Request, res: Response) => {
              ENCODE(avatar, 'base64') AS author_avatar,
              content,
              system,
-             messages.created_at,
-             (SELECT ARRAY_AGG(username)
-                FROM chat_members
-               WHERE key = chat) 
-                  AS users
+             messages.created_at
         FROM messages
         JOIN users 
           ON author = username 
@@ -116,22 +120,28 @@ router.get('/:chat', checkChatPerms, async (req: Request, res: Response) => {
     values: [chat]
   }
 
+  const usersQuery = {
+    text: `
+      SELECT users.username,
+             ENCODE(avatar, 'base64') AS avatar
+        FROM chat_members members
+        JOIN users
+          ON members.username = users.username
+       WHERE key = $1
+    ;`,
+    values: [chat]
+  }
+
   try {
     const result = await db.query(query)
+
     if (result.rowCount === 0) {
       res.sendStatus(404)
       return
     }
 
     const msgs = result.rows.map((msg) => {
-      if (msg.system as boolean) {
-        switch (msg.content) {
-          case '0000':
-            msg.content = `${msg.author} created the chat.`
-            break
-        }
-      }
-      return {
+      msg = {
         key: msg.key,
         author: {
           username: msg.author,
@@ -141,9 +151,16 @@ router.get('/:chat', checkChatPerms, async (req: Request, res: Response) => {
         createdAt: msg.created_at,
         system: msg.system
       }
+
+      if (msg.system as boolean) {
+        msg = translateSystemMsg(msg)
+      }
+
+      return msg
     })
 
-    res.send({ msgs, users: result.rows[0].users })
+    const usersResult = await db.query(usersQuery)
+    res.send({ msgs, users: usersResult.rows })
 
     query = {
       text: `
@@ -190,6 +207,11 @@ router.post('/', async (req: Request, res: Response) => {
   const sendFirstMsgQuery = `
     INSERT INTO messages (chat, author, content, system)
          VALUES ($1, $2, $3, TRUE)
+      RETURNING *,
+                (SELECT ENCODE(avatar, 'base64')
+                   FROM users
+                  WHERE username = author) 
+                     AS author_avatar
   ;`
 
   const addMemberQuery = `
@@ -203,7 +225,20 @@ router.post('/', async (req: Request, res: Response) => {
 
     // if msg is system, content is the code for the type of system message
     const values = [key, user.username, '0000']
-    await db.query(sendFirstMsgQuery, values)
+    const msgResult = await db.query(sendFirstMsgQuery, values)
+
+    let msg = {
+      key: msgResult.rows[0].key,
+      chat: msgResult.rows[0].chat,
+      author: {
+        username: msgResult.rows[0].author,
+        avatar: msgResult.rows[0].author_avatar
+      },
+      content: msgResult.rows[0].content,
+      createdAt: msgResult.rows[0].created_at
+    }
+
+    msg = translateSystemMsg(msg)
 
     for (const target of targets) {
       const values = [key, target]
@@ -215,7 +250,9 @@ router.post('/', async (req: Request, res: Response) => {
     const ws: Server = req.app.get('ws')
     ws.to(_targets).emit('newChat', {
       key,
-      name
+      name,
+      read: false,
+      msgs: [msg]
     })
   } catch (err) {
     if (err instanceof pg.DatabaseError) {
