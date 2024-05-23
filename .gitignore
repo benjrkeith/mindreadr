@@ -1,5 +1,9 @@
-mindreadr-backend/node_modules/*
-mindreadr-backend/build/*
-mindreadr-backend/src/config/*
-
 mindreadr-frontend/node_modules/*
+
+# compiled output
+backend/dist/*
+backend/node_modules/*
+
+# dotenv environment variable files
+backend/.env
+backend/.env.test
