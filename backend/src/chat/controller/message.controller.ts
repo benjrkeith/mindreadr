@@ -27,9 +27,15 @@ export class MessageController {
   @Get()
   async getMessages(
     @Param('chatId', ParseIntPipe) chatId: number,
+    @GetUser('id') userId: number,
     @Query() query: QueryDto,
   ) {
-    return await this.messageService.getMessages(chatId, query.skip, query.take)
+    return await this.messageService.getMessages(
+      userId,
+      chatId,
+      query.skip,
+      query.take,
+    )
   }
 
   getMessage() {}

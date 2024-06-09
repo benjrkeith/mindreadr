@@ -128,6 +128,8 @@ model ChatMember {
   userId Int
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  isRead Boolean @default(false)
+
   @@unique([chatId, userId])
 }
 
@@ -143,4 +145,5 @@ model Message {
   author   User @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   content String
+  system  Boolean @default(false)
 }

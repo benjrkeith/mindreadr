@@ -62,7 +62,7 @@ export class ChatController {
       this.notificationService.pushNotification(notification)
     }
 
-    return await this.chatService.createChat(dto)
+    return await this.chatService.createChat(userId, dto)
   }
 
   @UseGuards(DoesChatExist, IsChatMember)

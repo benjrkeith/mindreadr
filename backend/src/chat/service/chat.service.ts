@@ -30,6 +30,7 @@ export class ChatService {
                 username: true,
               },
             },
+            isRead: true,
           },
         },
         messages: {
@@ -37,10 +38,12 @@ export class ChatService {
             id: true,
             content: true,
             createdAt: true,
+            system: true,
             author: {
               select: {
                 id: true,
                 username: true,
+                avatar: true,
               },
             },
           },
@@ -50,6 +53,7 @@ export class ChatService {
           take: 1,
         },
       },
+      orderBy: { updatedAt: 'desc' },
     })
   }
 
@@ -70,8 +74,17 @@ export class ChatService {
           },
         },
         messages: {
-          orderBy: { createdAt: 'desc' },
           take: 12,
+          orderBy: { createdAt: 'desc' },
+          include: {
+            author: {
+              select: {
+                id: true,
+                username: true,
+                avatar: true,
+              },
+            },
+          },
         },
       },
     })
@@ -80,13 +93,20 @@ export class ChatService {
     else return chat
   }
 
-  async createChat(dto: CreateChatDto) {
+  async createChat(userId: number, dto: CreateChatDto) {
     try {
       return await this.prismaService.chat.create({
         data: {
           name: dto.name,
           members: {
             create: dto.users.map((userId) => ({ userId })),
+          },
+          messages: {
+            create: {
+              content: '0000',
+              authorId: userId,
+              system: true,
+            },
           },
         },
       })
