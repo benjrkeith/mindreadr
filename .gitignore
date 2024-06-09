@@ -1,4 +1,6 @@
-mindreadr-frontend/node_modules/*
+frontend/dist/*
+frontend/node_modules/*
+frontend/.env
 
 # compiled output
 backend/dist/*
