@@ -7,6 +7,12 @@ import { PrismaService } from 'src/prisma/prisma.service'
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
+  getAllUsernames() {
+    return this.prisma.user.findMany({
+      select: { username: true, avatar: true, id: true },
+    })
+  }
+
   async editUser(userId: number, dto: EditUserDto) {
     const user = await this.prisma.user.update({
       where: { id: userId },

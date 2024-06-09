@@ -12,8 +12,8 @@ export class UserController {
   constructor(private userService: UserService) {}
 
   @Get()
-  async fetchMe(@GetUser() user: User) {
-    return user
+  async getAllUsernames() {
+    return await this.userService.getAllUsernames()
   }
 
   @Patch()
