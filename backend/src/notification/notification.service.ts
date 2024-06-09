@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { Subject } from 'rxjs'
 
 import { PrismaService } from 'src/prisma/prisma.service'
 import { Notification } from '@prisma/client'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 
 @Injectable()
 export class NotificationService {
@@ -30,10 +31,16 @@ export class NotificationService {
     }
   }
 
-  createNotification(userId: number, senderId: number, content: string) {
-    return this.prismaService.notification.create({
-      data: { userId, senderId, content },
-    })
+  async createNotification(userId: number, senderId: number, content: string) {
+    try {
+      return await this.prismaService.notification.create({
+        data: { userId, senderId, content },
+      })
+    } catch (err) {
+      if (err instanceof PrismaClientKnownRequestError) {
+        throw new NotFoundException('User not found')
+      } else throw err
+    }
   }
 
   async fetchFromDb(userId: number) {
