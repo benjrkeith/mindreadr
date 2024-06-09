@@ -37,8 +37,9 @@ export class AuthService {
       throw new UnauthorizedException('Password is incorrect')
     }
 
+    delete user.password
     const token = await this.signToken(user.id, user.username)
-    return { token }
+    return { ...user, token }
   }
 
   async register(dto: AuthDto): Promise<Partial<User>> {
