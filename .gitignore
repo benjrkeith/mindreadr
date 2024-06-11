@@ -1,6 +1,7 @@
 frontend/dist/*
 frontend/node_modules/*
 frontend/.env
+frontend/.vite/*
 
 # compiled output
 backend/dist/*
