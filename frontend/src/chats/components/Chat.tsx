@@ -4,7 +4,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 import { useEffect, useLayoutEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 
 import { getChat, getMessages } from 'src/chats/api'
 import { NewMessage } from 'src/chats/components/NewMessage'
@@ -59,8 +59,8 @@ export function Chat() {
 
   // infinite query states
   if (infQuery.isLoading) return <div>Loading...</div>
-  else if (infQuery.isError) return <div>{JSON.stringify(infQuery.error)}</div>
-  else if (infQuery.data === undefined) return <div>404 Not Found</div>
+  else if (infQuery.isError || infQuery.data === undefined)
+    return <Navigate to='/chats' />
   else
     return (
       <div className='mt-auto flex h-full w-full flex-col'>
