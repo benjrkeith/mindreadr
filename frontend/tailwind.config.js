@@ -8,6 +8,7 @@ export default {
         bg2: '#1e2124',
         fg1: '#7289da',
         fg2: '#EEEEEE',
+        fg3: '#4162d9',
       },
     },
     screens: {

@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 
 import { createMessage } from 'src/chats/api'
-import { enter } from 'src/chats/assets'
 
 interface NewMessageProps {
   chatId: number
@@ -42,19 +41,22 @@ export function NewMessage({ chatId }: NewMessageProps) {
       <textarea
         rows={2}
         value={text}
+        autoFocus
         onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKeyDown}
-        className='bg-bg1 focus:outline-fg1 grow resize-none rounded-lg
-        border-transparent p-2 text-white outline-none'
+        className='grow resize-none rounded-lg border-transparent bg-bg1 p-2 
+        text-white outline-none focus:outline-fg1'
       />
 
       <button
         type='button'
         onClick={handleSubmit}
-        className='bg-fg1 m-1 aspect-square rounded-lg'
+        className='text-fg0 hover:bg-fg3 m-1 aspect-square
+         rounded-lg bg-fg1 text-5xl font-semibold'
       >
-        <img src={enter} alt='send' className='filter-white mx-auto h-14' />
+        {'\u21B5'}
       </button>
     </div>
   )
 }
+// hover:bg-fg1 hover:text-fg2
