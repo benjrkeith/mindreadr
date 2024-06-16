@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { types } from 'src/common'
 import { useUserStore } from 'src/store'
 import { translateSystemMessage } from '../methods'
@@ -10,7 +11,7 @@ export function Message({ msg }: { msg: types.Message }) {
     if (msg.system) {
       const content = translateSystemMessage(msg)
       return (
-        <p className='bg-bg1 mx-auto rounded-xl px-8 py-2 font-semibold'>
+        <p className='mx-auto rounded-xl bg-bg1 px-8 py-2 font-semibold'>
           {content}
         </p>
       )
@@ -19,32 +20,36 @@ export function Message({ msg }: { msg: types.Message }) {
     else if (msg.author.id === user.id)
       return (
         <div
-          className='bg-fg1 ml-auto flex max-w-[95%] gap-3 rounded-xl 
-          rounded-br-none px-3 py-2'
+          className='ml-auto flex max-w-[95%] gap-3 rounded-xl rounded-br-none 
+          bg-fg1 px-3 py-2'
         >
           <div className='flex flex-col'>
             <h1 className='w-full text-end text-2xl font-medium'>You</h1>
             <p className='w-full text-end text-sm'>{msg.content}</p>
           </div>
-          <img
-            src={msg.author.avatar}
-            alt='avatar'
-            className='mb-auto aspect-square h-[3.2rem] rounded-full object-cover'
-          />
+          <Link to={`/users/${msg.author.username}`}>
+            <img
+              src={msg.author.avatar}
+              alt='avatar'
+              className='mb-auto aspect-square h-[3.2rem] rounded-full object-cover'
+            />
+          </Link>
         </div>
       )
     // other users message, renders on left side in dark grey
     else
       return (
         <div
-          className='bg-bg1 mr-auto flex max-w-[95%] gap-3 rounded-xl 
-        rounded-bl-none px-3 py-2'
+          className='mr-auto flex max-w-[95%] gap-3 rounded-xl rounded-bl-none 
+        bg-bg1 px-3 py-2'
         >
-          <img
-            src={msg.author.avatar}
-            alt='avatar'
-            className='mb-auto h-[3.2rem] rounded-full'
-          />
+          <Link to={`/users/${msg.author.username}`}>
+            <img
+              src={msg.author.avatar}
+              alt='avatar'
+              className='mb-auto h-[3.2rem] rounded-full'
+            />
+          </Link>
           <div className='flex flex-col'>
             <h1 className='w-full text-2xl font-medium'>
               {msg.author.username}
