@@ -1,4 +1,6 @@
+import MultiModal from 'src/modals/components/MultiModal'
 import { NavBar } from 'src/navBar'
+import { useModalStore } from 'src/store'
 import { TitleBar } from 'src/titleBar'
 
 interface ContentWrapperProps {
@@ -6,11 +8,16 @@ interface ContentWrapperProps {
 }
 
 export function ContentWrapper({ children }: ContentWrapperProps) {
+  const modalStore = useModalStore()
+
   return (
-    <div className='bg-bg2 flex h-full flex-col'>
-      <TitleBar />
-      <div className='flex grow overflow-hidden'>{children}</div>
-      <NavBar />
-    </div>
+    <>
+      {modalStore.type && <MultiModal />}
+      <div className='absolute flex h-full w-full flex-col bg-bg2'>
+        <TitleBar />
+        <div className='flex grow overflow-hidden'>{children}</div>
+        <NavBar />
+      </div>
+    </>
   )
 }

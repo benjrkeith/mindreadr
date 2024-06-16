@@ -45,3 +45,17 @@ export const useUserStore = create<UserStore>((set) => ({
   user: defaultUser,
   setUser: (user: types.User) => set({ user }),
 }))
+
+export type ModalStore = {
+  type: 'input' | 'confirm' | undefined
+  label: string
+  callback: (value: any) => void
+  setModal: (obj: Partial<ModalStore>) => void
+}
+
+export const useModalStore = create<ModalStore>((set) => ({
+  type: undefined,
+  label: '',
+  callback: () => {},
+  setModal: (obj: Partial<ModalStore>) => set((prev) => ({ ...prev, ...obj })),
+}))
