@@ -39,12 +39,10 @@ export function Auth(): ReactElement {
       setError('Password is a required field.')
       return
     }
-    console.log(username, password)
 
     try {
       const callback = isLogin ? logIn : register
       const user = await callback(username, password)
-      console.log('user', user)
 
       cacheUser(user)
       setUser(user)
@@ -86,8 +84,8 @@ export function Auth(): ReactElement {
         <input
           type='submit'
           value={isLogin ? 'Log In' : 'Register'}
-          className='bg-fg1 mt-3 h-fit w-6/12 
-          max-w-64 rounded-lg py-2 text-xl font-semibold text-white sm:py-4 sm:text-3xl'
+          className='mt-3 h-fit w-6/12 max-w-64 
+          rounded-lg bg-fg1 py-2 text-xl font-semibold text-white sm:py-4 sm:text-3xl'
         />
       </div>
       <AuthFooter
