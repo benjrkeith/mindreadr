@@ -9,8 +9,9 @@ import { Navigate, useNavigate } from 'react-router-dom'
 import { getChat, getMessages } from 'src/chats/api'
 import { NewMessage } from 'src/chats/components/NewMessage'
 import { useChatId } from 'src/chats/hooks'
-import { InfiniteScroll, useTitleBar } from 'src/common'
+import { InfiniteScroll } from 'src/common'
 import { useNavStore } from 'src/store'
+import { useTitleBar } from 'src/titleBar'
 
 export function Chat() {
   const chatId = useChatId()
