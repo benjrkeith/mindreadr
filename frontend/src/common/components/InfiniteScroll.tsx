@@ -15,6 +15,7 @@ export function InfiniteScroll(props: InfiniteScrollProps) {
 
   const [atBottom, setAtBottom] = useState(true)
   const [lastHeight, setLastHeight] = useState(0)
+  const [prePending, setPrePending] = useState(false)
   const divRef = useRef<HTMLDivElement>(null)
 
   // ref and helper to scroll to bottom of all messages
@@ -34,13 +35,19 @@ export function InfiniteScroll(props: InfiniteScrollProps) {
 
   // when new messages are added above, scroll back to the previous position
   useLayoutEffect(() => {
-    if (infQuery.data === undefined || infQuery.data.pages.length < 2) return
+    const ref = divRef.current
+    if (infQuery.data === undefined || ref === null) return
 
-    divRef.current?.scrollTo({
-      top: divRef.current.scrollHeight - lastHeight,
-      left: 0,
-      behavior: 'instant',
-    })
+    if (atBottom) jumpToBottom('instant')
+    else if (prePending) {
+      setPrePending(false)
+      if (infQuery.data.pages.length > 1)
+        ref.scrollTo({
+          top: ref.scrollHeight - lastHeight,
+          left: 0,
+          behavior: 'instant',
+        })
+    }
   }, [infQuery.data])
 
   // scroll event for infinite messages div
@@ -55,6 +62,7 @@ export function InfiniteScroll(props: InfiniteScrollProps) {
     const atTop = t.scrollTop <= 10
     if (atTop && infQuery.hasNextPage && !infQuery.isFetchingNextPage) {
       setLastHeight(t.scrollHeight)
+      setPrePending(true)
       infQuery.fetchNextPage()
     }
   }
