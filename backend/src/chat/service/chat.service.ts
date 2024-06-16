@@ -119,25 +119,43 @@ export class ChatService {
     }
   }
 
-  async updateChat(chatId: number, dto: UpdateChatDto) {
+  async updateChat(userId: number, chatId: number, dto: UpdateChatDto) {
+    let content
+    if (dto.name) content = '0001'
+    else if (dto.addUsers.length) content = '0002'
+    else content = '0003'
+
+    const createMessageQuery = this.prismaService.message.create({
+      data: {
+        chatId,
+        content,
+        authorId: userId,
+        system: true,
+      },
+    })
+
+    const updateQuery = this.prismaService.chat.update({
+      where: {
+        id: chatId,
+      },
+      data: {
+        name: dto.name,
+        members: {
+          create: dto.addUsers.map((userId) => ({ userId })),
+          delete: dto.removeUsers.map((userId) => ({
+            chatId_userId: { userId, chatId },
+          })),
+        },
+      },
+      include: {
+        members: true,
+      },
+    })
+
     try {
-      return await this.prismaService.chat.update({
-        where: {
-          id: chatId,
-        },
-        data: {
-          name: dto.name,
-          members: {
-            create: dto.addUsers.map((userId) => ({ userId })),
-            delete: dto.removeUsers.map((userId) => ({
-              chatId_userId: { userId, chatId },
-            })),
-          },
-        },
-        include: {
-          members: true,
-        },
-      })
+      return (
+        await this.prismaService.$transaction([createMessageQuery, updateQuery])
+      )[1]
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError)
         if (error.code === 'P2002')
