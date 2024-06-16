@@ -27,12 +27,6 @@ export function InfiniteScroll(props: InfiniteScrollProps) {
     })
   }
 
-  // on first render, scroll to bottom of all messages
-  useLayoutEffect(() => {
-    if (divRef.current === null) return
-    else jumpToBottom('instant')
-  }, [divRef.current?.id])
-
   // when new messages are added above, scroll back to the previous position
   useLayoutEffect(() => {
     const ref = divRef.current
