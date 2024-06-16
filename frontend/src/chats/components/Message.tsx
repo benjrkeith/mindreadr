@@ -27,11 +27,14 @@ export function Message({ msg }: { msg: types.Message }) {
             <h1 className='w-full text-end text-2xl font-medium'>You</h1>
             <p className='w-full text-end text-sm'>{msg.content}</p>
           </div>
-          <Link to={`/users/${msg.author.username}`}>
+          <Link
+            className='aspect-square size-[3.2rem]'
+            to={`/users/${msg.author.username}`}
+          >
             <img
               src={msg.author.avatar}
               alt='avatar'
-              className='mb-auto aspect-square h-[3.2rem] rounded-full object-cover'
+              className='mb-auto size-[3.2rem] rounded-full object-cover'
             />
           </Link>
         </div>
@@ -43,11 +46,14 @@ export function Message({ msg }: { msg: types.Message }) {
           className='mr-auto flex max-w-[95%] gap-3 rounded-xl rounded-bl-none 
         bg-bg1 px-3 py-2'
         >
-          <Link to={`/users/${msg.author.username}`}>
+          <Link
+            className='aspect-square size-[3.2rem]'
+            to={`/users/${msg.author.username}`}
+          >
             <img
               src={msg.author.avatar}
               alt='avatar'
-              className='mb-auto h-[3.2rem] rounded-full'
+              className='mb-auto size-[3.2rem] rounded-full object-cover'
             />
           </Link>
           <div className='flex flex-col'>
