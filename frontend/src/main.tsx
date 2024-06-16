@@ -7,6 +7,7 @@ import { Auth, AuthWrapper, Protected } from 'src/auth'
 import { Chat, Chats, CreateChat } from 'src/chats'
 import { ContentWrapper } from 'src/common'
 import 'src/main.css'
+import { EditChat } from './chats/components/EditChat'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -39,7 +40,13 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                 path='new'
                 element={<Protected element={<CreateChat />} />}
               />
-              <Route path=':id' element={<Protected element={<Chat />} />} />
+              <Route path=':id'>
+                <Route index element={<Protected element={<Chat />} />} />
+                <Route
+                  path='edit'
+                  element={<Protected element={<EditChat />} />}
+                />
+              </Route>
             </Route>
 
             <Route path='/notifications' element={<Chats />} />

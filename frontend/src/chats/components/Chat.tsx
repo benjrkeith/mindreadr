@@ -3,22 +3,17 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query'
-import { useEffect, useLayoutEffect, useState } from 'react'
-import { Navigate, useNavigate, useParams } from 'react-router-dom'
+import { useEffect, useLayoutEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { getChat, getMessages } from 'src/chats/api'
-import { EditChat } from 'src/chats/components/EditChat'
 import { NewMessage } from 'src/chats/components/NewMessage'
-import { InfiniteScroll } from 'src/common'
-import { useNavStore, useTitleBarStore } from 'src/store'
+import { useChatId } from 'src/chats/hooks'
+import { InfiniteScroll, useTitleBar } from 'src/common'
+import { useNavStore } from 'src/store'
 
 export function Chat() {
-  // check id given in URL params is a number, otherwise redirect to /chats
-  const params = useParams()
-  const chatId = parseInt(params.id as string)
-  if (isNaN(chatId)) return <Navigate to='/chats' />
-
-  const [showMenu, setShowMenu] = useState(false)
+  const chatId = useChatId()
   const navigate = useNavigate()
 
   // use nav store to hide the nav bar
@@ -32,14 +27,17 @@ export function Chat() {
   })
 
   // set title bar to the chat name
-  const { setTitleBar } = useTitleBarStore()
-  useLayoutEffect(() => {
-    setTitleBar({
+  useTitleBar(
+    {
       title: chatQuery.data?.name || 'Chat',
       backCallback: () => navigate('/chats'),
-      actionButton: { text: '\u22EE', callback: () => setShowMenu(true) },
-    })
-  }, [chatQuery.data])
+      actionButton: {
+        text: '\u22EE',
+        callback: () => navigate(`/chats/${chatId}/edit`),
+      },
+    },
+    [chatQuery.data],
+  )
 
   // infinite query for getting all messages in the chat
   const infQuery = useInfiniteQuery({
@@ -66,14 +64,8 @@ export function Chat() {
   else
     return (
       <div className='mt-auto flex h-full w-full flex-col'>
-        {showMenu ? (
-          <EditChat backCallback={() => setShowMenu(false)} />
-        ) : (
-          <>
-            <InfiniteScroll infQuery={infQuery} />
-            <NewMessage chatId={chatId} />
-          </>
-        )}
+        <InfiniteScroll infQuery={infQuery} />
+        <NewMessage chatId={chatId} />
       </div>
     )
 }
