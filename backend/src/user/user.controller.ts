@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common'
 import { User } from '@prisma/client'
 
 import { GetUser } from 'src/auth/decorator'
@@ -14,6 +14,11 @@ export class UserController {
   @Get()
   async getAllUsernames() {
     return await this.userService.getAllUsernames()
+  }
+
+  @Get(':username')
+  async getUser(@Param('username') username: string) {
+    return await this.userService.getUser(username)
   }
 
   @Patch()
