@@ -14,46 +14,19 @@ export const useNavStore = create<NavStore>((set) => ({
   show: () => set((prev) => ({ ...prev, isHidden: false })),
 }))
 
-// type TitleBarStore = {
-//   title: string
-//   backCallback: undefined | (() => void)
-//   actionButton: { text: string; callback: undefined | (() => void) }
-//   setTitleBar: (
-//     title: string,
-//     backCallback: undefined | (() => void),
-//     actionButton: { text: string; callback: undefined | (() => void) },
-//   ) => void
-// }
-
-type TitleBarArgs = {
-  title?: string
-  backCallback?: () => void
-  actionButton?: { text: string; callback: undefined | (() => void) }
-}
-
-type TitleBarStore = {
+export type TitleBarStore = {
   title: string
   backCallback: undefined | (() => void)
   actionButton: { text: string; callback: undefined | (() => void) }
-  setTitleBar: (obj: TitleBarArgs) => void
+  setTitleBar: (obj: Partial<TitleBarStore>) => void
 }
-
-// export const useTitleBarStore = create<TitleBarStore>((set) => ({
-//   title: '',
-//   backCallback: undefined,
-//   actionButton: { text: '', callback: undefined },
-//   setTitleBar: (
-//     title: string,
-//     backCallback: undefined | (() => void),
-//     actionButton: { text: string; callback: undefined | (() => void) },
-//   ) => set({ title, backCallback, actionButton }),
-// }))
 
 export const useTitleBarStore = create<TitleBarStore>((set) => ({
   title: '',
   backCallback: undefined,
   actionButton: { text: '', callback: undefined },
-  setTitleBar: (obj: TitleBarArgs) => set((prev) => ({ ...prev, ...obj })),
+  setTitleBar: (obj: Partial<TitleBarStore>) =>
+    set((prev) => ({ ...prev, ...obj })),
 }))
 
 type UserStore = {
@@ -61,7 +34,7 @@ type UserStore = {
   setUser: (user: types.User) => void
 }
 
-export const defaultUser = {
+export const defaultUser: types.User = {
   token: '',
   id: NaN,
   username: '',
@@ -73,44 +46,16 @@ export const useUserStore = create<UserStore>((set) => ({
   setUser: (user: types.User) => set({ user }),
 }))
 
-// type ChatStore = {
-//   chats: types.Chat[]
-//   getChat: (id: number) => types.Chat | undefined
-//   setChats: (chats: types.Chat[]) => void
-// }
-
-// export const useChatStore = create<ChatStore>((set, get) => ({
-//   chats: [],
-//   getChat: (id: number) => get().chats.find((chat) => chat.id === id),
-//   setChats: (chats: types.Chat[]) => set({ chats }),
-// }))
-
-type ChatStore = {
-  chats: Map<number, types.Chat>
-  getChat: (id: number) => types.Chat | undefined
-  setChat: (id: number, chat: types.Chat) => void
-
-  appendMessage: (chatId: number, message: types.Message) => void
+export type ModalStore = {
+  type: 'input' | 'confirm' | undefined
+  label: string
+  callback: (value: any) => void
+  setModal: (obj: Partial<ModalStore>) => void
 }
 
-export const useChatStore = create<ChatStore>((set, get) => ({
-  chats: new Map<number, types.Chat>(),
-  getChat: (id: number) => get().chats.get(id),
-  setChat: (id: number, chat: types.Chat) =>
-    set((prev) => {
-      const map = new Map(prev.chats)
-      map.set(id, chat)
-      return { ...prev, chats: map }
-    }),
-
-  appendMessage: (chatId: number, message: types.Message) => {
-    set((prev) => {
-      const map = new Map(prev.chats)
-      const chat = map.get(chatId)
-      if (chat === undefined) return prev
-
-      chat.messages.push(message)
-      return { ...prev, chats: map }
-    })
-  },
+export const useModalStore = create<ModalStore>((set) => ({
+  type: undefined,
+  label: '',
+  callback: () => {},
+  setModal: (obj: Partial<ModalStore>) => set((prev) => ({ ...prev, ...obj })),
 }))

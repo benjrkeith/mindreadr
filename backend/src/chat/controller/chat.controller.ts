@@ -68,12 +68,13 @@ export class ChatController {
   @UseGuards(DoesChatExist, IsChatMember)
   @Patch(':chatId')
   async updateChat(
+    @GetUser('id') userId: number,
     @Param('chatId', ParseIntPipe) chatId: number,
     @Body() dto: UpdateChatDto,
   ) {
     if (dto.addUsers.length === 0 && dto.removeUsers.length === 0 && !dto.name)
       throw new BadRequestException('At least one field must be provided')
-    return await this.chatService.updateChat(chatId, dto)
+    return await this.chatService.updateChat(userId, chatId, dto)
   }
 
   @UseGuards(DoesChatExist, IsChatMember)
