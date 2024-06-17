@@ -6,7 +6,7 @@ import { createChat } from 'src/chats/api'
 import { types } from 'src/common'
 import { UserList } from 'src/common/components/UserList'
 import { UserSearch } from 'src/common/components/UserSeach'
-import { useTitleBarStore } from 'src/store'
+import { useNavStore, useTitleBarStore } from 'src/store'
 import { InputBar } from 'src/titleBar'
 
 type CreateChatDto = {
@@ -19,6 +19,7 @@ export function CreateChat() {
   const [name, setName] = useState('')
 
   const { setTitleBar } = useTitleBarStore()
+  const nav = useNavStore()
   const navigate = useNavigate()
 
   // mutation for creating post request for new chat
@@ -32,6 +33,7 @@ export function CreateChat() {
 
   // setup title bar
   useLayoutEffect(() => {
+    nav.hide()
     setTitleBar({
       title: '',
       backCallback: () => navigate('/chats'),
