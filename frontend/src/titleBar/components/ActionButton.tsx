@@ -9,7 +9,7 @@ export function ActionButton({ text, callback }: ActionButtonProps) {
   return (
     <button
       onClick={callback}
-      className='text-fg1 ml-auto px-5 text-2xl font-semibold'
+      className='hover:text-fg3 ml-auto px-5 text-2xl font-semibold text-fg1'
     >
       {text}
     </button>

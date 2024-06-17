@@ -24,8 +24,8 @@ export function UserList(props: UserListProps): ReactElement {
   return (
     <div
       tabIndex={-1}
-      className='[&>*:nth-child(even)]:bg-bg1 flex w-full flex-col 
-      overflow-scroll p-2 pt-0'
+      className='flex w-full flex-col overflow-scroll 
+      p-2 pt-0 [&>*:nth-child(even)]:bg-bg1'
     >
       {users.map((user) => (
         <button
@@ -33,8 +33,8 @@ export function UserList(props: UserListProps): ReactElement {
           onClick={() => {
             onClick(user)
           }}
-          className='focus:text-fg1 flex w-full gap-4 rounded-xl border-none
-          p-2 outline-none'
+          className='flex w-full gap-4 rounded-xl border-none p-2
+          outline-none focus:text-fg1'
         >
           <img
             src={user.avatar}
@@ -42,14 +42,14 @@ export function UserList(props: UserListProps): ReactElement {
           />
 
           <h1
-            className='focus:text-fg1 my-auto h-fit grow text-start 
-          text-2xl'
+            className='my-auto h-fit grow text-start text-2xl hover:text-fg1 
+          focus:text-fg1'
           >
             {user.username}
           </h1>
 
           {user.selected && (
-            <p className='text-fg1 my-auto pr-5 text-3xl font-bold'>&#10003;</p>
+            <p className='my-auto pr-5 text-3xl font-bold text-fg1'>&#10003;</p>
           )}
         </button>
       ))}

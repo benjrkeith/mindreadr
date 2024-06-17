@@ -13,7 +13,7 @@ export function ContentWrapper({ children }: ContentWrapperProps) {
   return (
     <>
       {modalStore.type && <MultiModal />}
-      <div className='absolute flex h-full w-full flex-col bg-bg2'>
+      <div className='flex h-full w-full flex-col bg-bg2'>
         <TitleBar />
         <div className='flex grow overflow-hidden'>{children}</div>
         <NavBar />

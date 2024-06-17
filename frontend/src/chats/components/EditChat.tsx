@@ -83,8 +83,11 @@ export function EditChat() {
       <div className='flex flex-col'>
         <div className='flex grow flex-col'>
           <UserList users={users ?? []} />
-          <button className={`${BUTTON_BASE_CLASS} mx-auto px-8 hover:bg-fg1`}>
-            Add user
+          <button
+            className={`${BUTTON_BASE_CLASS} mx-auto px-6 text-3xl 
+            text-green-800 hover:bg-fg1`}
+          >
+            <p className='filter-white text-2xl'>{'\u2795'}</p>
           </button>
         </div>
         <div className='m-2 grid grid-cols-2 gap-2'>

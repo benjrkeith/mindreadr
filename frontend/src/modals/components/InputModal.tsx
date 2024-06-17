@@ -28,7 +28,7 @@ export function InputModal() {
       <button
         type='button'
         onClick={() => callback(inputRef.current?.value)}
-        className='mx-auto mt-auto w-4/6 rounded-xl bg-fg1 p-1 text-xl 
+        className='mx-auto mt-6 w-4/6 rounded-xl bg-fg1 p-1 text-xl 
           font-semibold'
       >
         Submit
