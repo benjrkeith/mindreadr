@@ -27,13 +27,10 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           PORT: ${{ secrets.PORT }}
         run: |
-          mkdir .env
-          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env/.env
-          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env/.env
-          echo "PORT=${{ secrets.PORT }}" >> .env/.env
-          mkdir certs
-          echo "${{ secrets.SSL_CERT }}" >> certs/cert.pem
-          echo "${{ secrets.SSL_KEY }}" >> certs/key.pem
+          touch .env
+          echo $DATABASE_URL >> .env
+          echo $JWT_SECRET >> .env
+          echo $PORT >> .env
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@0e613a0980cbf65ed5b322eb7a1e075d28913a83

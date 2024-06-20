@@ -18,7 +18,7 @@
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start:dev": "dotenv -e .env/.env.dev -- nest start --watch",
-    "start:prod": "dotenv -e .env/.env -- npx prisma migrate deploy && dotenv -e .env/.env -- node dist/main",
+    "start:prod": "npx prisma migrate deploy && node dist/main",
     "pretest:e2e": "npm run db:test:restart",
     "test:e2e": "dotenv -e .env/.env.test -- jest --watch --no-cache --config ./test/jest-e2e.json"
   },
