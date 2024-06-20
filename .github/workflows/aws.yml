@@ -21,16 +21,18 @@ jobs:
 
       - name: Save secrets to file
         env:
-          SSL_KEY: ${{ secrets.SSL_KEY }}
-          SSL_CERT: ${{ secrets.SSL_CERT }}
+          SSL_KEY: |
+            ${{ secrets.SSL_KEY }}
+          SSL_CERT: |
+            ${{ secrets.SSL_CERT }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           PORT: ${{ secrets.PORT }}
         run: |
           touch key.pem
-          echo $SSL_KEY | base64 --decode >> key.pem
+          echo $SSL_KEY >> key.pem
           touch cert.pem
-          echo $SSL_CERT | base64 --decode >> cert.pem
+          echo $SSL_CERT >> cert.pem
           touch .env
           echo DATABASE_URL=$DATABASE_URL >> .env
           echo JWT_SECRET=$JWT_SECRET >> .env
