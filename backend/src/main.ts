@@ -4,10 +4,13 @@ import { ValidationPipe } from '@nestjs/common'
 import { AppModule } from 'src/app.module'
 import * as fs from 'fs'
 
+const key = fs.readFileSync('certs/key.base64').toString()
+const cert = fs.readFileSync('certs/cert.base64').toString()
+
 const options = {
   httpsOptions: {
-    key: fs.readFileSync('certs/key.pem'),
-    cert: fs.readFileSync('certs/cert.pem'),
+    key: Buffer.from(key, 'base64').toString('utf-8'),
+    cert: Buffer.from(cert, 'base64').toString('utf-8'),
   },
 }
 

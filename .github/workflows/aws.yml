@@ -21,10 +21,8 @@ jobs:
 
       - name: Save secrets to file
         env:
-          SSL_KEY: |
-            ${{ secrets.SSL_KEY }}
-          SSL_CERT: |
-            ${{ secrets.SSL_CERT }}
+          SSL_KEY: ${{ secrets.SSL_KEY }}
+          SSL_CERT: ${{ secrets.SSL_CERT }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           PORT: ${{ secrets.PORT }}
