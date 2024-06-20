@@ -8,8 +8,15 @@ USER node
 # Create app directory
 WORKDIR /usr/src/app/backend
 
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
+# Copy certs
+RUN mkdir certs
+COPY --chown=node:node key.pem certs/key.pem
+COPY --chown=node:node cert.pem certs/cert.pem
+
+# Copy .env
 COPY --chown=node:node .env .env
+
+# A wildcard is used to ensure both package.json AND package-lock.json are copied
 COPY --chown=node:node backend/package*.json ./
 
 # Install app dependencies
