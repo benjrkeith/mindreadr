@@ -9,6 +9,7 @@ USER node
 WORKDIR /usr/src/app/backend
 
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
+COPY --chown=node:node .env .env
 COPY --chown=node:node backend/package*.json ./
 
 # Install app dependencies
