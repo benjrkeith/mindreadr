@@ -10,8 +10,8 @@ WORKDIR /usr/src/app/backend
 
 # Copy certs
 RUN mkdir certs
-COPY --chown=node:node key.pem certs/key.pem
-COPY --chown=node:node cert.pem certs/cert.pem
+COPY --chown=node:node key.base64 certs/key.base64
+COPY --chown=node:node cert.base64 certs/cert.base64
 
 # Copy .env
 COPY --chown=node:node .env .env
