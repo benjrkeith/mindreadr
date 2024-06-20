@@ -28,9 +28,9 @@ jobs:
           PORT: ${{ secrets.PORT }}
         run: |
           touch key.pem
-          echo $SSL_KEY >> key.pem
+          echo $SSL_KEY | base64 --decode >> key.pem
           touch cert.pem
-          echo $SSL_CERT >> cert.pem
+          echo $SSL_CERT | base64 --decode >> cert.pem
           touch .env
           echo DATABASE_URL=$DATABASE_URL >> .env
           echo JWT_SECRET=$JWT_SECRET >> .env
