@@ -2,9 +2,17 @@ import { NestFactory } from '@nestjs/core'
 import { ValidationPipe } from '@nestjs/common'
 
 import { AppModule } from 'src/app.module'
+import * as fs from 'fs'
+
+const options = {
+  httpsOptions: {
+    key: fs.readFileSync('certs/key.pem'),
+    cert: fs.readFileSync('certs/cert.pem'),
+  },
+}
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule)
+  const app = await NestFactory.create(AppModule, options)
   app.enableCors({
     origin: ['http://localhost:5173', 'http://192.168.0.200:5173'],
   })
@@ -14,6 +22,6 @@ async function bootstrap() {
       whitelist: true,
     }),
   )
-  await app.listen(3000)
+  await app.listen(process.env.PORT)
 }
 bootstrap()
