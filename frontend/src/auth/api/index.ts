@@ -1,4 +1,5 @@
-const API_URL = import.meta.env.VITE_API_URL
+// const API_URL = import.meta.env.VITE_API_URL
+const API_URL = '/api'
 const AUTH_URL = `${API_URL}/auth`
 
 export const LOGIN_URL = `${AUTH_URL}/login`
