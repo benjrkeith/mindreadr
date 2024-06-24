@@ -13,6 +13,13 @@ export class UserService {
     })
   }
 
+  getUser(username: string) {
+    return this.prisma.user.findUnique({
+      where: { username },
+      select: { username: true, avatar: true, id: true },
+    })
+  }
+
   async editUser(userId: number, dto: EditUserDto) {
     const user = await this.prisma.user.update({
       where: { id: userId },

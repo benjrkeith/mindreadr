@@ -1,4 +1,5 @@
-const API_URL = import.meta.env.VITE_API_URL
+import { API_URL } from 'src/common'
+
 export const CHATS_URL = `${API_URL}/chats`
 
 export * from 'src/chats/api/createChat'
