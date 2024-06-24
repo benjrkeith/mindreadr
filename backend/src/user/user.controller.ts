@@ -1,15 +1,30 @@
-import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common'
 import { User } from '@prisma/client'
 
 import { GetUser } from 'src/auth/decorator'
 import { EditUserDto } from 'src/user/dto'
 import { JwtGuard } from 'src/auth/guard'
 import { UserService } from 'src/user/user.service'
+import { FileInterceptor } from '@nestjs/platform-express'
+import { S3Service } from 'src/S3/S3.service'
 
 @UseGuards(JwtGuard)
 @Controller('users')
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(
+    private s3Service: S3Service,
+    private userService: UserService,
+  ) {}
 
   @Get()
   async getAllUsernames() {
@@ -24,5 +39,14 @@ export class UserController {
   @Patch()
   editUser(@GetUser() user: User, @Body() dto: EditUserDto) {
     return this.userService.editUser(user.id, dto)
+  }
+
+  @Post('avatar')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadAvatar(
+    @UploadedFile() file: Express.Multer.File,
+    @GetUser() user: User,
+  ) {
+    return await this.s3Service.upload(file, user.username)
   }
 }

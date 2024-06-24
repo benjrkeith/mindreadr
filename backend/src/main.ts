@@ -4,9 +4,9 @@ import { ValidationPipe } from '@nestjs/common'
 import { AppModule } from 'src/app.module'
 import * as fs from 'fs'
 
+// Configure the opts for SSL certificates
 const key = fs.readFileSync('certs/key.base64').toString()
 const cert = fs.readFileSync('certs/cert.base64').toString()
-
 const options = {
   httpsOptions: {
     key: Buffer.from(key, 'base64').toString('utf-8'),
