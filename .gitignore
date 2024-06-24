@@ -1,12 +1,14 @@
-frontend/dist/*
-frontend/node_modules/*
+frontend/dist
+frontend/node_modules
 frontend/.env
-frontend/.vite/*
+frontend/.vite
 
 # compiled output
-backend/dist/*
-backend/node_modules/*
+backend/dist
+backend/client
 
 # dotenv environment variable files
 backend/.env
-backend/.env.test
+backend/certs
+
+backend/node_modules

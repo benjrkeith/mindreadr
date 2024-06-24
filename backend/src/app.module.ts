@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common'
+import { join } from 'path'
+import { ServeStaticModule } from '@nestjs/serve-static'
 
 import { AuthModule } from 'src/auth/auth.module'
 import { PostModule } from 'src/post/post.module'
@@ -15,6 +17,9 @@ import { NotificationModule } from 'src/notification/notification.module'
     PrismaModule,
     ChatModule,
     NotificationModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'client'),
+    }),
   ],
   controllers: [],
   providers: [],
