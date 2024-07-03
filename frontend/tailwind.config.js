@@ -12,9 +12,10 @@ export default {
       },
     },
     screens: {
-      sm: '384px',
-      md: '512px',
-      lg: '1024px',
+      sm: '400px',
+      md: '580px',
+      lg: '720px',
+      xl: '960px',
     },
   },
   plugins: [],
