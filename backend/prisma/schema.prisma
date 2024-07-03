@@ -25,6 +25,7 @@ model User {
 
   isAdmin Int     @default(0)
   avatar  String?
+  cover   String?
 
   posts    Post[]
   comments Comment[]
