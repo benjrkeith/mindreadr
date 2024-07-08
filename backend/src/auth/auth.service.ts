@@ -10,7 +10,7 @@ import { User } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 
 import { PrismaService } from 'src/prisma/prisma.service'
-import { AuthDto } from 'src/auth/dto'
+import { AuthDto, RegisterDto } from 'src/auth/dto'
 
 @Injectable()
 export class AuthService {
@@ -19,7 +19,7 @@ export class AuthService {
     private jwt: JwtService,
   ) {}
 
-  async login(dto: AuthDto): Promise<{ token: string }> {
+  async login(dto: AuthDto): Promise<User & { token: string }> {
     const { username, password } = dto
 
     const user = await this.prisma.user.findUnique({
@@ -42,8 +42,8 @@ export class AuthService {
     return { ...user, token }
   }
 
-  async register(dto: AuthDto): Promise<Partial<User>> {
-    const { username, password } = dto
+  async register(dto: RegisterDto): Promise<Partial<User> & { token: string }> {
+    const { username, password, name, dob } = dto
     const passwordHash = await hash(password)
 
     try {
@@ -51,12 +51,14 @@ export class AuthService {
         data: {
           username,
           password: passwordHash,
+          name,
+          dob,
         },
         omit: { password: true },
       })
 
-      user.token = await this.signToken(user.id, user.username)
-      return user
+      const token = await this.signToken(user.id, user.username)
+      return { ...user, token }
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
