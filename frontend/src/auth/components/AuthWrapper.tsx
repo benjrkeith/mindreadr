@@ -1,10 +1,10 @@
 import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Outlet, useNavigate } from 'react-router-dom'
 
 import { acquireUser } from 'src/auth/services'
 import { useNavStore, useUserStore } from 'src/store'
 
-export function AuthWrapper({ children }: { children?: React.ReactNode }) {
+export function AuthWrapper() {
   const { user, setUser } = useUserStore()
   const nav = useNavStore()
 
@@ -27,5 +27,5 @@ export function AuthWrapper({ children }: { children?: React.ReactNode }) {
     }
   }, [user, navigate])
 
-  return children || <></>
+  return <Outlet />
 }
