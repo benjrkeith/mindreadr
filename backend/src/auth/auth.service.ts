@@ -78,4 +78,9 @@ export class AuthService {
       secret: process.env.JWT_SECRET,
     })
   }
+
+  async doesUserExist(username: string): Promise<boolean> {
+    const user = await this.prisma.user.findUnique({ where: { username } })
+    return user !== null
+  }
 }

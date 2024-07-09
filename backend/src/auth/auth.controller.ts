@@ -1,4 +1,12 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+} from '@nestjs/common'
 
 import { AuthService } from 'src/auth/auth.service'
 import { AuthDto, RegisterDto } from 'src/auth/dto'
@@ -16,5 +24,10 @@ export class AuthController {
   @Post('register')
   register(@Body() dto: RegisterDto) {
     return this.authService.register(dto)
+  }
+
+  @Get('exists/:username')
+  async checkExists(@Param('username') username: string) {
+    return await this.authService.doesUserExist(username)
   }
 }
