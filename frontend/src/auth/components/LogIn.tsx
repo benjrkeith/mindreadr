@@ -24,7 +24,7 @@ export function LogIn() {
         <Typography sx={{ mx: 'auto', mt: 'auto' }}>
           Don't have an account?{' '}
           <Link component={RouterLink} to='/auth/register' underline='hover'>
-            Sign up!
+            Sign Up
           </Link>
         </Typography>
       </Box>

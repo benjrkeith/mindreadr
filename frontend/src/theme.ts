@@ -20,7 +20,20 @@ export const theme = createTheme({
     },
   },
   components: {
-    MuiCssBaseline: {},
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          fontWeight: 600,
+        },
+      },
+    },
+    MuiLink: {
+      styleOverrides: {
+        root: {
+          fontWeight: 600,
+        },
+      },
+    },
     MuiTextField: {
       defaultProps: {
         variant: 'filled',

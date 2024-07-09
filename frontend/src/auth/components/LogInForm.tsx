@@ -16,7 +16,7 @@ export function LogInForm() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty, isValid },
     setError,
   } = useForm<LogInDto>()
 
@@ -45,7 +45,7 @@ export function LogInForm() {
         display: 'flex',
         flexDirection: 'column',
         flexGrow: 2,
-        gap: { xs: 2, sm: 3 },
+        gap: { xs: 1.5, sm: 2.5 },
         justifyContent: 'center',
         alignItems: 'center',
       }}
@@ -80,7 +80,12 @@ export function LogInForm() {
       />
 
       <div />
-      <Button variant='outlined' type='submit' sx={{ width: '80%' }}>
+      <Button
+        variant='outlined'
+        type='submit'
+        disabled={!isDirty || !isValid || mutation.isPending}
+        sx={{ width: '60%' }}
+      >
         Log In
       </Button>
     </Box>
