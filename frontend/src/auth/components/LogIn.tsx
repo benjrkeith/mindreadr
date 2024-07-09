@@ -1,5 +1,6 @@
 import { Box, Container, Link, Typography } from '@mui/material'
 import { Link as RouterLink } from 'react-router-dom'
+
 import { LogInForm } from 'src/auth/components/LogInForm'
 import { Logo } from 'src/auth/components/Logo'
 

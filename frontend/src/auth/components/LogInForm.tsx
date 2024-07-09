@@ -1,4 +1,5 @@
 import { Box, Button, TextField } from '@mui/material'
+import { useMutation } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
@@ -10,6 +11,8 @@ import { useUserStore } from 'src/store'
 export function LogInForm() {
   const { setUser } = useUserStore()
   const navigate = useNavigate()
+
+  // create a form with react-hook-form
   const {
     register,
     handleSubmit,
@@ -17,29 +20,27 @@ export function LogInForm() {
     setError,
   } = useForm<LogInDto>()
 
-  const onSubmit = async (dto: LogInDto) => {
-    try {
-      const user = await logIn(dto)
-
+  // mutation for posting login credentials
+  const mutation = useMutation({
+    mutationFn: logIn,
+    onSuccess: (user) => {
       cacheUser(user)
       setUser(user)
-
-      // nav.show()
       navigate('/users')
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        if (err.response?.status === 404)
-          setError('username', { message: 'User could not be found' })
-        else if (err.response?.status === 401)
-          setError('password', { message: 'Password is incorrect' })
-      } else throw err
-    }
-  }
+    },
+    onError: (err: AxiosError) => {
+      const status = err.response?.status
+      if (status === 404)
+        setError('username', { message: 'User could not be found' })
+      else if (status === 401)
+        setError('password', { message: 'Password is incorrect' })
+    },
+  })
 
   return (
     <Box
       component='form'
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit((dto) => mutation.mutate(dto))}
       sx={{
         display: 'flex',
         flexDirection: 'column',

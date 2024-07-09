@@ -1,7 +1,7 @@
 import { Box, useTheme } from '@mui/material'
 
-import dark_logo from 'src/assets/dark-logo.svg'
-import light_logo from 'src/assets/light-logo.svg'
+import dark_logo from 'src/auth/assets/dark-logo.svg'
+import light_logo from 'src/auth/assets/light-logo.svg'
 
 export function Logo() {
   const { palette } = useTheme()
