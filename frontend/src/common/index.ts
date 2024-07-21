@@ -1,3 +1,5 @@
 export * from 'src/common/api'
 export * from 'src/common/components'
+export * from 'src/common/context'
+export * from 'src/common/methods'
 export * as types from 'src/common/types'
