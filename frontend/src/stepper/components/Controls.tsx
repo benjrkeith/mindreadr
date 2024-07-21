@@ -1,6 +1,7 @@
 interface ControlsProps {
   total: number
   current: number
+  disableNav?: Boolean
   setCurrent: (current: number) => void
 }
 
@@ -12,6 +13,7 @@ export function Controls(props: ControlsProps) {
       {[...Array(total).keys()].map((step) => (
         <button
           key={step}
+          disabled={Boolean(props.disableNav)}
           onClick={() => {
             setCurrent(step)
           }}
