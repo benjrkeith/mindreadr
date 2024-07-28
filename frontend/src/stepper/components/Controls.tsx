@@ -6,18 +6,21 @@ interface ControlsProps {
 }
 
 export function Controls(props: ControlsProps) {
-  const { total, current, setCurrent } = props
+  const { total, current, setCurrent, disableNav } = props
+
+  if (disableNav) return <></>
 
   return (
     <div className='mx-auto flex w-fit gap-1'>
       {[...Array(total).keys()].map((step) => (
         <button
           key={step}
-          disabled={Boolean(props.disableNav)}
+          tabIndex={-1}
           onClick={() => {
             setCurrent(step)
           }}
-          className={`text-3xl leading-4 ${current === step && 'text-primary'}`}
+          className={`text-3xl leading-4 
+          ${current === step && 'text-primary'}`}
         >
           •
         </button>

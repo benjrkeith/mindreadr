@@ -1,22 +1,18 @@
-import { Box, useTheme } from '@mui/material'
-
-import dark_logo from 'src/auth/assets/dark-logo.svg'
-import light_logo from 'src/auth/assets/light-logo.svg'
+import { dark_logo, light_logo } from 'src/auth/assets'
 
 export function Logo() {
-  const { palette } = useTheme()
-  const logo = palette.mode === 'dark' ? dark_logo : light_logo
-
   return (
-    <Box
-      component='img'
-      src={logo}
-      sx={{
-        height: { xs: 128, sm: 196, md: 256 },
-        mx: 'auto',
-        mt: { xs: 4, sm: 8, md: 12 },
-        mb: 1,
-      }}
-    />
+    <>
+      <img
+        src={dark_logo}
+        alt='logo'
+        className='mx-auto mt-4 hidden size-32 dark:flex'
+      />
+      <img
+        src={light_logo}
+        alt='logo'
+        className='mx-auto mt-4 size-32 dark:hidden'
+      />
+    </>
   )
 }

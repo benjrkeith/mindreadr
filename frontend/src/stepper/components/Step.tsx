@@ -10,7 +10,7 @@ export function Step(props: StepProps) {
   return (
     <div
       className={`col-[1/1] row-[1/1] flex items-center justify-center 
-      overflow-hidden transition-all duration-500 ease-out 
+      overflow-hidden transition-transform duration-500 ease-out
       ${id > current && 'translate-x-full'}
       ${id < current && '-translate-x-full'}`}
     >

@@ -1,13 +1,9 @@
-import { CssBaseline, ThemeProvider } from '@mui/material'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useState } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
-import { Wrapper as AuthWrapper, LogIn, Protected, Register } from 'src/auth'
+import { Wrapper as AuthWrapper, LogIn, Register } from 'src/auth'
 import { types, userCtx } from 'src/common'
-import { WithNav } from 'src/navBar'
-import { theme } from 'src/theme'
-import { Profile } from 'src/users'
 
 import 'src/App.css'
 
@@ -24,27 +20,26 @@ export function App() {
 
   return (
     <userCtx.Provider value={{ user, setUser }}>
-      <ThemeProvider theme={theme}>
-        <QueryClientProvider client={queryClient}>
-          <CssBaseline enableColorScheme />
-          <BrowserRouter>
-            <Routes>
-              <Route path='/' element={<Navigate to='users' />} />
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <Routes>
+            <Route path='/' element={<Navigate to='users' />} />
 
-              <Route path='auth' element={<AuthWrapper />}>
-                <Route path='login' element={<LogIn />} />
-                <Route path='register' element={<Register />} />
-              </Route>
+            <Route path='auth' element={<AuthWrapper />}>
+              <Route path='login' element={<LogIn />} />
+              <Route path='register' element={<Register />} />
+            </Route>
 
+            {/* 
               <Route path='users' element={<Protected />}>
                 <Route index element={<Navigate to={user.username} />} />
 
                 <Route element={<WithNav />}>
                   <Route path=':username' element={<Profile />} />
                 </Route>
-              </Route>
+              </Route> */}
 
-              {/* <Route path='/chats'>
+            {/* <Route path='/chats'>
               <Route index element={<Protected element={<Chats />} />} />
               <Route
                 path='new'
@@ -62,10 +57,9 @@ export function App() {
             <Route path='/notifications' element={<Chats />} />
             <Route path='/trending' element={<Chats />} />
             <Route path='/feed' element={<Chats />} /> */}
-            </Routes>
-          </BrowserRouter>
-        </QueryClientProvider>
-      </ThemeProvider>
+          </Routes>
+        </BrowserRouter>
+      </QueryClientProvider>
     </userCtx.Provider>
   )
 }

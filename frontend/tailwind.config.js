@@ -4,11 +4,17 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg1: '#18181b',
-        bg2: '#1e2124',
-        fg1: '#7289da',
-        fg2: '#EEEEEE',
-        fg3: '#4162d9',
+        light_bg: '#E9E4DE',
+        light_text: '#121212',
+        dark_lighter_bg: '#414141',
+        dark_bg: '#121212',
+        darker_bg: '#1e2124',
+        dark_text: '#E9E4DE',
+        primary: '#149381',
+        primary_light: '#50b4a5',
+        primary_dark: '#0f7664',
+        secondary: '#a31c31',
+        secondary_light: '#e13b4c',
       },
     },
     screens: {

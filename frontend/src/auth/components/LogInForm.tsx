@@ -1,16 +1,17 @@
-import { Box, Button, TextField } from '@mui/material'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
 
 import { LogInDto, logIn } from 'src/auth/api'
+import { Button } from 'src/auth/components/Button'
+import { Input } from 'src/auth/components/Input'
+import { useAuth } from 'src/auth/hooks'
+import { loginSchema } from 'src/auth/schemas/login'
 import { cacheUser } from 'src/auth/services'
-import { useUserStore } from 'src/store'
 
 export function LogInForm() {
-  const { setUser } = useUserStore()
-  const navigate = useNavigate()
+  const { setUser } = useAuth()
 
   // create a form with react-hook-form
   const {
@@ -18,7 +19,10 @@ export function LogInForm() {
     handleSubmit,
     formState: { errors, isDirty, isValid },
     setError,
-  } = useForm<LogInDto>()
+  } = useForm<LogInDto>({
+    resolver: zodResolver(loginSchema),
+    mode: 'onChange',
+  })
 
   // mutation for posting login credentials
   const mutation = useMutation({
@@ -26,7 +30,6 @@ export function LogInForm() {
     onSuccess: (user) => {
       cacheUser(user)
       setUser(user)
-      navigate('/users')
     },
     onError: (err: AxiosError) => {
       const status = err.response?.status
@@ -38,56 +41,29 @@ export function LogInForm() {
   })
 
   return (
-    <Box
-      component='form'
+    <form
       onSubmit={handleSubmit((dto) => mutation.mutate(dto))}
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        flexGrow: 2,
-        gap: { xs: 1.5, sm: 2.5 },
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
+      className='flex grow-[2] flex-col items-center justify-center gap-2'
     >
-      <TextField
-        id='username'
-        label='Username'
+      <Input
         autoFocus
-        autoComplete='off'
-        spellCheck='false'
-        fullWidth
-        sx={{ width: '80%', maxWidth: 512 }}
-        inputProps={{
-          ...register('username', { required: 'Username is empty' }),
-        }}
-        helperText={(errors.username && errors.username.message) || ' '}
-        error={Boolean(errors.username)}
+        label='Username'
+        register={register}
+        error={errors.username}
       />
-
-      <TextField
-        id='password'
-        label='Password'
+      <Input
         type='password'
-        autoComplete='off'
-        fullWidth
-        sx={{ width: '80%' }}
-        inputProps={{
-          ...register('password', { required: 'Password is empty' }),
-        }}
-        helperText={(errors.password && errors.password.message) || ' '}
-        error={Boolean(errors.password)}
+        label='Password'
+        register={register}
+        error={errors.password}
       />
 
       <div />
       <Button
-        variant='outlined'
         type='submit'
+        value='Log In'
         disabled={!isDirty || !isValid || mutation.isPending}
-        sx={{ width: '60%' }}
-      >
-        Log In
-      </Button>
-    </Box>
+      />
+    </form>
   )
 }

@@ -8,6 +8,11 @@ body,
   height: 100vh;
   width: 100vw;
   display: flex;
+  flex-direction: column;
+  font-size: large;
+  background-color: #121212;
+  color: #e9e4de;
+  font-family: 'Roboto', sans-serif;
 }
 
 @media (min-width: 480px) {
@@ -20,4 +25,24 @@ body,
   html {
     font-size: xx-large;
   }
+}
+
+.filter-primary {
+  filter: invert(47%) sepia(91%) saturate(5099%) hue-rotate(153deg)
+    brightness(95%) contrast(84%);
+}
+
+.filter-white {
+  filter: invert(96%) sepia(4%) saturate(17%) hue-rotate(218deg)
+    brightness(105%) contrast(107%);
+}
+
+.filter-lighter {
+  filter: invert(24%) sepia(0%) saturate(0%) hue-rotate(155deg) brightness(88%)
+    contrast(84%);
+}
+
+.filter-darker {
+  filter: invert(10%) sepia(21%) saturate(296%) hue-rotate(169deg)
+    brightness(90%) contrast(92%);
 }

@@ -4,7 +4,6 @@ import { REGISTER_URL } from 'src/auth/api'
 import { types } from 'src/common'
 
 export interface RegisterDto {
-  name: string
   username: string
   password: string
 }

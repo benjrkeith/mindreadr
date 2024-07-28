@@ -1,6 +1,8 @@
-import { useUserStore } from 'src/store'
+import { useContext } from 'react'
+
+import { userCtx } from 'src/common'
 
 export function useAuth() {
-  const { user } = useUserStore()
-  return user
+  const ctx = useContext(userCtx)
+  return ctx
 }
