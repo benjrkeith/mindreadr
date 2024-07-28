@@ -43,7 +43,7 @@ export class AuthService {
   }
 
   async register(dto: RegisterDto): Promise<Partial<User> & { token: string }> {
-    const { username, password, name, dob } = dto
+    const { username, password } = dto
     const passwordHash = await hash(password)
 
     try {
@@ -51,8 +51,6 @@ export class AuthService {
         data: {
           username,
           password: passwordHash,
-          name,
-          dob,
         },
         omit: { password: true },
       })

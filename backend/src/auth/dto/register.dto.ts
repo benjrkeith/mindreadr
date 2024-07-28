@@ -1,4 +1,4 @@
-import { IsDateString, IsNotEmpty, IsString } from 'class-validator'
+import { IsNotEmpty, IsString } from 'class-validator'
 
 export class RegisterDto {
   @IsNotEmpty()
@@ -8,12 +8,4 @@ export class RegisterDto {
   @IsNotEmpty()
   @IsString()
   password: string
-
-  @IsNotEmpty()
-  @IsString()
-  name: string
-
-  @IsNotEmpty()
-  @IsDateString()
-  dob: Date
 }
