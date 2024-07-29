@@ -17,7 +17,7 @@ export function Wrapper() {
     const cachedUser = acquireUser()
     if (cachedUser.token !== '') {
       setUser(cachedUser)
-      navigate('/users')
+      navigate('/chats')
     }
   }, [acquireUser, setUser])
 

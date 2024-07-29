@@ -15,7 +15,7 @@ export function Footer({ text, link }: FooterProps) {
         {text}{' '}
         <Link
           to={link.to}
-          className='font-bold text-primary_light hover:text-primary_dark'
+          className='font-bold text-primary_lighter hover:text-primary_darker'
         >
           {link.text}
         </Link>

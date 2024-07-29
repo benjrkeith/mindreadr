@@ -9,11 +9,12 @@ export function Button(props: ButtonProps) {
     <button
       {...props}
       className='h-fit w-1/2 max-w-64 rounded-sm py-1 font-semibold uppercase 
-      text-primary outline outline-2 outline-primary transition duration-200 
-      ease-out hover:bg-primary hover:text-dark_text focus:bg-primary 
-      focus:text-dark_text disabled:text-dark_lighter_bg 
-      disabled:outline-dark_lighter_bg disabled:hover:bg-dark_bg 
-      disabled:hover:text-dark_lighter_bg'
+      text-primary_base outline outline-2 outline-primary_base transition 
+      duration-200 ease-out hover:bg-primary_base 
+      hover:text-dark_text_base focus:bg-primary_base 
+      focus:text-dark_text_base disabled:text-dark_bg_lighter 
+      disabled:outline-dark_bg_lighter disabled:hover:bg-dark_bg_base 
+      disabled:hover:text-dark_bg_lighter'
     >
       {props.value}
     </button>

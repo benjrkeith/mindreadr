@@ -43,33 +43,36 @@ export function Input(props: InputProps) {
         spellCheck='false'
         required
         autoComplete='off'
-        className={`peer rounded-sm bg-dark_bg px-4 pb-2 pt-3 outline 
-        outline-2 outline-dark_lighter_bg transition-all duration-300 ease-out 
-        hover:outline-dark_text focus:outline-primary
+        className={`peer rounded-sm 
+        bg-dark_bg_base px-4 pb-2 pt-3 outline 
+        outline-2 outline-dark_bg_lighter transition-all duration-300 ease-out 
+        hover:outline-dark_text_base focus:outline-primary_base
         ${
           error?.message &&
-          `outline-secondary_light valid:outline-secondary_light 
-           hover:outline-secondary focus:outline-secondary`
+          `outline-secondary_lighter valid:outline-secondary_lighter 
+           hover:outline-secondary_base focus:outline-secondary_base`
         }`}
       />
       <label
         htmlFor={id}
-        className={`pointer-events-none absolute mx-3 mb-2 mt-3 
-        bg-dark_bg px-1 text-dark_lighter_bg transition-all duration-100 
-        ease-out peer-valid:-translate-y-[1.5rem] peer-valid:text-sm 
-        peer-valid:text-dark_text peer-focus:-translate-y-[1.5rem] 
-        peer-focus:text-sm peer-focus:text-primary
+        className={`peer-valid:text-dark_text_bas pointer-events-none absolute 
+        mx-3 mb-2 mt-3 bg-dark_bg_base px-1 text-dark_bg_lighter 
+        transition-all duration-100 ease-out peer-valid:-translate-y-[1.5rem] 
+        peer-valid:text-sm peer-hover:text-dark_text_base
+        peer-focus:-translate-y-[1.5rem] peer-focus:text-sm
+        peer-focus:text-primary_base
         ${
           error?.message &&
-          `peer-valid:text-secondary_light peer-focus:text-secondary`
+          `peer-valid:text-secondary_lighter peer-hover:text-secondary_base
+          peer-focus:text-secondary_base`
         }`}
       >
         {props.label}
       </label>
       <span
-        className='p-2 text-xs text-secondary_light 
-        transition-all duration-100 ease-out peer-hover:text-secondary 
-        peer-focus:text-secondary'
+        className='p-2 text-xs text-secondary_lighter 
+        transition-all duration-100 ease-out peer-hover:text-secondary_base 
+        peer-focus:text-secondary_base'
       >
         {error?.message || '\u200B'}
       </span>
