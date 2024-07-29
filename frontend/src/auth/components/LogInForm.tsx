@@ -42,6 +42,7 @@ export function LogInForm() {
 
   return (
     <form
+      noValidate
       onSubmit={handleSubmit((dto) => mutation.mutate(dto))}
       className='flex grow-[2] flex-col items-center justify-center gap-2'
     >

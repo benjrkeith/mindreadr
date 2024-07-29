@@ -7,6 +7,8 @@ import {
 } from 'react'
 import { FieldError, UseFormRegister } from 'react-hook-form'
 
+import { cls } from 'src/common'
+
 // Inputs are expected to be part of a react-hook-form
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string
@@ -31,7 +33,7 @@ export function Input(props: InputProps) {
   // If there is a new error, focus the input
   useLayoutEffect(() => {
     if (error?.message) inputRef.current?.focus()
-  }, [error])
+  }, [error?.message])
 
   return (
     <div className='mx-auto flex w-2/3 max-w-96 flex-col'>
@@ -43,39 +45,71 @@ export function Input(props: InputProps) {
         spellCheck='false'
         required
         autoComplete='off'
-        className={`peer rounded-sm 
-        bg-dark_bg_base px-4 pb-2 pt-3 outline 
-        outline-2 outline-dark_bg_lighter transition-all duration-300 ease-out 
-        hover:outline-dark_text_base focus:outline-primary_base
-        ${
-          error?.message &&
-          `outline-secondary_lighter valid:outline-secondary_lighter 
-           hover:outline-secondary_base focus:outline-secondary_base`
-        }`}
+        className={cls(
+          `peer rounded-sm bg-dark_bg_base px-4 pb-2 pt-3 outline outline-2 
+          outline-dark_bg_lighter transition-all duration-300 ease-out 
+          hover:outline-dark_text_base focus:outline-primary_base`,
+          {
+            'outline-error focus:outline-error hover:outline-error':
+              error?.message,
+          },
+        )}
       />
       <label
         htmlFor={id}
-        className={`peer-valid:text-dark_text_bas pointer-events-none absolute 
-        mx-3 mb-2 mt-3 bg-dark_bg_base px-1 text-dark_bg_lighter 
-        transition-all duration-100 ease-out peer-valid:-translate-y-[1.5rem] 
-        peer-valid:text-sm peer-hover:text-dark_text_base
-        peer-focus:-translate-y-[1.5rem] peer-focus:text-sm
-        peer-focus:text-primary_base
-        ${
-          error?.message &&
-          `peer-valid:text-secondary_lighter peer-hover:text-secondary_base
-          peer-focus:text-secondary_base`
-        }`}
+        className={cls(
+          `peer-valid:text-dark_text_bas pointer-events-none absolute mx-3 mb-2 
+           mt-3 bg-dark_bg_base px-1 text-dark_bg_lighter transition-all 
+           duration-100 ease-out peer-valid:-translate-y-[1.5rem] 
+           peer-valid:text-sm peer-hover:text-dark_text_base 
+           peer-focus:-translate-y-[1.5rem] peer-focus:text-sm 
+           peer-focus:text-primary_base`,
+          {
+            'peer-valid:text-error peer-focus:text-error peer-hover:text-error':
+              error?.message,
+          },
+        )}
       >
         {props.label}
       </label>
-      <span
-        className='p-2 text-xs text-secondary_lighter 
-        transition-all duration-100 ease-out peer-hover:text-secondary_base 
-        peer-focus:text-secondary_base'
-      >
+      <span className='text-error p-2 text-xs'>
         {error?.message || '\u200B'}
       </span>
     </div>
   )
 }
+
+{
+  /* <input
+{...customProps}
+{...registerProps}
+ref={inputRef}
+id={id}
+spellCheck='false'
+required
+autoComplete='off'
+className={`peer rounded-sm 
+bg-dark_bg_base px-4 pb-2 pt-3 outline 
+outline-2 outline-dark_bg_lighter transition-all duration-300 ease-out 
+hover:outline-dark_text_base focus:outline-primary_base
+${
+  error?.message &&
+  `outline-error hover:outline-error focus:outline-error`
+}`}
+/> */
+}
+
+// <label
+// htmlFor={id}
+// className={`peer-valid:text-dark_text_bas pointer-events-none absolute
+// mx-3 mb-2 mt-3 bg-dark_bg_base px-1 text-dark_bg_lighter
+// transition-all duration-100 ease-out peer-valid:-translate-y-[1.5rem]
+// peer-valid:text-sm peer-hover:text-dark_text_base
+// peer-focus:-translate-y-[1.5rem] peer-focus:text-sm
+// peer-focus:text-primary_base
+// ${
+//   error?.message &&
+//   `peer-valid:text-error peer-focus:text-error
+//    peer-hover:text-error`
+// }`}
+// >

@@ -7,6 +7,6 @@ export const loginSchema = z.object({
     .max(24, 'Username is too long'),
   password: z
     .string()
-    .min(4, 'Password is too short')
+    .min(1, 'Password is empty')
     .max(32, 'Password is too long'),
 })
