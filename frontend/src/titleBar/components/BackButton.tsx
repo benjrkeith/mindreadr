@@ -9,9 +9,9 @@ export function BackButton({ callback }: BackButtonProps) {
     <button
       type='button'
       onClick={callback}
-      className='hover:text-fg3 pl-4 text-4xl text-fg1 '
+      className='pl-4 text-2xl text-primary_base hover:text-primary_darker'
     >
-      {'\u2B9C'}
+      🡰
     </button>
   )
 }

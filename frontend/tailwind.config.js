@@ -5,16 +5,17 @@ export default {
     extend: {
       colors: {
         light_bg_base: '#E9E4DE',
-        light_text_base: '#121212',
-        dark_bg_lighter: '#414141',
+        light_text: '#000000',
         dark_bg_base: '#121212',
-        dark_bg_darker: '#1e2124',
-        dark_text_base: '#E9E4DE',
+        dark_bg_1dp: '#202020',
+        dark_bg_2dp: '#282828',
+        dark_bg_lighter: '#363636',
+        dark_text: '#FFFFFF',
         primary_base: '#BB86FC',
         primary_darker: '#8e44ea',
         secondary_base: '#03dac4',
         secondary_darker: '#00a885',
-        error: '#e13b4c',
+        error: '#cf6679',
       },
     },
     screens: {

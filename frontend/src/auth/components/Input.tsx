@@ -46,9 +46,9 @@ export function Input(props: InputProps) {
         required
         autoComplete='off'
         className={cls(
-          `peer rounded-sm bg-dark_bg_base px-4 pb-2 pt-3 outline outline-2 
-          outline-dark_bg_lighter transition-all duration-300 ease-out 
-          hover:outline-dark_text_base focus:outline-primary_base`,
+          `hover:outline-dark_text peer rounded-sm bg-dark_bg_base px-4 pb-2 pt-3 outline 
+          outline-2 outline-dark_bg_lighter transition-all duration-300 
+          ease-out focus:outline-primary_base`,
           {
             'outline-error focus:outline-error hover:outline-error':
               error?.message,
@@ -58,10 +58,10 @@ export function Input(props: InputProps) {
       <label
         htmlFor={id}
         className={cls(
-          `peer-valid:text-dark_text_bas pointer-events-none absolute mx-3 mb-2 
-           mt-3 bg-dark_bg_base px-1 text-dark_bg_lighter transition-all 
-           duration-100 ease-out peer-valid:-translate-y-[1.5rem] 
-           peer-valid:text-sm peer-hover:text-dark_text_base 
+          `peer-valid:text-dark_text_bas peer-hover:text-dark_text pointer-events-none absolute mx-3 
+           mb-2 mt-3 bg-dark_bg_base px-1 text-dark_bg_lighter 
+           transition-all duration-100 ease-out 
+           peer-valid:-translate-y-[1.5rem] peer-valid:text-sm 
            peer-focus:-translate-y-[1.5rem] peer-focus:text-sm 
            peer-focus:text-primary_base`,
           {
@@ -91,7 +91,7 @@ autoComplete='off'
 className={`peer rounded-sm 
 bg-dark_bg_base px-4 pb-2 pt-3 outline 
 outline-2 outline-dark_bg_lighter transition-all duration-300 ease-out 
-hover:outline-dark_text_base focus:outline-primary_base
+hover:outline-dark_text focus:outline-primary_base
 ${
   error?.message &&
   `outline-error hover:outline-error focus:outline-error`
@@ -104,7 +104,7 @@ ${
 // className={`peer-valid:text-dark_text_bas pointer-events-none absolute
 // mx-3 mb-2 mt-3 bg-dark_bg_base px-1 text-dark_bg_lighter
 // transition-all duration-100 ease-out peer-valid:-translate-y-[1.5rem]
-// peer-valid:text-sm peer-hover:text-dark_text_base
+// peer-valid:text-sm peer-hover:text-dark_text
 // peer-focus:-translate-y-[1.5rem] peer-focus:text-sm
 // peer-focus:text-primary_base
 // ${
