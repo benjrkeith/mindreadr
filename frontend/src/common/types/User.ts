@@ -7,11 +7,4 @@ export type User = {
   name?: string
 }
 
-export const emptyUser: User = {
-  token: '',
-  id: NaN,
-  username: '',
-  avatar: '',
-}
-
 export type SelectableUser = User & { selected?: boolean }
