@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-import { getHeader } from 'src/auth/services'
+import { getHeader } from 'src/auth'
 import { CHATS_URL } from 'src/chats/api'
 import { types } from 'src/common'
 

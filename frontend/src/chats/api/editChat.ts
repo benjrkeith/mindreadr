@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-import { getHeader } from 'src/auth/services'
+import { getHeader } from 'src/auth'
 import { CHATS_URL } from 'src/chats/api'
 import { types } from 'src/common'
 
@@ -16,6 +16,7 @@ export async function editChat(
 ): Promise<types.Chat> {
   const url = `${CHATS_URL}/${chatId}`
   const args = { headers: getHeader() }
+
   const response = await axios.patch(url, dto, args)
   return response.data
 }
