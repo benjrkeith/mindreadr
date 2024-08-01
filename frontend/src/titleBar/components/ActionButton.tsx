@@ -10,7 +10,7 @@ export function ActionButton({ text, callback }: ActionButtonProps) {
     <div className='ml-auto flex px-5'>
       <button
         onClick={callback}
-        className='my-auto h-fit text-lg font-semibold
+        className='my-auto h-fit text-2xl font-bold
       text-primary_base hover:text-primary_darker'
       >
         {text}
