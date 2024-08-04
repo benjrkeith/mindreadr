@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Navigate, useParams } from 'react-router-dom'
 
 import { Button } from 'src/common'
+import { Avatar } from 'src/common/components/Avatar'
 import { getUser } from 'src/users/api'
 import { Stats } from 'src/users/components/Stats'
 
@@ -20,11 +21,7 @@ export function Profile() {
   else
     return (
       <div className='flex grow flex-col overflow-y-scroll'>
-        <img
-          src={query.data.avatar}
-          alt={`${query.data.username}_avatar`}
-          className=''
-        />
+        <Avatar user={query.data} sx='text-[6rem]' />
         <div
           className='mx-auto flex w-3/4 -translate-y-2/4 
           flex-col gap-3 rounded-lg bg-dark_bg_1dp px-2 py-3

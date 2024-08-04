@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 
-import { types } from 'src/common'
+import { Avatar, types } from 'src/common'
 
 interface UserListProps {
   users: types.User[]
@@ -26,13 +26,7 @@ export function UserList(props: UserListProps) {
           className='flex w-full gap-3 rounded-md border-none px-2 py-1 
           hover:bg-dark_bg_1dp'
         >
-          <img
-            src={user.avatar}
-            alt={user.username}
-            className='aspect-square w-1/6 rounded-full object-cover 
-            shadow-[0px_0px_20px] shadow-black/30'
-          />
-
+          <Avatar user={user} sx='rounded-full w-1/6' />
           <h1 className='my-auto text-xl'>{user.username}</h1>
         </button>
       ))}

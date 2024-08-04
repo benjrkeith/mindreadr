@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 import { useAuth } from 'src/auth'
 import { translateSystemMessage } from 'src/chats/methods'
-import { types } from 'src/common'
+import { Avatar, types } from 'src/common'
 
 // If the date is today, return the time, otherwise return the date
 function getDateString(date: Date) {
@@ -17,6 +17,9 @@ interface ChatPreviewProps {
 
 export function ChatPreview({ chat }: ChatPreviewProps) {
   const { user } = useAuth()
+  const otherUser = chat.members.find(
+    (member) => member.user.id !== user.id,
+  )?.user
 
   // Translate last message info for use in preview
   const lastMsg = chat.messages[chat.messages.length - 1]
@@ -28,17 +31,14 @@ export function ChatPreview({ chat }: ChatPreviewProps) {
   const myMember = chat.members.find((member) => member.user.id === user.id)
   const isRead = myMember?.isRead || false
 
+  if (!otherUser) return <></>
   return (
     <Link
       className='flex w-full gap-3 px-3 py-2 hover:bg-dark_bg_1dp'
       to={`/chats/${chat.id}`}
     >
       <div className='my-auto flex aspect-square size-12'>
-        <img
-          src={lastMsg.author.avatar}
-          alt={lastMsg.author.username}
-          className='my-auto w-full rounded-full text-center'
-        />
+        <Avatar user={otherUser} sx='rounded-full w-full' />
       </div>
       <div className='my-auto flex w-full flex-col overflow-hidden'>
         <div className='flex w-full gap-4'>
