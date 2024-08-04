@@ -4,13 +4,12 @@ import { getHeader } from 'src/auth'
 import { CHATS_URL } from 'src/chats/api'
 import { types } from 'src/common'
 
-export async function createChat(
-  name: string,
-  users: number[],
-): Promise<types.Chat> {
-  const body = { name, users }
-  const args = { headers: getHeader() }
+export interface CreateChatDto {
+  user: types.User
+}
 
-  const response = await axios.post(CHATS_URL, body, args)
+export async function createChat({ user }: CreateChatDto): Promise<types.Chat> {
+  const body = { name: user.username, users: [user.id] }
+  const response = await axios.post(CHATS_URL, body, { headers: getHeader() })
   return response.data
 }

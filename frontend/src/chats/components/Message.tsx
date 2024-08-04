@@ -25,7 +25,7 @@ export function Message({ msg }: { msg: types.Message }) {
       return (
         <div
           className='ml-auto flex max-w-[95%] gap-2 rounded-xl rounded-br-none 
-          bg-primary_base bg-opacity-40 p-2'
+          bg-primary_base bg-opacity-50 p-2'
         >
           <div className='flex flex-col'>
             <h1 className='w-full text-end text-xl font-medium leading-6'>

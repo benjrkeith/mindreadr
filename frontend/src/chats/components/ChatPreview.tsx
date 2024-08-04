@@ -1,52 +1,63 @@
 import { Link } from 'react-router-dom'
 
+import { useAuth } from 'src/auth'
 import { translateSystemMessage } from 'src/chats/methods'
 import { types } from 'src/common'
-import { useUserStore } from 'src/store'
+
+// If the date is today, return the time, otherwise return the date
+function getDateString(date: Date) {
+  if (date.getDate() === new Date().getDate())
+    return date.toLocaleTimeString().slice(0, 5)
+  else return date.toLocaleDateString()
+}
 
 interface ChatPreviewProps {
   chat: types.Chat
 }
 
 export function ChatPreview({ chat }: ChatPreviewProps) {
-  if (chat === undefined) return <></>
-  const { user } = useUserStore()
+  const { user } = useAuth()
 
+  // Translate last message info for use in preview
   const lastMsg = chat.messages[chat.messages.length - 1]
-  const avatar = lastMsg.author.avatar
-  const date = new Date(lastMsg.createdAt)
-
+  const lastMsgDate = new Date(lastMsg.createdAt)
   if (lastMsg.system) lastMsg.content = translateSystemMessage(lastMsg)
 
+  // Finds the current users 'member' object in the chats members array
+  // Use this to determine if we should show unread messages indicator
   const myMember = chat.members.find((member) => member.user.id === user.id)
   const isRead = myMember?.isRead || false
 
   return (
     <Link
-      className='flex w-full grow gap-4 border-solid px-4 py-3'
+      className='flex w-full gap-3 px-3 py-2 hover:bg-dark_bg_1dp'
       to={`/chats/${chat.id}`}
     >
-      <img
-        src={avatar}
-        alt='avatar'
-        className='aspect-square h-[4.5rem] rounded-full object-cover'
-      />
-      <div className='my-auto flex w-full flex-col gap-1'>
+      <div className='my-auto flex aspect-square size-12'>
+        <img
+          src={lastMsg.author.avatar}
+          alt={lastMsg.author.username}
+          className='my-auto w-full rounded-full text-center'
+        />
+      </div>
+      <div className='my-auto flex w-full flex-col overflow-hidden'>
         <div className='flex w-full gap-4'>
-          <h1 className='truncate text-left text-2xl font-semibold'>
+          <h1 className='truncate text-left text-lg font-semibold'>
             {chat.name}
           </h1>
 
           {!isRead && (
-            <h1 className='text-fg1 my-auto text-3xl font-bold leading-3'>•</h1>
+            <h1 className='my-auto text-lg font-bold leading-3 text-primary_base'>
+              •
+            </h1>
           )}
 
-          <p className='my-auto grow truncate text-end text-xs'>
-            {date.toLocaleString().substring(0, 17)}
+          <p className='my-auto grow truncate text-end text-[0.6rem]'>
+            {getDateString(lastMsgDate)}
           </p>
         </div>
 
-        <p className='text-left text-sm'>{lastMsg.content}</p>
+        <p className='truncate text-left text-[0.7rem]'>{lastMsg.content}</p>
       </div>
     </Link>
   )

@@ -10,10 +10,10 @@ export function BackButton({ callback }: BackButtonProps) {
       <button
         type='button'
         onClick={callback}
-        className='my-auto text-2xl text-primary_base 
+        className='my-auto text-2xl text-primary_base
         hover:text-primary_darker'
       >
-        🡰
+        &#x1F870;
       </button>
     </div>
   )

@@ -1,4 +1,4 @@
-export type User = {
+export interface User {
   id: number
   username: string
   avatar: string
@@ -6,5 +6,3 @@ export type User = {
   cover?: string
   name?: string
 }
-
-export type SelectableUser = User & { selected?: boolean }

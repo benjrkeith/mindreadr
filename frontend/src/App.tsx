@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import { Wrapper as AuthWrapper, LogIn, Protected, Register } from 'src/auth'
-import { Chats } from 'src/chats'
+import { Chat, Chats, NewChat } from 'src/chats'
 import { emptyUser, types, userCtx } from 'src/common'
 import { WithNav } from 'src/navBar'
 
@@ -36,30 +36,10 @@ export function App() {
               <Route element={<WithNav />}>
                 <Route index element={<Chats />} />
               </Route>
+
+              <Route path='new' element={<NewChat />} />
+              <Route path=':id' element={<Chat />} />
             </Route>
-
-            {/* <Route path='chats' element={<Protected />}>
-              <Route index element={<Chats />} />
-              <Route path='new' element={<CreateChat />} />
-              <Route path=':id'>
-                <Route index element={<Chat />} />
-                <Route path='edit' element={<EditChat />} />
-              </Route>
-            </Route> */}
-
-            {/* 
-              <Route path='users' element={<Protected />}>
-                <Route index element={<Navigate to={user.username} />} />
-
-                <Route element={<WithNav />}>
-                  <Route path=':username' element={<Profile />} />
-                </Route>
-              </Route> */}
-
-            {/* 
-            <Route path='/notifications' element={<Chats />} />
-            <Route path='/trending' element={<Chats />} />
-            <Route path='/feed' element={<Chats />} /> */}
           </Routes>
         </BrowserRouter>
       </QueryClientProvider>

@@ -4,7 +4,7 @@ interface JumpDownProps {
 
 export function JumpDown({ callback }: JumpDownProps) {
   return (
-    <div className='absolute bottom-10 w-full text-center'>
+    <div className='relative bottom-16 h-0 w-full text-center'>
       <button
         onClick={() => callback('smooth')}
         className='size-10 rounded-full bg-dark_bg_1dp text-4xl font-bold 

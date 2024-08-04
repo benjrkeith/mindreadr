@@ -4,12 +4,16 @@ import { getHeader } from 'src/auth'
 import { CHATS_URL } from 'src/chats/api'
 import { types } from 'src/common'
 
+export interface NewMessageDto {
+  chatId: number
+  content: string
+}
+
 export async function createMessage(
-  chatId: number,
-  content: string,
+  dto: NewMessageDto,
 ): Promise<types.Message> {
-  const url = `${CHATS_URL}/${chatId}/messages`
-  const body = { content }
+  const url = `${CHATS_URL}/${dto.chatId}/messages`
+  const body = { content: dto.content }
   const args = { headers: getHeader() }
 
   const res = await axios.post(url, body, args)
