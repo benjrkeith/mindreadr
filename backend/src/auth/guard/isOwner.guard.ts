@@ -4,16 +4,16 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common'
-import { Request } from 'express'
 
 import { PrismaService } from 'src/prisma/prisma.service'
+import { RequestWithUser } from 'src/ReqWithUser'
 
 @Injectable()
 export class IsOwnerGuard implements CanActivate {
   constructor(private prisma: PrismaService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req: Request = context.switchToHttp().getRequest()
+    const req: RequestWithUser = context.switchToHttp().getRequest()
     const userId = req.user['id']
 
     let targetId: number
