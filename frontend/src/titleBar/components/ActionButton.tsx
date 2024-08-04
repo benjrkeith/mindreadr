@@ -1,19 +1,16 @@
 interface ActionButtonProps {
-  text?: string
-  callback?: () => void
+  callback: () => void
 }
 
-export function ActionButton({ text, callback }: ActionButtonProps) {
-  if (text === undefined || callback === undefined) return <></>
-
+export function ActionButton({ callback }: ActionButtonProps) {
   return (
     <div className='ml-auto flex px-5'>
       <button
         onClick={callback}
-        className='my-auto h-fit text-2xl font-bold
+        className='my-auto h-fit text-xl font-bold
       text-primary_base hover:text-primary_darker'
       >
-        {text}
+        {'\u22EE'}
       </button>
     </div>
   )
