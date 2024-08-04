@@ -6,6 +6,7 @@ import { Wrapper as AuthWrapper, LogIn, Protected, Register } from 'src/auth'
 import { Chat, Chats, NewChat } from 'src/chats'
 import { emptyUser, types, userCtx } from 'src/common'
 import { WithNav } from 'src/navBar'
+import { Profile } from 'src/users'
 
 import 'src/App.css'
 
@@ -39,6 +40,16 @@ export function App() {
 
               <Route path='new' element={<NewChat />} />
               <Route path=':id' element={<Chat />} />
+            </Route>
+
+            <Route path='users' element={<Protected />}>
+              <Route element={<WithNav />}>
+                <Route
+                  index
+                  element={<Navigate to={`/users/${user.username}`} />}
+                />
+                <Route path=':username' element={<Profile />} />
+              </Route>
             </Route>
           </Routes>
         </BrowserRouter>

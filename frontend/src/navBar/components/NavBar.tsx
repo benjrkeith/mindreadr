@@ -11,7 +11,7 @@ export function NavBar() {
       {/* <NavButton page='/trending' icon={icons.trending} /> */}
       {/* <NavButton page='/home' icon={icons.home} /> */}
       <NavButton page='/chats' icon={icons.chats} />
-      {/* <NavButton page='/users' icon={icons.users} /> */}
+      <NavButton page='/users' icon={icons.users} />
     </div>
   )
 }

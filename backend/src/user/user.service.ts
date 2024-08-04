@@ -20,7 +20,12 @@ export class UserService {
   getUser(username: string) {
     return this.prismaService.user.findUnique({
       where: { username },
-      select: { username: true, avatar: true, id: true, cover: true },
+      omit: { password: true },
+      include: {
+        _count: {
+          select: { followers: true, following: true, posts: true },
+        },
+      },
     })
   }
 
