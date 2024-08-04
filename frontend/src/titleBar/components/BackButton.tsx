@@ -10,10 +10,10 @@ export function BackButton({ callback }: BackButtonProps) {
       <button
         type='button'
         onClick={callback}
-        className='my-auto text-2xl text-primary_base
-        hover:text-primary_darker'
+        className='my-auto rotate-180 text-3xl leading-6
+        text-primary_base hover:text-primary_darker'
       >
-        &#x1F870;
+        {'\u2794'}
       </button>
     </div>
   )
