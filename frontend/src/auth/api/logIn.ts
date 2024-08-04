@@ -1,4 +1,4 @@
-import axios from 'axios'
+import { instance as axios } from 'src/common'
 
 import { LOGIN_URL } from 'src/auth/api'
 import { types } from 'src/common'

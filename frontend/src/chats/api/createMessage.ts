@@ -1,4 +1,4 @@
-import axios from 'axios'
+import { instance as axios } from 'src/common'
 
 import { getHeader } from 'src/auth'
 import { CHATS_URL } from 'src/chats/api'
