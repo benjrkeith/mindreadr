@@ -27,6 +27,9 @@ export function Chats() {
           {query.data.map((chat) => (
             <ChatPreview key={chat.id} chat={chat} />
           ))}
+          {query.data.length === 0 && (
+            <div className='p-3 text-center font-medium'>No chats found.</div>
+          )}
         </div>
       </div>
     )
