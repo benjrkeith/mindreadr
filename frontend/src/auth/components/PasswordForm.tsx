@@ -3,9 +3,9 @@ import { useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
-import { Button } from 'src/auth/components/Button'
 import { Input } from 'src/auth/components/Input'
 import { passwordSchema } from 'src/auth/schemas'
+import { Button } from 'src/common'
 
 interface PasswordFormProps {
   isActive: boolean

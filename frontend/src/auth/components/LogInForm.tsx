@@ -4,11 +4,11 @@ import { AxiosError } from 'axios'
 import { useForm } from 'react-hook-form'
 
 import { LogInDto, logIn } from 'src/auth/api'
-import { Button } from 'src/auth/components/Button'
 import { Input } from 'src/auth/components/Input'
 import { useAuth } from 'src/auth/hooks'
 import { loginSchema } from 'src/auth/schemas/login'
 import { cacheUser } from 'src/auth/services'
+import { Button } from 'src/common'
 
 export function LogInForm() {
   const { setUser } = useAuth()

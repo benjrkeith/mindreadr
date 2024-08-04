@@ -6,9 +6,9 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 import { checkUsername as _checkUsername } from 'src/auth/api'
-import { Button } from 'src/auth/components/Button'
 import { Input } from 'src/auth/components/Input'
 import { usernameSchema } from 'src/auth/schemas'
+import { Button } from 'src/common'
 
 interface UsernameFormProps {
   text: string
