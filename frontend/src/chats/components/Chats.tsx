@@ -1,27 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
-import { useLayoutEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 
+import { useNavigate } from 'react-router-dom'
 import { getChats } from 'src/chats/api'
 import { ChatPreview } from 'src/chats/components/ChatPreview'
-import { useNavStore, useTitleBarStore } from 'src/store'
+import { TitleBar } from 'src/titleBar'
 
 export function Chats() {
-  const { setTitleBar } = useTitleBarStore()
-  const nav = useNavStore()
   const navigate = useNavigate()
-
-  useLayoutEffect(() => {
-    nav.show()
-    setTitleBar({
-      title: 'Chats',
-      backCallback: undefined,
-      actionButton: {
-        text: 'New Chat',
-        callback: () => navigate('/chats/new'),
-      },
-    })
-  }, [])
 
   const query = useQuery({
     queryKey: ['chats'],
@@ -33,10 +18,19 @@ export function Chats() {
   else if (query.data === undefined) return <div>404 Not Found</div>
   else
     return (
-      <div className='[&>*:nth-child(even)]:bg-bg1 w-full overflow-scroll'>
-        {query.data.map((chat) => (
-          <ChatPreview key={chat.id} chat={chat} />
-        ))}
+      <div className='w-full grow overflow-scroll'>
+        <TitleBar
+          title='Chats'
+          actions={[{ text: 'New Chat', callback: () => navigate('new') }]}
+        />
+        <div className='flex flex-col divide-y-2 divide-dark_bg_1dp'>
+          {query.data.map((chat) => (
+            <ChatPreview key={chat.id} chat={chat} />
+          ))}
+          {query.data.length === 0 && (
+            <div className='p-3 text-center font-medium'>No chats found.</div>
+          )}
+        </div>
       </div>
     )
 }

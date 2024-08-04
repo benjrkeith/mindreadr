@@ -10,6 +10,7 @@
     "db:dev:up": "docker compose up dev-db -d",
     "db:dev:migrate": "dotenv -e .env/.env.dev -- npx prisma migrate deploy",
     "db:dev:restart": "npm run db:dev:rm && npm run db:dev:up && sleep 1 && npm run db:dev:migrate",
+    "db:dev:studio": "dotenv -e .env/.env.dev -- npx prisma studio",
     "db:test:rm": "docker compose rm test-db -s -f -v",
     "db:test:up": "docker compose up test-db -d",
     "db:test:migrate": "dotenv -e .env/.env.test -- npx prisma migrate deploy",
@@ -32,13 +33,15 @@
     "@nestjs/serve-static": "^4.0.2",
     "@prisma/client": "^5.13.0",
     "argon2": "^0.40.1",
+    "aws-sdk": "^2.1646.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
+    "dotenv-cli": "^7.4.2",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
-    "dotenv-cli": "^7.4.2"
+    "sharp": "^0.33.4"
   },
   "devDependencies": {
     "@nestjs/schematics": "^10.0.0",
@@ -46,6 +49,7 @@
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.2",
     "@types/jsonwebtoken": "^9.0.6",
+    "@types/multer": "^1.4.11",
     "@types/node": "^20.3.1",
     "@types/passport-jwt": "^4.0.1",
     "@types/supertest": "^6.0.0",

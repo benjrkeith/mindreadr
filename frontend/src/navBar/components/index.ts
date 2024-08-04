@@ -1,1 +1,1 @@
-export * from 'src/navBar/components/NavBar'
+export * from 'src/navBar/components/WithNav'

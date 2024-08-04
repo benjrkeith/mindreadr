@@ -75,7 +75,7 @@ export class ChatService {
           },
         },
         messages: {
-          take: 12,
+          take: 1,
           orderBy: { createdAt: 'desc' },
           include: {
             author: {

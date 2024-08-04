@@ -1,8 +1,8 @@
-export type User = {
-  token?: string
+export interface User {
   id: number
-  username?: string
-  avatar?: string
+  username: string
+  avatar: string
+  token?: string
+  cover?: string
+  name?: string
 }
-
-export type SelectableUser = User & { selected?: boolean }

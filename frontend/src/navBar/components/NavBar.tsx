@@ -1,22 +1,17 @@
-import { chats, feed, notifications, trending, users } from 'src/navBar/assets'
+import { icons } from 'src/navBar/assets'
 import { NavButton } from 'src/navBar/components/NavButton'
-import { useNavStore } from 'src/store'
 
 export function NavBar() {
-  const { isHidden } = useNavStore()
-
   return (
-    !isHidden && (
-      <div
-        className='border-bg2 bg-bg1 box-border grid h-[9%] w-full 
-      grid-cols-5 items-center rounded-t-xl border-t-[2px] border-solid'
-      >
-        <NavButton img={notifications} dest='/notifications' />
-        <NavButton img={trending} dest='/trending' />
-        <NavButton img={feed} dest='/feed' />
-        <NavButton img={chats} dest='/chats' />
-        <NavButton img={users} dest='/users' />
-      </div>
-    )
+    <div
+      className='flex justify-around rounded-t-2xl bg-dark_bg_1dp px-1 pb-2 
+      pt-3 shadow-[0px_-8px_8px] shadow-black/20'
+    >
+      {/* <NavButton page='/notifications' icon={icons.notifications} /> */}
+      {/* <NavButton page='/trending' icon={icons.trending} /> */}
+      {/* <NavButton page='/home' icon={icons.home} /> */}
+      <NavButton page='/chats' icon={icons.chats} />
+      <NavButton page='/users' icon={icons.users} />
+    </div>
   )
 }

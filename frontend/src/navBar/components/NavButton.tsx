@@ -1,19 +1,27 @@
 import { Link, useLocation } from 'react-router-dom'
 
+import { cls } from 'src/common'
+
 interface NavButtonProps {
-  dest: string
-  img: string
+  icon: string
+  page: string
 }
 
-export function NavButton({ dest, img }: NavButtonProps) {
-  const loc = useLocation()
-
-  let className = 'min-h-0 max-h-full object-cover m-auto filter-white'
-  if (loc.pathname === dest) className += ' filter-blue'
+export function NavButton({ icon, page }: NavButtonProps) {
+  const location = useLocation()
+  const path = location.pathname
 
   return (
-    <Link to={dest} className='h-4/6 min-h-0'>
-      <img src={img} className={className} />
+    <Link to={page}>
+      <img
+        src={icon}
+        className={cls('size-8', {
+          'filter-primary opacity-100 hover:opacity-70 focus:opacity-70':
+            path.includes(page),
+          'opacity-80 brightness-0 invert hover:opacity-100 focus:opacity-100':
+            !path.includes(page),
+        })}
+      />
     </Link>
   )
 }

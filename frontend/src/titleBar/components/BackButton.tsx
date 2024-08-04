@@ -6,12 +6,15 @@ export function BackButton({ callback }: BackButtonProps) {
   if (!callback) return <></>
 
   return (
-    <button
-      type='button'
-      onClick={callback}
-      className='hover:text-fg3 pl-4 text-4xl text-fg1 '
-    >
-      {'\u2B9C'}
-    </button>
+    <div className='flex pl-4'>
+      <button
+        type='button'
+        onClick={callback}
+        className='my-auto rotate-180 text-3xl leading-6
+        text-primary_base hover:text-primary_darker'
+      >
+        {'\u2794'}
+      </button>
+    </div>
   )
 }

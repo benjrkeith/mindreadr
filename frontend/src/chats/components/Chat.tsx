@@ -3,70 +3,65 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query'
-import { useEffect, useLayoutEffect } from 'react'
+import { useEffect } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 
 import { getChat, getMessages } from 'src/chats/api'
 import { NewMessage } from 'src/chats/components/NewMessage'
 import { useChatId } from 'src/chats/hooks'
 import { InfiniteScroll } from 'src/common'
-import { useNavStore } from 'src/store'
-import { useTitleBar } from 'src/titleBar'
+import { TitleBar } from 'src/titleBar'
 
 export function Chat() {
-  const chatId = useChatId()
   const navigate = useNavigate()
-
-  // use nav store to hide the nav bar
-  const nav = useNavStore()
-  useLayoutEffect(nav.hide, [])
+  const id = useChatId()
 
   // standard query for getting chat meta data
   const chatQuery = useQuery({
-    queryKey: ['chats', chatId],
-    queryFn: () => getChat(chatId),
+    queryKey: ['chats', id],
+    queryFn: () => getChat(id),
   })
 
-  // set title bar to the chat name
-  useTitleBar(
-    {
-      title: chatQuery.data?.name || 'Chat',
-      backCallback: () => navigate('/chats'),
-      actionButton: {
-        text: '\u22EE',
-        callback: () => navigate(`/chats/${chatId}/edit`),
-      },
-    },
-    [chatQuery.data],
-  )
-
   // infinite query for getting all messages in the chat
-  const infQuery = useInfiniteQuery({
-    queryKey: ['chats', chatId, 'messages'],
-    queryFn: ({ pageParam }) => getMessages(chatId, pageParam, 12),
+  const msgQuery = useInfiniteQuery({
+    queryKey: ['chats', id, 'messages'],
+    queryFn: ({ pageParam }) => getMessages(id, pageParam, 8),
     initialPageParam: 0,
     getNextPageParam: (lastPage, _pages, lastPageParam) =>
-      lastPage.length === 0 ? undefined : lastPageParam + 12,
+      lastPage.length !== 8 ? undefined : lastPageParam + 8,
     select: (data) => ({
       pages: [...data.pages].reverse(),
     }),
   })
 
-  // when getting messages, invalidate the chats query to update is read status
+  // when opening a chat, invalidate the chats query to update its read status
   const queryClient = useQueryClient()
   useEffect(() => {
     queryClient.invalidateQueries({ queryKey: ['chats'] })
   }, [])
 
-  // infinite query states
-  if (infQuery.isLoading) return <div>Loading...</div>
-  else if (infQuery.isError || infQuery.data === undefined)
+  if (msgQuery.isLoading || chatQuery.isLoading) return <div>Loading...</div>
+  else if (
+    msgQuery.isError ||
+    msgQuery.data === undefined ||
+    chatQuery.isError ||
+    chatQuery.data === undefined
+  )
     return <Navigate to='/chats' />
   else
     return (
-      <div className='mt-auto flex h-full w-full flex-col'>
-        <InfiniteScroll infQuery={infQuery} />
-        <NewMessage chatId={chatId} />
+      <div className='flex grow flex-col overflow-hidden'>
+        <TitleBar
+          title={chatQuery.data?.name || 'Chat'}
+          goBack={() => navigate('/chats')}
+          // actions={[
+          //   { text: 'Edit Name', callback: () => {} },
+          //   { text: 'Manage Users', callback: () => {} },
+          //   { text: 'Delete Chat', callback: () => {} },
+          // ]}
+        />
+        <InfiniteScroll infQuery={msgQuery} />
+        <NewMessage chatId={chatQuery.data.id} />
       </div>
     )
 }

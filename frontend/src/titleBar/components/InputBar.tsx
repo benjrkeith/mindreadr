@@ -1,49 +1,28 @@
 import React, { type ReactElement } from 'react'
 
-import { useTitleBarStore } from 'src/store'
 import { BackButton } from 'src/titleBar/components/BackButton'
 
-interface Props {
-  placeholder: string
-  query: string
-  setQuery: (query: string) => void
-  submitCallback: () => void
+interface InputBarProps extends React.HTMLProps<HTMLInputElement> {
+  goBack: () => void
 }
 
-export function InputBar(props: Props): ReactElement {
-  const { placeholder, query, setQuery, submitCallback } = props
-  const { backCallback } = useTitleBarStore()
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') submitCallback()
-  }
+export function InputBar(props: InputBarProps): ReactElement {
+  const { goBack, ...rest } = props
 
   return (
     <div
-      className='m-1 mb-0 box-border flex rounded-lg border-b-[2px] border-solid 
-    border-bg2 bg-bg1 leading-10'
+      className='z-10 flex bg-dark_bg_1dp shadow-[0px_6px_10px] 
+      shadow-black/30'
     >
-      <BackButton callback={backCallback} />
+      <BackButton callback={goBack} />
 
       <input
+        {...rest}
         type='text'
         autoFocus
-        value={query}
-        placeholder={placeholder}
-        onChange={(e) => {
-          setQuery(e.target.value)
-        }}
-        className='my-2 grow bg-bg1 px-4 py-2 text-xl leading-8 outline-none'
-        onKeyDown={handleKeyDown}
+        className='min-w-0 grow bg-dark_bg_1dp px-4 py-3 text-lg leading-6 
+        outline-none'
       />
-
-      <button
-        className='aspect-square rounded-lg bg-fg1 px-6 py-0'
-        onClick={submitCallback}
-        tabIndex={-1}
-      >
-        Go
-      </button>
     </div>
   )
 }
