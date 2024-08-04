@@ -10,16 +10,18 @@ import { acquireUser } from 'src/auth/services'
 // and redirect back to where they started.
 // If not the user will see the login/register page as normal.
 export function Wrapper() {
-  const { setUser } = useAuth()
+  const { setUser, user } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
+    if (user.token !== '') return
+
     const cachedUser = acquireUser()
     if (cachedUser.token !== '') {
       setUser(cachedUser)
       navigate(-1)
     }
-  }, [acquireUser, setUser])
+  }, [acquireUser, setUser, navigate])
 
   return <Outlet />
 }

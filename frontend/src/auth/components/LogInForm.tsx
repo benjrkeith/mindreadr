@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import { useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
 
 import { LogInDto, logIn } from 'src/auth/api'
 import { Input } from 'src/auth/components/Input'
@@ -12,6 +13,7 @@ import { Button } from 'src/common'
 
 export function LogInForm() {
   const { setUser } = useAuth()
+  const navigate = useNavigate()
 
   // create a form with react-hook-form
   const {
@@ -30,6 +32,7 @@ export function LogInForm() {
     onSuccess: (user) => {
       cacheUser(user)
       setUser(user)
+      navigate('/')
     },
     onError: (err: AxiosError) => {
       const status = err.response?.status

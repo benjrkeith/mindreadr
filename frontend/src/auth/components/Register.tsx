@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { register as registerFn } from 'src/auth/api'
 import { Footer } from 'src/auth/components/Footer'
@@ -12,6 +13,8 @@ import { Stepper } from 'src/stepper'
 
 export function Register() {
   const { setUser } = useAuth()
+  const navigate = useNavigate()
+
   const [step, setStep] = useState(0)
   const [username, _setUsername] = useState('')
 
@@ -21,6 +24,7 @@ export function Register() {
     onSuccess: (user) => {
       cacheUser(user)
       setUser(user)
+      navigate('/')
     },
   })
 
