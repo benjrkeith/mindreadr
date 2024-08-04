@@ -20,7 +20,7 @@ COPY --chown=node:node .env .env
 COPY --chown=node:node backend/package*.json ./
 
 # Install app dependencies
-RUN npm ci --only=production && npm cache clean --force
+RUN npm ci && npm cache clean --force
 
 # Bundle app source
 COPY --chown=node:node backend/ .
