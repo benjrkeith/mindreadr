@@ -72,7 +72,7 @@ export class AuthService {
     const payload = { sub: id, username }
 
     return this.jwt.signAsync(payload, {
-      expiresIn: '12h',
+      expiresIn: '24h',
       secret: process.env.JWT_SECRET,
     })
   }
