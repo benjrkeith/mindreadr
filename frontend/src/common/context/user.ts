@@ -1,6 +1,7 @@
 import { createContext } from 'react'
 
 import * as types from 'src/common/types'
+import { emptyUser } from 'src/common/types/emptyUser'
 
 interface UserContext {
   user: types.User
@@ -8,6 +9,6 @@ interface UserContext {
 }
 
 export const userCtx = createContext<UserContext>({
-  user: types.emptyUser,
+  user: emptyUser,
   setUser: () => {},
 })
