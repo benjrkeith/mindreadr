@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 import { useAuth } from 'src/auth'
 import { translateSystemMessage } from 'src/chats/methods'
-import { types } from 'src/common'
+import { Avatar, types } from 'src/common'
 
 export function Message({ msg }: { msg: types.Message }) {
   const { user } = useAuth()
@@ -37,11 +37,7 @@ export function Message({ msg }: { msg: types.Message }) {
             className='aspect-square size-10'
             to={`/users/${msg.author.username}`}
           >
-            <img
-              src={msg.author.avatar}
-              alt={msg.author.username}
-              className='size-10 rounded-full object-cover'
-            />
+            <Avatar user={msg.author} sx='size-10 rounded-full' />
           </Link>
         </div>
       )
@@ -56,11 +52,7 @@ export function Message({ msg }: { msg: types.Message }) {
             className='aspect-square size-10'
             to={`/users/${msg.author.username}`}
           >
-            <img
-              src={msg.author.avatar}
-              alt='avatar'
-              className='size-10 rounded-full object-cover'
-            />
+            <Avatar user={msg.author} sx='size-10 rounded-full' />
           </Link>
           <div className='flex flex-col'>
             <h1 className='w-full text-xl font-medium leading-6'>
