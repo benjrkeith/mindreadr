@@ -2,14 +2,7 @@ import { Link } from 'react-router-dom'
 
 import { useAuth } from 'src/auth'
 import { translateSystemMessage } from 'src/chats/methods'
-import { Avatar, types } from 'src/common'
-
-// If the date is today, return the time, otherwise return the date
-function getDateString(date: Date) {
-  if (date.getDate() === new Date().getDate())
-    return date.toLocaleTimeString().slice(0, 5)
-  else return date.toLocaleDateString()
-}
+import { Avatar, getDateString, types } from 'src/common'
 
 interface ChatPreviewProps {
   chat: types.Chat
