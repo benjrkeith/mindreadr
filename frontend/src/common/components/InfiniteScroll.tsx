@@ -1,18 +1,20 @@
 import { UseInfiniteQueryResult } from '@tanstack/react-query'
 import _ from 'lodash'
-import { useLayoutEffect, useRef, useState } from 'react'
+import { FC, useLayoutEffect, useRef, useState } from 'react'
 
-import { Message } from 'src/chats/components/Message'
-import { types } from 'src/common'
 import { JumpDown } from 'src/common/components/JumpDown'
 
 interface InfiniteScrollProps {
-  infQuery: UseInfiniteQueryResult<{ pages: types.Message[][] }, Error>
+  infQuery: UseInfiniteQueryResult<{ pages: any[][] }, Error>
+  InnerComponent: FC<{ data: any }>
 }
 
-// An inifinte scroll component that uses a tanstack query infinite query.
+// An infinite scroll component that uses a tanstack query infinite query.
 // Needs virtualization as will not perform well with large data sets.
-export function InfiniteScroll({ infQuery }: InfiniteScrollProps) {
+export function InfiniteScroll({
+  infQuery,
+  InnerComponent,
+}: InfiniteScrollProps) {
   const divRef = useRef<HTMLDivElement>(null)
 
   const [lastHeight, setLastHeight] = useState(-1)
@@ -72,8 +74,8 @@ export function InfiniteScroll({ infQuery }: InfiniteScrollProps) {
           className='mt-auto overflow-y-scroll'
           onScroll={_.throttle(handleScroll, 250)}
         >
-          {infQuery.data.pages.flat(1).map((msg) => (
-            <Message key={msg.id} msg={msg} />
+          {infQuery.data.pages.flat(1).map((data) => (
+            <InnerComponent key={data.id} data={data} />
           ))}
         </div>
 
