@@ -1,13 +1,20 @@
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
-import { getAllUsernames } from 'src/common'
-import { RESOLVED_TAG_RE, getTags } from 'src/feed/methods'
+import { cls, getAllUsernames } from 'src/common'
+import { RESOLVED_TAG_RE, getTags } from 'src/posts/methods'
 
-export function NewPost() {
-  const [content, setContent] = useState('')
+interface EditorProps {
+  sx: string
+  placeholder: string
+  content: string
+  setContent: (content: string) => void
+}
+
+export function Editor({ sx, placeholder, content, setContent }: EditorProps) {
   const [fixedOffset, setFixedOffset] = useState(-1)
   const [selected, setSelected] = useState(0)
+
   const ref = useRef<HTMLTextAreaElement>(null)
 
   // get all usernames so we can search through them when tagging a user
@@ -19,6 +26,7 @@ export function NewPost() {
     [content, usersQuery.data],
   )
 
+  // if the list of options change, reset the selection back to the first
   useEffect(() => {
     if (selected !== 0) setSelected(0)
   }, [tags])
@@ -33,13 +41,12 @@ export function NewPost() {
   }, [fixedOffset])
 
   const getFormattedContent = () => {
-    if (content === '')
-      return '<span class="opacity-50">What are you thinking...</span>'
+    if (content === '') return `<span class="opacity-50">${placeholder}</span>`
 
     // if there is an unresolved tag, display autocomplete
     let result = content
     if (tags !== undefined) {
-      const cn = 'bg-blue-800 px-1 translate-y-full absolute'
+      const cn = 'absolute opacity-40'
       const span = `<span class='${cn}'>${tags.results[selected].username}</span>`
 
       const before = result.substring(0, tags.match.index + 1)
@@ -83,6 +90,9 @@ export function NewPost() {
         setFixedOffset(resolved.index)
         break
       }
+      // intentional fall through, but only prevent default if there is a tag
+      case 'Tab':
+        if (tags === undefined) return
       case 'Enter': {
         e.preventDefault()
         if (tags === undefined) return
@@ -145,16 +155,17 @@ export function NewPost() {
   }
 
   return (
-    <div className='grid h-full w-full grid-cols-1 grid-rows-1 bg-dark_bg_1dp'>
+    <div className={cls('grid grid-cols-1 grid-rows-1', sx)}>
       <textarea
         ref={ref}
+        rows={1}
         autoFocus
         spellCheck={false}
         value={content}
         onInput={(e) => setContent(e.currentTarget.value)}
         onKeyDown={handleKeyDown}
         className='hide-text z-10 col-[1/1] row-[1/1] h-full w-full resize-none 
-        break-words bg-transparent'
+        break-words bg-transparent outline-none'
       />
 
       <span
