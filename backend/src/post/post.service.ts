@@ -7,13 +7,55 @@ import { PrismaService } from 'src/prisma/prisma.service'
 export class PostService {
   constructor(private prisma: PrismaService) {}
 
-  getPosts() {
-    return this.prisma.post.findMany()
+  getPosts(userId: number) {
+    return this.prisma.post.findMany({
+      include: {
+        likes: { where: { userId: userId } },
+        comments: { where: { authorId: userId } },
+        author: {
+          select: {
+            id: true,
+            username: true,
+            avatar: true,
+          },
+        },
+        _count: {
+          select: { likes: true, comments: true },
+        },
+      },
+    })
   }
 
-  getPost(postId: number) {
+  getPost(userId: number, postId: number) {
     return this.prisma.post.findUnique({
       where: { id: postId },
+      include: {
+        likes: {
+          select: {
+            user: { select: { id: true, username: true, avatar: true } },
+          },
+        },
+        comments: {
+          select: {
+            content: true,
+            id: true,
+            author: {
+              select: { id: true, username: true, avatar: true },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+        },
+        author: {
+          select: {
+            id: true,
+            username: true,
+            avatar: true,
+          },
+        },
+        _count: {
+          select: { likes: true, comments: true },
+        },
+      },
     })
   }
 
