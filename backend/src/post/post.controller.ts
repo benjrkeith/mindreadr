@@ -1,15 +1,18 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   HttpCode,
   HttpStatus,
   NotFoundException,
   Param,
+  ParseBoolPipe,
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common'
 
@@ -24,8 +27,12 @@ export class PostController {
   constructor(private postService: PostService) {}
 
   @Get()
-  async getPosts(@GetUser('id') userId: number) {
-    return await this.postService.getPosts(userId)
+  async getPosts(
+    @GetUser('id') userId: number,
+    @Query('following', new DefaultValuePipe(false), ParseBoolPipe)
+    following: boolean,
+  ) {
+    return await this.postService.getPosts(userId, following)
   }
 
   @Get(':postId')
