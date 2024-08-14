@@ -1,8 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   UploadedFile,
@@ -53,5 +57,22 @@ export class UserController {
     @GetUser() user: User,
   ) {
     return await this.userService.uploadCover(file, user.username)
+  }
+
+  @Post(':targetId/followers')
+  async followUser(
+    @GetUser('id') userId: number,
+    @Param('targetId', ParseIntPipe) targetId: number,
+  ) {
+    return await this.userService.followUser(userId, targetId)
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete(':targetId/followers')
+  async unfollowUser(
+    @GetUser('id') userId: number,
+    @Param('targetId', ParseIntPipe) targetId: number,
+  ) {
+    return await this.userService.unFollowUser(userId, targetId)
   }
 }
