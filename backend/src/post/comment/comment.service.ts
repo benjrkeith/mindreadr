@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 
 import { PrismaService } from 'src/prisma/prisma.service'
 import { CreatePostDto } from 'src/post/dto'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 
 @Injectable()
 export class CommentService {
@@ -13,10 +14,17 @@ export class CommentService {
     })
   }
 
-  createComment(postId: number, userId: number, dto: CreatePostDto) {
-    return this.prisma.comment.create({
-      data: { ...dto, postId, authorId: userId },
-    })
+  async createComment(postId: number, userId: number, dto: CreatePostDto) {
+    try {
+      return await this.prisma.comment.create({
+        data: { ...dto, postId, authorId: userId },
+      })
+    } catch (e) {
+      if (e instanceof PrismaClientKnownRequestError) {
+        if (e.code === 'P2003') throw new NotFoundException('Post not found')
+        else throw e
+      } else throw e
+    }
   }
 
   updateComment(commentId: number, dto: CreatePostDto) {
