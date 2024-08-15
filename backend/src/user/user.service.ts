@@ -22,11 +22,12 @@ export class UserService {
     })
   }
 
-  getUser(username: string) {
+  getUser(userId: number, username: string) {
     return this.prismaService.user.findUnique({
       where: { username },
       omit: { password: true },
       include: {
+        followers: { where: { followerId: userId } },
         _count: {
           select: { followers: true, following: true, posts: true },
         },

@@ -1,13 +1,15 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Navigate, useParams } from 'react-router-dom'
 
-import { Button } from 'src/common'
+import { useAuth } from 'src/auth'
+import { Button, cls } from 'src/common'
 import { Avatar } from 'src/common/components/Avatar'
-import { getUser } from 'src/users/api'
+import { getUser, toggleFollowUser } from 'src/users/api'
 import { Stats } from 'src/users/components/Stats'
 
 export function Profile() {
   const { username } = useParams() as { username: string }
+  const { user } = useAuth()
 
   // query for users information
   const query = useQuery({
@@ -15,10 +17,21 @@ export function Profile() {
     queryFn: () => getUser(username),
   })
 
+  const queryClient = useQueryClient()
+
+  const mutation = useMutation({
+    mutationFn: toggleFollowUser,
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ['users', username] }),
+  })
+
   if (query.isLoading) return <div>Loading...</div>
   else if (query.isError || query.data === undefined)
     return <Navigate to='/users' />
-  else
+  else {
+    const followers = query.data.followers || []
+    const isFollowing = followers.some((f) => f.followerId === user.id)
+
     return (
       <div className='flex grow flex-col overflow-y-scroll'>
         <Avatar user={query.data} sx='text-[6rem]' />
@@ -35,11 +48,21 @@ export function Profile() {
               {query.data.username}
             </h1>
 
-            <Button value='Follow' sx='w-fit p-1 text-xs' />
+            <Button
+              value={isFollowing ? 'UnFollow' : 'Follow'}
+              onClick={() =>
+                mutation.mutate({ id: query.data.id, isFollowing })
+              }
+              sx={cls('w-fit p-1 text-xs', {
+                'outline-error text-error hover:bg-error focus:bg-error':
+                  isFollowing,
+              })}
+            />
           </div>
 
           <Stats count={query.data._count} />
         </div>
       </div>
     )
+  }
 }

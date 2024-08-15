@@ -32,8 +32,11 @@ export class UserController {
   }
 
   @Get(':username')
-  async getUser(@Param('username') username: string) {
-    return await this.userService.getUser(username)
+  async getUser(
+    @GetUser('id') userId: number,
+    @Param('username') username: string,
+  ) {
+    return await this.userService.getUser(userId, username)
   }
 
   @Patch()
