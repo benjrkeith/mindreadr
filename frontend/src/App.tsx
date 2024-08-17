@@ -7,6 +7,7 @@ import { Chat, Chats, NewChat } from 'src/chats'
 import { emptyUser, types, userCtx } from 'src/common'
 import { WithNav } from 'src/navBar'
 import { Profile } from 'src/users'
+import { FollowerList, FollowingList, Profile } from 'src/users'
 
 import 'src/App.css'
 
@@ -50,6 +51,9 @@ export function App() {
                 />
                 <Route path=':username' element={<Profile />} />
               </Route>
+
+              <Route path=':id/followers' element={<FollowerList />} />
+              <Route path=':id/following' element={<FollowingList />} />
             </Route>
           </Routes>
         </BrowserRouter>

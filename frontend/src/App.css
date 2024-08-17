@@ -34,3 +34,7 @@ body,
   filter: invert(66%) sepia(41%) saturate(4161%) hue-rotate(220deg)
     brightness(101%) contrast(98%);
 }
+
+.hide-text {
+  -webkit-text-fill-color: transparent;
+}

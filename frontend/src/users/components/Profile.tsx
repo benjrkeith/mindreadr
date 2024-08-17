@@ -18,11 +18,17 @@ export function Profile() {
   })
 
   const queryClient = useQueryClient()
-
   const mutation = useMutation({
     mutationFn: toggleFollowUser,
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ['users', username] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users', username] })
+      queryClient.invalidateQueries({
+        queryKey: ['users', query.data?.id, 'followers'],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ['users', query.data?.id, 'following'],
+      })
+    },
   })
 
   if (query.isLoading) return <div>Loading...</div>
@@ -34,33 +40,39 @@ export function Profile() {
 
     return (
       <div className='flex grow flex-col overflow-y-scroll'>
-        <Avatar user={query.data} sx='text-[6rem]' />
-        <div
-          className='mx-auto flex w-3/4 -translate-y-2/4 
-          flex-col gap-3 rounded-lg bg-dark_bg_1dp px-2 py-3
-          shadow-[0px_0px_20px] shadow-black/60'
-        >
+        <Avatar user={query.data} sx='text-[6rem] size-[100vw]' />
+        <div className='relative flex flex-col'>
           <div
-            className='mx-2 grid grid-cols-2 items-center 
-            justify-items-center'
+            className='z-30 mx-auto flex w-3/4 -translate-y-3/4 flex-col 
+            gap-3 rounded-lg bg-dark_bg_1dp px-2 py-3 
+            shadow-[0px_0px_20px] shadow-black/60'
           >
-            <h1 className='grow text-2xl font-medium leading-7'>
-              {query.data.username}
-            </h1>
+            <div
+              className='mx-2 grid grid-cols-2 items-center 
+              justify-items-center'
+            >
+              <h1 className='grow text-2xl font-medium leading-7'>
+                {query.data.username}
+              </h1>
 
-            <Button
-              value={isFollowing ? 'UnFollow' : 'Follow'}
-              onClick={() =>
-                mutation.mutate({ id: query.data.id, isFollowing })
-              }
-              sx={cls('w-fit p-1 text-xs', {
-                'outline-error text-error hover:bg-error focus:bg-error':
-                  isFollowing,
-              })}
-            />
+              <Button
+                value={isFollowing ? 'UnFollow' : 'Follow'}
+                onClick={() =>
+                  mutation.mutate({ id: query.data.id, isFollowing })
+                }
+                sx={cls('w-fit p-1 text-xs', {
+                  'outline-error text-error hover:bg-error focus:bg-error':
+                    isFollowing,
+                })}
+              />
+            </div>
+
+            <Stats userId={query.data.id} count={query.data._count} />
           </div>
-
-          <Stats count={query.data._count} />
+          <div className='absolute z-10 h-1/4 w-full'>
+            <div className='h-full'></div>
+            <p className=''>TODO ADD USERS POSTS</p>
+          </div>
         </div>
       </div>
     )
