@@ -104,4 +104,38 @@ export class UserService {
       } else throw e
     }
   }
+
+  async getFollowers(userId: number) {
+    return (
+      await this.prismaService.followers.findMany({
+        where: { userId },
+        select: {
+          follower: {
+            select: {
+              username: true,
+              avatar: true,
+              id: true,
+            },
+          },
+        },
+      })
+    ).map((f) => f.follower)
+  }
+
+  async getFollowing(userId: number) {
+    return (
+      await this.prismaService.followers.findMany({
+        where: { followerId: userId },
+        select: {
+          user: {
+            select: {
+              username: true,
+              avatar: true,
+              id: true,
+            },
+          },
+        },
+      })
+    ).map((f) => f.user)
+  }
 }

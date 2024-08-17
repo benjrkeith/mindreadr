@@ -78,4 +78,14 @@ export class UserController {
   ) {
     return await this.userService.unFollowUser(userId, targetId)
   }
+
+  @Get(':id/followers')
+  async getFollowers(@Param('id', ParseIntPipe) id: number) {
+    return await this.userService.getFollowers(id)
+  }
+
+  @Get(':id/following')
+  async getFollowing(@Param('id', ParseIntPipe) id: number) {
+    return await this.userService.getFollowing(id)
+  }
 }
