@@ -6,7 +6,7 @@ export function BackButton({ callback }: BackButtonProps) {
   if (!callback) return <></>
 
   return (
-    <div className='flex pl-4'>
+    <div className='flex pl-3'>
       <button
         type='button'
         onClick={callback}

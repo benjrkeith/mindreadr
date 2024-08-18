@@ -6,10 +6,13 @@ import { Button, cls } from 'src/common'
 import { Avatar } from 'src/common/components/Avatar'
 import { getUser, toggleFollowUser } from 'src/users/api'
 import { Stats } from 'src/users/components/Stats'
+import { UploadAvatar } from 'src/users/components/UploadAvatar'
 
 export function Profile() {
   const { username } = useParams() as { username: string }
   const { user } = useAuth()
+
+  const isOwnProfile = user.username === username
 
   // query for users information
   const query = useQuery({
@@ -40,7 +43,10 @@ export function Profile() {
 
     return (
       <div className='flex grow flex-col overflow-y-scroll'>
+        {isOwnProfile && <UploadAvatar />}
+
         <Avatar user={query.data} sx='text-[6rem] size-[100vw]' />
+
         <div className='relative flex flex-col'>
           <div
             className='z-30 mx-auto flex w-3/4 -translate-y-3/4 flex-col 
