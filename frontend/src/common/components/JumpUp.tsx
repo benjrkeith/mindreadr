@@ -4,7 +4,7 @@ interface JumpUpProps {
 
 export function JumpUp({ callback }: JumpUpProps) {
   return (
-    <div className='relative top-6 h-0 w-full text-center'>
+    <div className='relative top-6 z-20 h-0 w-full text-center'>
       <button
         onClick={() => callback('smooth')}
         className='size-10 rounded-full bg-dark_bg_1dp text-4xl font-bold 
