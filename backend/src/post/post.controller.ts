@@ -29,11 +29,11 @@ export class PostController {
   @Get()
   async getPosts(
     @GetUser('id') userId: number,
-    @Query('author', new ParseIntPipe({ optional: true })) authorId: number,
+    @Query('author') author: string,
     @Query('following', new DefaultValuePipe(false), ParseBoolPipe)
     onlyFollowing: boolean,
   ) {
-    return await this.postService.getPosts(userId, onlyFollowing, authorId)
+    return await this.postService.getPosts(userId, onlyFollowing, author)
   }
 
   @Get(':postId')

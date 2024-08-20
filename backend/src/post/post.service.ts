@@ -7,23 +7,29 @@ import { PrismaService } from 'src/prisma/prisma.service'
 export class PostService {
   constructor(private prisma: PrismaService) {}
 
-  async getPosts(userId: number, onlyFollowing: boolean, authorId?: number) {
-    let authorIds = []
-    if (authorId) {
-      authorIds = [authorId]
+  async getPosts(userId: number, onlyFollowing: boolean, author?: string) {
+    let authors = []
+    if (author) {
+      authors = [author]
     } else if (onlyFollowing) {
       const following = await this.prisma.user
         .findUnique({
           where: { id: userId },
         })
-        .following({ select: { userId: true } })
+        .following({
+          select: {
+            user: { select: { username: true } },
+          },
+        })
 
-      authorIds = following.map((user) => user.userId)
+      authors = following.map((u) => u.user.username)
     }
 
     return await this.prisma.post.findMany({
       where: {
-        ...(authorIds.length > 0 ? { authorId: { in: authorIds } } : {}),
+        ...(authors.length > 0
+          ? { author: { username: { in: authors } } }
+          : {}),
       },
       include: {
         likes: { where: { userId: userId } },
@@ -40,6 +46,7 @@ export class PostService {
         },
       },
       omit: { authorId: true },
+      orderBy: { createdAt: 'asc' },
     })
   }
 
