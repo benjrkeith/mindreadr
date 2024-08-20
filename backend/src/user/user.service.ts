@@ -50,7 +50,7 @@ export class UserService {
 
     await this.prismaService.user.update({
       where: { username },
-      data: { avatar: res.url },
+      data: { avatar: res.url + '?' + new Date().getTime() },
     })
 
     return res
