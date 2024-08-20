@@ -7,7 +7,13 @@ import { PrismaService } from 'src/prisma/prisma.service'
 export class PostService {
   constructor(private prisma: PrismaService) {}
 
-  async getPosts(userId: number, onlyFollowing: boolean, author?: string) {
+  async getPosts(
+    userId: number,
+    onlyFollowing: boolean,
+    skip: number,
+    take: number,
+    author?: string,
+  ) {
     let authors = []
     if (author) {
       authors = [author]
@@ -47,6 +53,8 @@ export class PostService {
       },
       omit: { authorId: true },
       orderBy: { createdAt: 'asc' },
+      skip,
+      take,
     })
   }
 
