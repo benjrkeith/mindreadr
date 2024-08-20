@@ -61,7 +61,7 @@ export function Chat() {
           //   { text: 'Delete Chat', callback: () => {} },
           // ]}
         />
-        <InfiniteScroll infQuery={msgQuery} InnerComponent={Message} />
+        <InfiniteScroll reverse infQuery={msgQuery} InnerComponent={Message} />
         <NewMessage chatId={chatQuery.data.id} />
       </div>
     )

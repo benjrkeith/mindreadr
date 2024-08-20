@@ -52,7 +52,7 @@ export class PostService {
         },
       },
       omit: { authorId: true },
-      orderBy: { createdAt: 'asc' },
+      orderBy: { createdAt: 'desc' },
       skip,
       take,
     })

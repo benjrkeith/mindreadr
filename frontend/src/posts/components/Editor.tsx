@@ -5,7 +5,7 @@ import { cls, getAllUsernames } from 'src/common'
 import { RESOLVED_TAG_RE, getTags } from 'src/posts/methods'
 
 interface EditorProps {
-  sx: string
+  sx?: string
   placeholder: string
   content: string
   setContent: (content: string) => void

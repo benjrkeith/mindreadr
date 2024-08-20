@@ -9,7 +9,7 @@ export function NavBar() {
     >
       {/* <NavButton page='/notifications' icon={icons.notifications} /> */}
       {/* <NavButton page='/trending' icon={icons.trending} /> */}
-      {/* <NavButton page='/home' icon={icons.home} /> */}
+      <NavButton page='/posts' icon={icons.home} />
       <NavButton page='/chats' icon={icons.chats} />
       <NavButton page='/users' icon={icons.users} />
     </div>
