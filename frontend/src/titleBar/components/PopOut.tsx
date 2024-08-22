@@ -15,7 +15,7 @@ export function PopOut({ actions, toggle, isHidden }: PopOutProps) {
       className={cls(
         `absolute right-0 m-1 flex flex-col rounded-md 
         bg-dark_bg_1dp p-2 shadow-[0px_0px_12px] shadow-black/50 
-        transition-all duration-700 ease-out`,
+        transition-all duration-100 ease-out`,
         {
           'pointer-events-none opacity-0': isHidden,
         },

@@ -1,23 +1,26 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import { useAuth } from 'src/auth'
-import { Avatar, getDateString } from 'src/common'
+import { Avatar, cls, getDateString } from 'src/common'
 import { PostResponse, toggleLike } from 'src/posts/api'
 import { assets } from 'src/posts/assets'
 import { Interaction } from 'src/posts/components/Interaction'
+import { UNRESOLVED_TAG_RE } from 'src/posts/methods'
 
 interface PostProps {
   data: PostResponse
+  sx?: string
 }
 
-export function Post({ data }: PostProps) {
+export function Post({ data, sx }: PostProps) {
   const { likes, comments } = data._count
   const date = new Date(data.createdAt)
 
   const { user } = useAuth()
-  const queryClient = useQueryClient()
+  const navigate = useNavigate()
 
+  const queryClient = useQueryClient()
   const likeMutation = useMutation({
     mutationFn: () => toggleLike(data.id, isLiked),
     onSuccess: () => {
@@ -29,8 +32,11 @@ export function Post({ data }: PostProps) {
 
   return (
     <div
-      className='z-10 m-2 my-1 flex flex-col gap-1 rounded-lg bg-dark_bg_1dp
-      shadow-[0px_0px_20px] shadow-black/20'
+      className={cls(
+        `z-10 m-2 flex flex-col gap-1 rounded-lg bg-dark_bg_1dp
+      shadow-[0px_0px_20px] shadow-black/20`,
+        sx,
+      )}
     >
       <div className='flex gap-2 p-2'>
         <Avatar user={data.author} sx='size-12 rounded-full' />
@@ -49,19 +55,22 @@ export function Post({ data }: PostProps) {
             </span>
           </div>
 
-          <p className='text-xs'>
+          <p className='text-sm'>
             {data.content.split(' ').map((word) => {
-              if (word.startsWith('@'))
+              if (word.startsWith('@')) {
+                let username = word.replaceAll('\u200b', '')
+                const match = username.match(UNRESOLVED_TAG_RE)
+                if (match) username = match[0].replace('@', '')
                 return (
                   <Link
                     key={word}
-                    to={`/users/${word.substring(1).replaceAll('\u200b', '')}`}
+                    to={`/users/${username}`}
                     className='text-primary_base hover:text-primary_darker'
                   >
                     {word}{' '}
                   </Link>
                 )
-              else return word + ' '
+              } else return word + ' '
             })}
           </p>
         </div>
@@ -78,7 +87,7 @@ export function Post({ data }: PostProps) {
           img={assets.share}
           count={comments}
           selected={data.comments.length > 0}
-          callback={() => {}}
+          callback={() => navigate(`/posts/${data.id}`)}
         />
       </div>
     </div>

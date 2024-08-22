@@ -1,9 +1,16 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import { Navigate, useParams } from 'react-router-dom'
 
 import { useAuth } from 'src/auth'
-import { Button, cls } from 'src/common'
+import { Button, cls, InfiniteScroll } from 'src/common'
 import { Avatar } from 'src/common/components/Avatar'
+import { getPosts } from 'src/posts/api'
+import { Post } from 'src/posts/components/Post'
 import { getUser, toggleFollowUser } from 'src/users/api'
 import { Stats } from 'src/users/components/Stats'
 import { UploadAvatar } from 'src/users/components/UploadAvatar'
@@ -20,18 +27,32 @@ export function Profile() {
     queryFn: () => getUser(username),
   })
 
+  // invalidation doesn't seem very clean but it works for now
   const queryClient = useQueryClient()
   const mutation = useMutation({
     mutationFn: toggleFollowUser,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users', username] })
+      queryClient.invalidateQueries({ queryKey: ['users', user.username] })
       queryClient.invalidateQueries({
         queryKey: ['users', query.data?.id, 'followers'],
       })
       queryClient.invalidateQueries({
-        queryKey: ['users', query.data?.id, 'following'],
+        queryKey: ['users', user.id, 'following'],
       })
     },
+  })
+
+  // infinite query for getting posts
+  const postQuery = useInfiniteQuery({
+    queryKey: ['posts', username],
+    queryFn: ({ pageParam }) => getPosts(pageParam, 8, username),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, _pages, lastPageParam) =>
+      lastPage.length !== 8 ? undefined : lastPageParam + 8,
+    select: (data) => ({
+      pages: [...data.pages],
+    }),
   })
 
   if (query.isLoading) return <div>Loading...</div>
@@ -43,9 +64,13 @@ export function Profile() {
 
     return (
       <div className='flex grow flex-col overflow-y-scroll'>
-        {isOwnProfile && <UploadAvatar />}
-
-        <Avatar user={query.data} sx='text-[6rem] size-[100vw]' />
+        <div className='grid grid-cols-1 grid-rows-1'>
+          {isOwnProfile && <UploadAvatar />}
+          <Avatar
+            user={query.data}
+            sx='text-[6rem] size-[100vw] col-[1/1] row-[1/1]'
+          />
+        </div>
 
         <div className='relative flex flex-col'>
           <div
@@ -77,7 +102,7 @@ export function Profile() {
           </div>
           <div className='absolute z-10 h-1/4 w-full'>
             <div className='h-full'></div>
-            <p className=''>TODO ADD USERS POSTS</p>
+            <InfiniteScroll infQuery={postQuery} InnerComponent={Post} />
           </div>
         </div>
       </div>

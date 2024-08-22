@@ -101,7 +101,7 @@ export function InfiniteScroll({
 
         <div
           ref={divRef}
-          className='mt-auto flex flex-col overflow-y-scroll py-1'
+          className='mt-auto flex flex-col overflow-y-scroll'
           onScroll={_.throttle(handleScroll, 250)}
         >
           {pages.map((data) => (

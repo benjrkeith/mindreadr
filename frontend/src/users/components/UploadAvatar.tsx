@@ -28,10 +28,10 @@ export function UploadAvatar() {
   }
 
   return (
-    <div className='absolute w-full'>
+    <div className='col-[1/1] row-[1/1] w-full'>
       <label
         className='m-2 ml-auto block w-fit rounded-lg bg-dark_bg_base 
-        opacity-70 hover:opacity-100'
+        opacity-70 hover:opacity-95'
       >
         <input
           type='file'
