@@ -8,7 +8,7 @@ import { PrismaModule } from 'src/prisma/prisma.module'
 import { UserModule } from 'src/user/user.module'
 import { ChatModule } from 'src/chat/chat.module'
 import { NotificationModule } from 'src/notification/notification.module'
-import { S3Module } from './S3/S3.module'
+import { S3Module } from 'src/S3/S3.module'
 
 @Module({
   imports: [

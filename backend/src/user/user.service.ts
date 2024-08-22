@@ -1,8 +1,13 @@
-import { Injectable } from '@nestjs/common'
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common'
 
 import { EditUserDto } from 'src/user/dto'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { S3Service } from 'src/S3/S3.service'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 
 @Injectable()
 export class UserService {
@@ -17,11 +22,12 @@ export class UserService {
     })
   }
 
-  getUser(username: string) {
+  getUser(userId: number, username: string) {
     return this.prismaService.user.findUnique({
       where: { username },
       omit: { password: true },
       include: {
+        followers: { where: { followerId: userId } },
         _count: {
           select: { followers: true, following: true, posts: true },
         },
@@ -33,6 +39,7 @@ export class UserService {
     const user = await this.prismaService.user.update({
       where: { id: userId },
       data: dto,
+      omit: { password: true },
     })
 
     return user
@@ -43,7 +50,7 @@ export class UserService {
 
     await this.prismaService.user.update({
       where: { username },
-      data: { avatar: res.url },
+      data: { avatar: res.url + '?' + new Date().getTime() },
     })
 
     return res
@@ -58,5 +65,77 @@ export class UserService {
     })
 
     return res
+  }
+
+  async followUser(userId: number, targetId: number) {
+    try {
+      return await this.prismaService.followers.create({
+        data: {
+          user: { connect: { id: targetId } },
+          follower: { connect: { id: userId } },
+        },
+      })
+    } catch (e) {
+      if (e instanceof PrismaClientKnownRequestError) {
+        if (e.code === 'P2002') {
+          throw new ConflictException('You are already following this user')
+        } else if (e.code === 'P2025') {
+          throw new NotFoundException('That user does not exist')
+        }
+      } else throw e
+    }
+  }
+
+  async unFollowUser(userId: number, targetId: number) {
+    try {
+      await this.prismaService.followers.delete({
+        where: {
+          userId_followerId: {
+            userId: targetId,
+            followerId: userId,
+          },
+        },
+      })
+    } catch (e) {
+      if (e instanceof PrismaClientKnownRequestError) {
+        if (e.code === 'P2025') {
+          throw new NotFoundException('You are not following this user')
+        }
+      } else throw e
+    }
+  }
+
+  async getFollowers(userId: number) {
+    return (
+      await this.prismaService.followers.findMany({
+        where: { userId },
+        select: {
+          follower: {
+            select: {
+              username: true,
+              avatar: true,
+              id: true,
+            },
+          },
+        },
+      })
+    ).map((f) => f.follower)
+  }
+
+  async getFollowing(userId: number) {
+    return (
+      await this.prismaService.followers.findMany({
+        where: { followerId: userId },
+        select: {
+          user: {
+            select: {
+              username: true,
+              avatar: true,
+              id: true,
+            },
+          },
+        },
+      })
+    ).map((f) => f.user)
   }
 }

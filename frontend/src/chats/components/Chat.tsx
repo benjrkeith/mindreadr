@@ -7,6 +7,7 @@ import { useEffect } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 
 import { getChat, getMessages } from 'src/chats/api'
+import { Message } from 'src/chats/components/Message'
 import { NewMessage } from 'src/chats/components/NewMessage'
 import { useChatId } from 'src/chats/hooks'
 import { InfiniteScroll } from 'src/common'
@@ -60,7 +61,7 @@ export function Chat() {
           //   { text: 'Delete Chat', callback: () => {} },
           // ]}
         />
-        <InfiniteScroll infQuery={msgQuery} />
+        <InfiniteScroll reverse infQuery={msgQuery} InnerComponent={Message} />
         <NewMessage chatId={chatQuery.data.id} />
       </div>
     )

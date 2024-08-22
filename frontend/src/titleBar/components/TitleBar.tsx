@@ -40,7 +40,7 @@ export function TitleBar(props: TitleBarProps) {
   }, [ref, popoutIsHidden])
 
   return (
-    <div ref={ref} className='z-10 flex flex-col'>
+    <div ref={ref} className='z-50 flex flex-col'>
       <div
         className='z-10 flex bg-dark_bg_1dp 
       shadow-[0px_6px_10px] shadow-black/30'

@@ -1,4 +1,7 @@
 export * from 'src/common/types/Chat'
 export * from 'src/common/types/ChatMember'
+export * from 'src/common/types/Comment'
+export * from 'src/common/types/Like'
 export * from 'src/common/types/Message'
+export * from 'src/common/types/Post'
 export * from 'src/common/types/User'

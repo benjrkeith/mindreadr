@@ -13,11 +13,11 @@ export function PopOut({ actions, toggle, isHidden }: PopOutProps) {
   return (
     <div
       className={cls(
-        `absolute right-0 z-0 m-1 flex flex-col rounded-md 
+        `absolute right-0 m-1 flex flex-col rounded-md 
         bg-dark_bg_1dp p-2 shadow-[0px_0px_12px] shadow-black/50 
         transition-all duration-100 ease-out`,
         {
-          'opacity-0': isHidden,
+          'pointer-events-none opacity-0': isHidden,
         },
       )}
     >
@@ -25,6 +25,7 @@ export function PopOut({ actions, toggle, isHidden }: PopOutProps) {
         <button
           key={action.text}
           onClick={() => {
+            if (isHidden) return
             toggle()
             action.callback()
           }}

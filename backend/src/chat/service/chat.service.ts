@@ -28,6 +28,7 @@ export class ChatService {
               select: {
                 id: true,
                 username: true,
+                avatar: true,
               },
             },
             isRead: true,

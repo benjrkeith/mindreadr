@@ -25,7 +25,7 @@ export class NotificationService {
 
   pushNotification(notification: Notification) {
     const dest = this.users.get(notification.userId)
-    console.log(dest)
+
     if (dest !== undefined) {
       dest.next({ data: notification })
     }

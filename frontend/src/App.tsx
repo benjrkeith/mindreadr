@@ -6,7 +6,8 @@ import { Wrapper as AuthWrapper, LogIn, Protected, Register } from 'src/auth'
 import { Chat, Chats, NewChat } from 'src/chats'
 import { emptyUser, types, userCtx } from 'src/common'
 import { WithNav } from 'src/navBar'
-import { Profile } from 'src/users'
+import { DetailedPost, Feed, NewPost } from 'src/posts'
+import { FollowerList, FollowingList, Profile } from 'src/users'
 
 import 'src/App.css'
 
@@ -33,6 +34,15 @@ export function App() {
               <Route path='register' element={<Register />} />
             </Route>
 
+            <Route path='posts' element={<Protected />}>
+              <Route element={<WithNav />}>
+                <Route index element={<Feed />} />
+              </Route>
+
+              <Route path='new' element={<NewPost />} />
+              <Route path=':id' element={<DetailedPost />} />
+            </Route>
+
             <Route path='chats' element={<Protected />}>
               <Route element={<WithNav />}>
                 <Route index element={<Chats />} />
@@ -50,6 +60,9 @@ export function App() {
                 />
                 <Route path=':username' element={<Profile />} />
               </Route>
+
+              <Route path=':id/followers' element={<FollowerList />} />
+              <Route path=':id/following' element={<FollowingList />} />
             </Route>
           </Routes>
         </BrowserRouter>

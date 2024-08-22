@@ -1,8 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   UploadedFile,
@@ -28,8 +32,11 @@ export class UserController {
   }
 
   @Get(':username')
-  async getUser(@Param('username') username: string) {
-    return await this.userService.getUser(username)
+  async getUser(
+    @GetUser('id') userId: number,
+    @Param('username') username: string,
+  ) {
+    return await this.userService.getUser(userId, username)
   }
 
   @Patch()
@@ -53,5 +60,32 @@ export class UserController {
     @GetUser() user: User,
   ) {
     return await this.userService.uploadCover(file, user.username)
+  }
+
+  @Post(':targetId/followers')
+  async followUser(
+    @GetUser('id') userId: number,
+    @Param('targetId', ParseIntPipe) targetId: number,
+  ) {
+    return await this.userService.followUser(userId, targetId)
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete(':targetId/followers')
+  async unfollowUser(
+    @GetUser('id') userId: number,
+    @Param('targetId', ParseIntPipe) targetId: number,
+  ) {
+    return await this.userService.unFollowUser(userId, targetId)
+  }
+
+  @Get(':id/followers')
+  async getFollowers(@Param('id', ParseIntPipe) id: number) {
+    return await this.userService.getFollowers(id)
+  }
+
+  @Get(':id/following')
+  async getFollowing(@Param('id', ParseIntPipe) id: number) {
+    return await this.userService.getFollowing(id)
   }
 }

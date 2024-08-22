@@ -19,6 +19,7 @@ export class S3Service {
   async upload(file: Express.Multer.File, name: string) {
     const avatar = name.includes('avatar')
     const converted = await sharp(file.buffer)
+      .rotate()
       .resize(avatar ? 512 : 1024, 512)
       .png()
       .toBuffer()

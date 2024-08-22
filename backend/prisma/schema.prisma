@@ -32,8 +32,8 @@ model User {
   chats    ChatMember[]
   messages Message[]
 
-  followers Followers[] @relation(name: "Followers")
-  following Followers[] @relation(name: "Following")
+  followers Followers[] @relation(name: "Following")
+  following Followers[] @relation(name: "Followers")
 
   notifications     Notification[]
   sentNotifications Notification[] @relation(name: "Sender")
