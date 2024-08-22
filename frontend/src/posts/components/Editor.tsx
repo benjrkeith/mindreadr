@@ -91,6 +91,7 @@ export function Editor({ sx, placeholder, content, setContent }: EditorProps) {
         break
       }
       // intentional fall through, but only prevent default if there is a tag
+      // @ts-ignore
       case 'Tab':
         if (tags === undefined) return
       case 'Enter': {
